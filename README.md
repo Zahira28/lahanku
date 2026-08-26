@@ -5,6 +5,6 @@ Aplikasi ini membantu penggiat urban farming dan kebun skala rumah tangga berada
 lahan (CRUD) dan data satelit cuaca secara real-time. 
 
 **KELOMPOK TRIO**
-* **Ketua Kelompok:** Aulia Nur Fajri Tri Anggoro - 24/535054/TK/59327
+* **Ketua Kelompok:** Aulia Nur Fajri Tri Anggoro
 * **Anggota 1:** Zahira Anindya Putri - 24/543202/TK/60347
-* **Anggota 2:** Josiah Hermes - 24/543958/TK/60463
+* **Anggota 2:** Josiah Hermes
