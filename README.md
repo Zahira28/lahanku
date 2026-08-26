@@ -6,5 +6,5 @@ lahan (CRUD) dan data satelit cuaca secara real-time.
 
 **KELOMPOK TRIO**
 * **Ketua Kelompok:** Aulia Nur Fajri Tri Anggoro
-* **Anggota 1:** Zahira Anindya Putri
+* **Anggota 1:** Zahira Anindya Putri - 24/543202/TK/60347
 * **Anggota 2:** Josiah Hermes
