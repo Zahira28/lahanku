@@ -1,0 +1,20 @@
+<Application x:Class="Lahanku.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Lahanku.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Colors.xaml" />
+                <ResourceDictionary Source="/Styles/Icons.xaml" />
+                <ResourceDictionary Source="/Styles/ControlStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Global Value Converters -->
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
