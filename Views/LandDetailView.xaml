@@ -1,0 +1,326 @@
+<UserControl x:Class="Lahanku.Views.LandDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1100">
+
+    <Grid Background="{StaticResource PageBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <!-- Left Sidebar -->
+            <ColumnDefinition Width="240" />
+            <!-- Main Content Area -->
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= SIDEBAR ================= -->
+        <Border Grid.Column="0"
+                Background="{StaticResource SidebarBackgroundBrush}"
+                BorderBrush="#E2E8F0"
+                BorderThickness="0,0,1,0"
+                Padding="24,28">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Brand Header -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,36">
+                    <Border Width="36"
+                            Height="36"
+                            CornerRadius="10"
+                            Background="{StaticResource AccentEmeraldBrush}"
+                            Margin="0,0,12,0">
+                        <Path Data="{StaticResource LeafPath}"
+                              Fill="#FFFFFF"
+                              Width="18"
+                              Height="18"
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="LahanKu"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Navigation Links -->
+                <StackPanel Grid.Row="1">
+                    <!-- Ringkasan (Returns to Dashboard) -->
+                    <Border Background="#E8F5E9"
+                            CornerRadius="12"
+                            Padding="16,12"
+                            Margin="0,0,0,8"
+                            Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding BackToDashboardCommand}" />
+                        </Border.InputBindings>
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource HomePath}"
+                                  Fill="{StaticResource PrimaryGreenBrush}"
+                                  Width="18"
+                                  Height="18"
+                                  Stretch="Uniform"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,14,0" />
+                            <TextBlock Text="Ringkasan"
+                                       Foreground="{StaticResource PrimaryGreenBrush}"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Pengaturan -->
+                    <Border Background="Transparent"
+                            CornerRadius="12"
+                            Padding="16,12"
+                            Margin="0,0,0,8"
+                            Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource SettingsPath}"
+                                  Fill="{StaticResource TextSecondaryBrush}"
+                                  Width="18"
+                                  Height="18"
+                                  Stretch="Uniform"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,14,0" />
+                            <TextBlock Text="Pengaturan"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       FontWeight="Medium"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="40,32">
+            <StackPanel>
+                <!-- Back Button + Header Info -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Back Button -->
+                    <Button Grid.Column="0"
+                            Command="{Binding BackToDashboardCommand}"
+                            ToolTip="Kembali ke Ringkasan"
+                            Background="#FFFFFF"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            Width="42" Height="42"
+                            Cursor="Hand"
+                            Margin="0,6,18,0"
+                            VerticalAlignment="Top">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="btnBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="21">
+                                    <Path Data="{StaticResource ArrowLeftPath}"
+                                          Fill="{StaticResource TextSecondaryBrush}"
+                                          Width="16" Height="16"
+                                          Stretch="Uniform"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="btnBorder" Property="Background" Value="#F1F5F9" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Titles -->
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="LAHANKU • DETAIL &amp; OPERASIONAL LAHAN"
+                                   Foreground="{StaticResource AccentEmeraldBrush}"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,4" />
+
+                        <TextBlock Text="{Binding Land.Name, StringFormat='Detail {0}'}"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,4" />
+
+                        <TextBlock Text="{Binding Land.SubtitleText}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="13.5" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Sub-header Row: Tabs & "+ Siram Lahan" Button -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Tabs -->
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Bottom">
+                        <!-- Penyiraman Tab (Active) -->
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Penyiraman"
+                                       Foreground="{StaticResource PrimaryGreenBrush}"
+                                       FontWeight="Bold"
+                                       FontSize="15"
+                                       Margin="0,0,0,8" />
+                            <Border Height="3"
+                                    Background="{StaticResource PrimaryGreenBrush}"
+                                    CornerRadius="1.5" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- + Siram Lahan Button -->
+                    <Button Grid.Column="1"
+                            Command="{Binding OpenAddIrrigationModalCommand}"
+                            Style="{StaticResource EmeraldButtonStyle}"
+                            Height="44"
+                            Padding="22,0"
+                            VerticalAlignment="Center"
+                            Effect="{StaticResource ButtonShadow}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource PlusPath}"
+                                  Fill="#FFFFFF"
+                                  Width="14"
+                                  Height="14"
+                                  Stretch="Uniform"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,8,0" />
+                            <TextBlock Text="Siram Lahan"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- Table Card -->
+                <Border Background="{StaticResource CardBackgroundBrush}"
+                        CornerRadius="16"
+                        BorderBrush="#F1F5F9"
+                        BorderThickness="1"
+                        Padding="24,18"
+                        Effect="{StaticResource CardShadow}">
+                    <StackPanel>
+                        <!-- Table Column Headers -->
+                        <Grid Margin="12,8,12,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="TANGGAL &amp; WAKTU"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold" />
+
+                            <TextBlock Grid.Column="1"
+                                       Text="VOLUME AIR"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold" />
+
+                            <TextBlock Grid.Column="2"
+                                       Text="CATATAN"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold" />
+                        </Grid>
+
+                        <!-- Divider Line -->
+                        <Border Height="1" Background="#F1F5F9" Margin="0,0,0,6" />
+
+                        <!-- Rows (Empty State if no logs) -->
+                        <TextBlock Text="Belum ada riwayat penyiraman untuk lahan ini. Klik '+ Siram Lahan' untuk mencatat."
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   FontSize="13.5"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,24">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasLogs}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <!-- Items List -->
+                        <ItemsControl ItemsSource="{Binding IrrigationLogs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#F8FAFC"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="12,16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220" />
+                                                <ColumnDefinition Width="160" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Tanggal & Waktu -->
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding FormattedDate}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       FontSize="14"
+                                                       FontWeight="Bold"
+                                                       VerticalAlignment="Center" />
+
+                                            <!-- Volume Air Badge -->
+                                            <Border Grid.Column="1"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{StaticResource MintBgBrush}"
+                                                    CornerRadius="8"
+                                                    Padding="12,5"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FormattedVolume}"
+                                                           Foreground="{StaticResource MintTextBrush}"
+                                                           FontSize="12.5"
+                                                           FontWeight="SemiBold" />
+                                            </Border>
+
+                                            <!-- Catatan -->
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding Notes}"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="13.5"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

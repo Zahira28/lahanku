@@ -1,0 +1,300 @@
+<UserControl x:Class="Lahanku.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:helpers="clr-namespace:Lahanku.Helpers"
+             xmlns:converters="clr-namespace:Lahanku.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="760" d:DesignWidth="1100">
+
+    <Grid Background="{StaticResource PageBackgroundBrush}">
+        <!-- Subtle Decorative Background Circles matching Mockup 1 -->
+        <Canvas IsHitTestVisible="False">
+            <!-- Top Left Soft Mint Circle -->
+            <Ellipse Width="360" Height="360"
+                     Fill="#D1FAE5"
+                     Opacity="0.45"
+                     Canvas.Left="-100"
+                     Canvas.Top="-100" />
+
+            <!-- Bottom Right Soft Gray/Green Circle -->
+            <Ellipse Width="420" Height="420"
+                     Fill="#E2E8F0"
+                     Opacity="0.4"
+                     Canvas.Right="-120"
+                     Canvas.Bottom="-120" />
+        </Canvas>
+
+        <!-- Centered Card Container -->
+        <Border Background="{StaticResource CardBackgroundBrush}"
+                CornerRadius="24"
+                Padding="40,36"
+                Width="440"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Effect="{StaticResource CardShadow}">
+
+            <StackPanel>
+                <!-- Circular Logo Emblem -->
+                <Border Width="80"
+                        Height="80"
+                        CornerRadius="40"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,24">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#235D43" Offset="0" />
+                            <GradientStop Color="#153A2A" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Path Data="{StaticResource LogoPlantPath}"
+                          Fill="#E2F2E9"
+                          Width="44"
+                          Height="44"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+                </Border>
+
+                <!-- Titles -->
+                <TextBlock Text="Selamat Datang Kembali!"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,6" />
+
+                <TextBlock Text="Masuk ke akun Anda untuk mengelola lahan pertanian"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           FontSize="13"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,28" />
+
+                <!-- Username Field -->
+                <TextBlock Text="Username"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8" />
+                <Border Background="{StaticResource InputBackgroundBrush}"
+                        BorderBrush="{StaticResource InputBorderBrush}"
+                        BorderThickness="1.2"
+                        CornerRadius="22"
+                        Height="46"
+                        Padding="16,0"
+                        Margin="0,0,0,18">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Path Grid.Column="0"
+                              Data="{StaticResource UserPath}"
+                              Fill="{StaticResource TextSecondaryBrush}"
+                              Width="15"
+                              Height="15"
+                              Stretch="Uniform"
+                              VerticalAlignment="Center" />
+
+                        <!-- Placeholder -->
+                        <TextBlock Grid.Column="1"
+                                   Text="Masukkan username Anda"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   FontSize="13.5"
+                                   Margin="8,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=UsernameBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Text, ElementName=UsernameBox}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBox x:Name="UsernameBox"
+                                 Grid.Column="1"
+                                 Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 FontSize="13.5"
+                                 Foreground="{StaticResource TextPrimaryBrush}"
+                                 Margin="8,0,0,0"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Password Field -->
+                <TextBlock Text="Password"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8" />
+                <Border Background="{StaticResource InputBackgroundBrush}"
+                        BorderBrush="{StaticResource InputBorderBrush}"
+                        BorderThickness="1.2"
+                        CornerRadius="22"
+                        Height="46"
+                        Padding="16,0"
+                        Margin="0,0,0,24">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="30" />
+                        </Grid.ColumnDefinitions>
+
+                        <Path Grid.Column="0"
+                              Data="{StaticResource LockPath}"
+                              Fill="{StaticResource TextSecondaryBrush}"
+                              Width="15"
+                              Height="15"
+                              Stretch="Uniform"
+                              VerticalAlignment="Center" />
+
+                        <!-- Password Masked / Visible -->
+                        <!-- If password hidden -->
+                        <Grid Grid.Column="1" Margin="8,0,0,0">
+                            <TextBlock Text="Masukkan password Anda"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontSize="13.5"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Password}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Password}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <!-- PasswordBox (when hidden) -->
+                            <PasswordBox x:Name="PassBox"
+                                         helpers:PasswordBoxHelper.BindPassword="True"
+                                         helpers:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         FontSize="13.5"
+                                         Foreground="{StaticResource TextPrimaryBrush}"
+                                         VerticalAlignment="Center">
+                                <PasswordBox.Style>
+                                    <Style TargetType="PasswordBox">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </PasswordBox.Style>
+                            </PasswordBox>
+
+                            <!-- TextBox (when revealed) -->
+                            <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     FontSize="13.5"
+                                     Foreground="{StaticResource TextPrimaryBrush}"
+                                     VerticalAlignment="Center">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Grid>
+
+                        <!-- Eye Toggle Button -->
+                        <Button Grid.Column="2"
+                                Command="{Binding TogglePasswordVisibilityCommand}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                            <Path Data="{StaticResource EyePath}"
+                                  Fill="{StaticResource TextSecondaryBrush}"
+                                  Width="18"
+                                  Height="18"
+                                  Stretch="Uniform" />
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Error Message -->
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="{StaticResource DangerRedBrush}"
+                           FontSize="12.5"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,16"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Inverse}" />
+
+                <!-- Login Button -->
+                <Button Content="Login"
+                        Command="{Binding LoginAsyncCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="0,0,0,20" />
+
+                <!-- Link to SignUp -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,24">
+                    <TextBlock Text="Belum punya akun? "
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="13" />
+                    <TextBlock Cursor="Hand">
+                        <Hyperlink Command="{Binding NavigateToSignUpCommand}"
+                                   Foreground="{StaticResource AccentEmeraldBrush}"
+                                   FontWeight="Bold"
+                                   TextDecorations="{x:Null}">
+                            SignUp
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Divider Line -->
+                <Border Height="1"
+                        Background="#F1F5F9"
+                        Margin="0,0,0,18" />
+
+                <!-- Footer -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                    <Path Data="{StaticResource LeafPath}"
+                          Fill="{StaticResource PrimaryGreenBrush}"
+                          Width="13"
+                          Height="13"
+                          Stretch="Uniform"
+                          VerticalAlignment="Center"
+                          Margin="0,0,6,0" />
+                    <TextBlock Text="LahanKu Manajemen Pertanian © 2026"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="11.5"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,79 @@
+<UserControl x:Class="Lahanku.Views.Modals.DeleteConfirmModalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignWidth="460">
+
+    <Border Background="{StaticResource CardBackgroundBrush}"
+            CornerRadius="20"
+            Padding="32"
+            Width="440"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Effect="{StaticResource ModalShadow}">
+
+        <StackPanel>
+            <!-- Header with Red Trash Icon -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Circular Red Icon Badge -->
+                <Border Grid.Column="0"
+                        Width="48"
+                        Height="48"
+                        CornerRadius="24"
+                        Background="{StaticResource DangerBgBrush}"
+                        Margin="0,0,16,0"
+                        VerticalAlignment="Top">
+                    <Path Data="{StaticResource TrashPath}"
+                          Fill="{StaticResource DangerRedBrush}"
+                          Width="20"
+                          Height="20"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+                </Border>
+
+                <!-- Titles -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Hapus Lahan?"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Margin="0,0,0,4" />
+
+                    <TextBlock Text="TINDAKAN IRREVERSIBEL"
+                               Foreground="{StaticResource DangerRedBrush}"
+                               FontSize="11"
+                               FontWeight="Bold" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Description -->
+            <TextBlock Text="Apakah Anda yakin ingin menghapus lahan ini? Data penyiraman, dan riwayat yang sudah dihapus tidak dapat dikembalikan lagi."
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       FontSize="13.5"
+                       LineHeight="20"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,28" />
+
+            <!-- Buttons -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Content="Batal"
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource OutlineNeutralButtonStyle}"
+                        Margin="0,0,12,0" />
+
+                <Button Content="Hapus Lahan"
+                        Command="{Binding ConfirmDeleteAsyncCommand}"
+                        Style="{StaticResource DangerButtonStyle}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>
