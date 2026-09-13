@@ -1,0 +1,103 @@
+<UserControl x:Class="Lahanku.Views.Modals.ErrorModalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Lahanku.Converters"
+             mc:Ignorable="d" 
+             d:DesignWidth="460">
+
+    <Border Width="460"
+            Background="#FFFFFF"
+            CornerRadius="20"
+            Padding="32"
+            Effect="{StaticResource ModalShadow}">
+        <StackPanel>
+            <!-- Icon Error / Warning Header -->
+            <Border Width="56" Height="56"
+                    CornerRadius="16"
+                    Background="#FEE2E2"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,18">
+                <Path Data="{StaticResource AlertCirclePath}"
+                      Fill="#DC2626"
+                      Width="28" Height="28"
+                      Stretch="Uniform"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
+            </Border>
+
+            <!-- Judul Error -->
+            <TextBlock Text="{Binding Title}"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       TextAlignment="Center"
+                       Margin="0,0,0,8" />
+
+            <!-- Pesan Error Ramah Pengguna -->
+            <TextBlock Text="{Binding Message}"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       FontSize="14"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       LineHeight="20"
+                       Margin="0,0,0,20" />
+
+            <!-- Detail Teknis (Opsional/Collapsible) -->
+            <StackPanel Visibility="{Binding HasTechnicalDetails, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Margin="0,0,0,20">
+                <Button Command="{Binding ToggleDetailsCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Center"
+                        Cursor="Hand"
+                        Padding="4">
+                    <TextBlock Text="Lihat Detail Teknis ▼"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="12"
+                               TextDecorations="Underline" />
+                </Button>
+
+                <Border Visibility="{Binding IsDetailsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Background="#F8FAFC"
+                        BorderBrush="#E2E8F0"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        Margin="0,8,0,0"
+                        MaxHeight="120">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock Text="{Binding TechnicalDetails}"
+                                   Foreground="#64748B"
+                                   FontSize="11"
+                                   FontFamily="Consolas, monospace"
+                                   TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+
+            <!-- Tombol Aksi -->
+            <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="Coba Lagi"
+                        Command="{Binding RetryCommand}"
+                        Visibility="{Binding HasRetryAction, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Style="{StaticResource PrimaryActionButtonStyle}"
+                        Margin="0,0,12,0" />
+
+                <Button Grid.Column="1"
+                        Content="Tutup"
+                        Command="{Binding CloseCommand}"
+                        Style="{StaticResource OutlineNeutralButtonStyle}"
+                        MinWidth="120"
+                        HorizontalAlignment="Right" />
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>
