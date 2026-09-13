@@ -198,9 +198,10 @@
                                        FontSize="12.5"
                                        FontWeight="SemiBold"
                                        TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="Penggiat Urban Farm"
+                            <TextBlock Text="{Binding CurrentUserUsername}"
                                        Foreground="{StaticResource TextMutedBrush}"
-                                       FontSize="10.5" />
+                                       FontSize="10.5"
+                                       TextTrimming="CharacterEllipsis" />
                         </StackPanel>
 
                         <!-- Logout Button -->
@@ -271,8 +272,176 @@
                     </Button>
                 </Grid>
 
-                <!-- 3 Metric Cards in a Row -->
-                <Grid Margin="0,0,0,32">
+
+                <!-- Error Banner with Retry Button -->
+                <Border Background="#FEF2F2"
+                        BorderBrush="#FECACA"
+                        BorderThickness="1.5"
+                        CornerRadius="12"
+                        Padding="16,12"
+                        Margin="0,0,0,20"
+                        Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" CornerRadius="12" Background="#FEE2E2" Margin="0,0,12,0">
+                                <Path Data="{StaticResource AlertCirclePath}"
+                                      Fill="#DC2626"
+                                      Width="14" Height="14"
+                                      Stretch="Uniform"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="{Binding ErrorMessage}"
+                                       Foreground="#991B1B"
+                                       FontSize="13"
+                                       FontWeight="Medium"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Content="Coba Lagi"
+                                Command="{Binding LoadLandsCommand}"
+                                Background="#DC2626"
+                                Foreground="#FFFFFF"
+                                BorderThickness="0"
+                                FontWeight="SemiBold"
+                                FontSize="12"
+                                Padding="14,6"
+                                Cursor="Hand"
+                                VerticalAlignment="Center">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="8" />
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- ================= 3 METRIC CARDS: SKELETON SHIMMER STATE ================= -->
+                <!-- Visible when IsLoading is True -->
+                <Grid Margin="0,0,0,32"
+                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Skeleton Card 1 -->
+                    <Border Grid.Column="0"
+                            Background="{StaticResource CardBackgroundBrush}"
+                            CornerRadius="18"
+                            Padding="22,20"
+                            BorderBrush="#F1F5F9"
+                            BorderThickness="1"
+                            Effect="{StaticResource CardShadow}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,20">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="85" Height="12"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center" />
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="36" Height="36"
+                                        CornerRadius="18"
+                                        HorizontalAlignment="Right" />
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="55" Height="28"
+                                        CornerRadius="6"
+                                        Margin="0,0,10,0" />
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="70" Height="14"
+                                        CornerRadius="4"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,4" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Skeleton Card 2 -->
+                    <Border Grid.Column="2"
+                            Background="{StaticResource CardBackgroundBrush}"
+                            CornerRadius="18"
+                            Padding="22,20"
+                            BorderBrush="#F1F5F9"
+                            BorderThickness="1"
+                            Effect="{StaticResource CardShadow}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,20">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="75" Height="12"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center" />
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="36" Height="36"
+                                        CornerRadius="18"
+                                        HorizontalAlignment="Right" />
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="55" Height="28"
+                                        CornerRadius="6"
+                                        Margin="0,0,10,0" />
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="80" Height="14"
+                                        CornerRadius="4"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,4" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Skeleton Card 3 -->
+                    <Border Grid.Column="4"
+                            Background="{StaticResource CardBackgroundBrush}"
+                            CornerRadius="18"
+                            Padding="22,20"
+                            BorderBrush="#F1F5F9"
+                            BorderThickness="1"
+                            Effect="{StaticResource CardShadow}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,20">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="95" Height="12"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center" />
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="36" Height="36"
+                                        CornerRadius="18"
+                                        HorizontalAlignment="Right" />
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="45" Height="28"
+                                        CornerRadius="6"
+                                        Margin="0,0,10,0" />
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="60" Height="14"
+                                        CornerRadius="4"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,4" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ================= 3 METRIC CARDS: REAL STATE ================= -->
+                <!-- Visible when IsLoading is False -->
+                <Grid Margin="0,0,0,32"
+                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="20" />
@@ -314,11 +483,12 @@
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            FontSize="28"
                                            FontWeight="Bold"
+                                           VerticalAlignment="Bottom"
                                            Margin="0,0,8,0" />
                                 <TextBlock Text="Lahan Aktif"
                                            Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
+                                           FontSize="13.5"
+                                           VerticalAlignment="Bottom"
                                            Margin="0,0,0,4" />
                             </StackPanel>
                         </StackPanel>
@@ -357,11 +527,12 @@
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            FontSize="28"
                                            FontWeight="Bold"
+                                           VerticalAlignment="Bottom"
                                            Margin="0,0,8,0" />
                                 <TextBlock Text="Hektar Total"
                                            Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
+                                           FontSize="13.5"
+                                           VerticalAlignment="Bottom"
                                            Margin="0,0,0,4" />
                             </StackPanel>
                         </StackPanel>
@@ -400,11 +571,12 @@
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            FontSize="28"
                                            FontWeight="Bold"
+                                           VerticalAlignment="Bottom"
                                            Margin="0,0,8,0" />
                                 <TextBlock Text="Varietas"
                                            Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
+                                           FontSize="13.5"
+                                           VerticalAlignment="Bottom"
                                            Margin="0,0,0,4" />
                             </StackPanel>
                         </StackPanel>
@@ -418,8 +590,154 @@
                            FontWeight="SemiBold"
                            Margin="0,0,0,16" />
 
+                <!-- ================= SKELETON STATE: LAND CARDS ================= -->
+                <!-- Visible when IsLoading is True -->
+                <StackPanel Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <!-- Skeleton Land Card 1 -->
+                    <Border Background="{StaticResource CardBackgroundBrush}"
+                            CornerRadius="16"
+                            BorderBrush="#F1F5F9"
+                            BorderThickness="1"
+                            Padding="20,18"
+                            Margin="0,0,0,12"
+                            Effect="{StaticResource CardShadow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource SkeletonBoxStyle}"
+                                    Width="46" Height="46"
+                                    CornerRadius="12"
+                                    Margin="0,0,16,0" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="180" Height="16"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,0,0,8" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="110" Height="12"
+                                            CornerRadius="4"
+                                            Margin="0,0,12,0" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="90" Height="12"
+                                            CornerRadius="4"
+                                            Margin="0,0,12,0" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="75" Height="12"
+                                            CornerRadius="4" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border Grid.Column="2"
+                                    Style="{StaticResource SkeletonBoxStyle}"
+                                    Width="24" Height="24"
+                                    CornerRadius="12"
+                                    VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Skeleton Land Card 2 -->
+                    <Border Background="{StaticResource CardBackgroundBrush}"
+                            CornerRadius="16"
+                            BorderBrush="#F1F5F9"
+                            BorderThickness="1"
+                            Padding="20,18"
+                            Margin="0,0,0,12"
+                            Effect="{StaticResource CardShadow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource SkeletonBoxStyle}"
+                                    Width="46" Height="46"
+                                    CornerRadius="12"
+                                    Margin="0,0,16,0" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="140" Height="16"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,0,0,8" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="120" Height="12"
+                                            CornerRadius="4"
+                                            Margin="0,0,12,0" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="80" Height="12"
+                                            CornerRadius="4" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border Grid.Column="2"
+                                    Style="{StaticResource SkeletonBoxStyle}"
+                                    Width="24" Height="24"
+                                    CornerRadius="12"
+                                    VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Skeleton Land Card 3 -->
+                    <Border Background="{StaticResource CardBackgroundBrush}"
+                            CornerRadius="16"
+                            BorderBrush="#F1F5F9"
+                            BorderThickness="1"
+                            Padding="20,18"
+                            Margin="0,0,0,12"
+                            Effect="{StaticResource CardShadow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource SkeletonBoxStyle}"
+                                    Width="46" Height="46"
+                                    CornerRadius="12"
+                                    Margin="0,0,16,0" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Border Style="{StaticResource SkeletonBoxStyle}"
+                                        Width="210" Height="16"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,0,0,8" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="100" Height="12"
+                                            CornerRadius="4"
+                                            Margin="0,0,12,0" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}"
+                                            Width="95" Height="12"
+                                            CornerRadius="4" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border Grid.Column="2"
+                                    Style="{StaticResource SkeletonBoxStyle}"
+                                    Width="24" Height="24"
+                                    CornerRadius="12"
+                                    VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
                 <!-- ================= STATE 1: EMPTY STATE ================= -->
-                <!-- Visible when HasLands is False -->
+                <!-- Visible when HasLands is False and not loading -->
                 <Border Background="{StaticResource CardBackgroundBrush}"
                         CornerRadius="20"
                         Padding="48,56"
@@ -432,6 +750,9 @@
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasLands}" Value="False">
                                     <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -487,7 +808,7 @@
                 </Border>
 
                 <!-- ================= STATE 2: POPULATED LIST ================= -->
-                <!-- Visible when HasLands is True -->
+                <!-- Visible when HasLands is True and not loading -->
                 <ItemsControl ItemsSource="{Binding Lands}">
                     <ItemsControl.Style>
                         <Style TargetType="ItemsControl">
@@ -495,6 +816,9 @@
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasLands}" Value="True">
                                     <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -577,17 +901,11 @@
                                             Click="KebabButton_Click"
                                             VerticalAlignment="Center">
                                         <Button.ContextMenu>
-                                            <ContextMenu Background="#FFFFFF"
-                                                         BorderBrush="#E2E8F0"
-                                                         BorderThickness="1"
-                                                         Padding="4">
+                                            <ContextMenu Style="{StaticResource ModernContextMenuStyle}">
                                                 <!-- Edit Item -->
                                                 <MenuItem Header="Edit Lahan"
                                                           Click="EditMenuItem_Click"
-                                                          Padding="10,8"
-                                                          FontSize="13.5"
-                                                          FontWeight="Medium"
-                                                          Foreground="{StaticResource TextPrimaryBrush}">
+                                                          Style="{StaticResource ModernMenuItemStyle}">
                                                     <MenuItem.Icon>
                                                         <Path Data="{StaticResource PencilPath}"
                                                               Fill="{StaticResource TextSecondaryBrush}"
@@ -596,15 +914,13 @@
                                                     </MenuItem.Icon>
                                                 </MenuItem>
 
-                                                <!-- Delete Item (Red) -->
+                                                <!-- Subtle Separator -->
+                                                <Separator Background="#F1F5F9" Margin="4,3" Height="1" />
+
+                                                <!-- Delete Item (Red Danger) -->
                                                 <MenuItem Header="Hapus Lahan"
                                                           Click="DeleteMenuItem_Click"
-                                                          Background="{StaticResource DangerBgBrush}"
-                                                          Foreground="{StaticResource DangerRedBrush}"
-                                                          FontWeight="SemiBold"
-                                                          Padding="10,8"
-                                                          FontSize="13.5"
-                                                          Margin="0,2,0,0">
+                                                          Style="{StaticResource ModernDangerMenuItemStyle}">
                                                     <MenuItem.Icon>
                                                         <Path Data="{StaticResource TrashPath}"
                                                               Fill="{StaticResource DangerRedBrush}"

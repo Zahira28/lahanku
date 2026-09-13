@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,18 +14,64 @@ namespace Lahanku.ViewModels
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
         private readonly LandDetailViewModel _detailViewModel;
+        private readonly double? _suggestedVolume;
 
         public Land TargetLand { get; }
-        public string ModalTitle => $"Siram {TargetLand.Name}";
+        public IrrigationLog? ExistingLog { get; }
+        public bool IsEditMode => ExistingLog != null;
+        public string ModalTitle => IsEditMode ? "Edit Catatan Penyiraman" : $"Siram {TargetLand.Name}";
+        public string SubmitButtonText => IsEditMode ? "Simpan Perubahan" : "Simpan";
 
         [ObservableProperty]
         private DateTime _date = DateTime.Now;
 
         [ObservableProperty]
-        private string _volumeLitersText = "250";
+        private string _volumeValueText = string.Empty;
 
         [ObservableProperty]
-        private string _notes = "Penyiraman pagi hari, kondisi tanah agak kering di lereng barat.";
+        private string _selectedVolumeUnit = "Liter (L)";
+
+        public ObservableCollection<string> VolumeUnitOptions { get; } = new()
+        {
+            "Liter (L)",
+            "Mililiter (mL)"
+        };
+
+        public string VolumePlaceholder => SelectedVolumeUnit?.Contains("mL") == true ? "Contoh: 500" : "Contoh: 250";
+
+        public string NotesPlaceholder => "Contoh: Penyiraman rutin pagi hari, kondisi tanah cukup lembap.";
+
+        /// <summary>
+        /// Alias properti untuk kompatibilitas
+        /// </summary>
+        public string VolumeLitersText
+        {
+            get => VolumeValueText;
+            set => VolumeValueText = value;
+        }
+
+        partial void OnSelectedVolumeUnitChanged(string? oldValue, string newValue)
+        {
+            OnPropertyChanged(nameof(VolumePlaceholder));
+            if (!string.IsNullOrWhiteSpace(VolumeValueText) &&
+                double.TryParse(VolumeValueText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double val) &&
+                val > 0 && oldValue != null)
+            {
+                if (oldValue.Contains("Liter") && newValue.Contains("mL"))
+                {
+                    // L -> mL (dikali 1000)
+                    VolumeValueText = (val * 1000.0).ToString("0.##", CultureInfo.InvariantCulture);
+                }
+                else if (oldValue.Contains("mL") && newValue.Contains("Liter"))
+                {
+                    // mL -> L (dibagi 1000)
+                    VolumeValueText = (val / 1000.0).ToString("0.###", CultureInfo.InvariantCulture);
+                }
+            }
+        }
+
+        [ObservableProperty]
+        private string _notes = string.Empty;
 
         [ObservableProperty]
         private string? _errorMessage;
@@ -32,12 +79,56 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSaving;
 
-        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand)
+        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand, double? suggestedVolume = null)
         {
             _main = main;
             _landService = landService;
             _detailViewModel = detailViewModel;
             TargetLand = targetLand;
+            _suggestedVolume = suggestedVolume;
+
+            if (_suggestedVolume.HasValue && _suggestedVolume.Value > 0)
+            {
+                if (_suggestedVolume.Value < 1.0)
+                {
+                    SelectedVolumeUnit = "Mililiter (mL)";
+                    VolumeValueText = (_suggestedVolume.Value * 1000.0).ToString("0.##", CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    SelectedVolumeUnit = "Liter (L)";
+                    VolumeValueText = _suggestedVolume.Value.ToString("0.##", CultureInfo.InvariantCulture);
+                }
+                Notes = "Mengikuti rekomendasi takaran air cerdas.";
+            }
+            else
+            {
+                VolumeValueText = string.Empty;
+                Notes = string.Empty;
+                SelectedVolumeUnit = "Liter (L)";
+            }
+        }
+
+        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand, IrrigationLog existingLog)
+        {
+            _main = main;
+            _landService = landService;
+            _detailViewModel = detailViewModel;
+            TargetLand = targetLand;
+            ExistingLog = existingLog;
+
+            Date = existingLog.Date;
+            if (existingLog.VolumeLiters < 1.0 && existingLog.VolumeLiters > 0)
+            {
+                SelectedVolumeUnit = "Mililiter (mL)";
+                VolumeValueText = (existingLog.VolumeLiters * 1000.0).ToString("0.##", CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                SelectedVolumeUnit = "Liter (L)";
+                VolumeValueText = existingLog.VolumeLiters.ToString("0.##", CultureInfo.InvariantCulture);
+            }
+            Notes = existingLog.Notes ?? string.Empty;
         }
 
         [RelayCommand]
@@ -45,28 +136,53 @@ namespace Lahanku.ViewModels
         {
             ErrorMessage = null;
 
-            if (!double.TryParse(VolumeLitersText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double volume) || volume <= 0)
+            if (string.IsNullOrWhiteSpace(VolumeValueText) || 
+                !double.TryParse(VolumeValueText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double rawVolume) || 
+                rawVolume <= 0)
             {
-                ErrorMessage = "Volume air harus berupa angka positif.";
+                ErrorMessage = "Volume air wajib diisi dengan angka positif.";
                 return;
             }
+
+            double volumeInLiters = SelectedVolumeUnit.Contains("mL") ? (rawVolume / 1000.0) : rawVolume;
 
             IsSaving = true;
             try
             {
-                var newLog = new IrrigationLog
+                if (IsEditMode && ExistingLog != null)
                 {
-                    LandId = TargetLand.Id,
-                    Date = Date,
-                    VolumeLiters = volume,
-                    Notes = Notes?.Trim() ?? string.Empty
-                };
+                    ExistingLog.Date = Date;
+                    ExistingLog.VolumeLiters = volumeInLiters;
+                    ExistingLog.Notes = Notes?.Trim() ?? string.Empty;
 
-                await _landService.AddIrrigationLogAsync(TargetLand.Id, newLog);
-                await _detailViewModel.LoadLogsAsync();
+                    bool success = await _landService.UpdateIrrigationLogAsync(ExistingLog);
+                    if (success)
+                    {
+                        await _detailViewModel.LoadLogsAsync();
+                        _main.CloseModal();
+                        _main.ShowToast("Catatan penyiraman berhasil diperbarui!");
+                    }
+                    else
+                    {
+                        ErrorMessage = "Gagal memperbarui catatan penyiraman. Periksa koneksi Anda.";
+                    }
+                }
+                else
+                {
+                    var newLog = new IrrigationLog
+                    {
+                        LandId = TargetLand.Id,
+                        Date = Date,
+                        VolumeLiters = volumeInLiters,
+                        Notes = Notes?.Trim() ?? string.Empty
+                    };
 
-                _main.CloseModal();
-                _main.ShowToast("Penyiraman berhasil dicatat!");
+                    await _landService.AddIrrigationLogAsync(TargetLand.Id, newLog);
+                    await _detailViewModel.LoadLogsAsync();
+
+                    _main.CloseModal();
+                    _main.ShowToast("Penyiraman berhasil dicatat!");
+                }
             }
             finally
             {

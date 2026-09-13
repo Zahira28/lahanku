@@ -1,4 +1,4 @@
-<UserControl x:Class="Lahanku.Views.Modals.DeleteConfirmModalView"
+<UserControl x:Class="Lahanku.Views.Modals.DeleteIrrigationModalView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -41,9 +41,9 @@
 
                 <!-- Titles -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Hapus Lahan?"
+                    <TextBlock Text="Hapus Catatan Penyiraman?"
                                Foreground="{StaticResource TextPrimaryBrush}"
-                               FontSize="20"
+                               FontSize="18"
                                FontWeight="Bold"
                                Margin="0,0,0,4" />
 
@@ -55,7 +55,7 @@
             </Grid>
 
             <!-- Description -->
-            <TextBlock Text="Apakah Anda yakin ingin menghapus lahan ini? Data penyiraman, dan riwayat yang sudah dihapus tidak dapat dikembalikan lagi."
+            <TextBlock Text="{Binding Description}"
                        Foreground="{StaticResource TextSecondaryBrush}"
                        FontSize="13.5"
                        LineHeight="20"
@@ -70,7 +70,7 @@
                         Style="{StaticResource OutlineNeutralButtonStyle}"
                         Margin="0,0,12,0" />
 
-                <Button Content="Hapus Lahan"
+                <Button Content="Hapus Catatan"
                         Command="{Binding ConfirmDeleteCommand}"
                         Style="{StaticResource DangerButtonStyle}" />
             </StackPanel>

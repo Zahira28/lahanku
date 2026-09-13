@@ -10,26 +10,39 @@ using Lahanku.Services;
 
 namespace Lahanku.ViewModels
 {
+    /// <summary>
+    /// ViewModel Dashboard utama dengan indikator loading, penanganan error, dan banner coba lagi (SRP).
+    /// </summary>
     public partial class DashboardViewModel : ViewModelBase
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
         private readonly IAuthService _authService;
+        private readonly IErrorHandler _errorHandler;
 
         [ObservableProperty]
         private ObservableCollection<Land> _lands = new();
 
         [ObservableProperty]
-        private string _totalLands = "--";
+        private string _totalLands = "0";
 
         [ObservableProperty]
-        private string _totalArea = "--";
+        private string _totalArea = "0";
 
         [ObservableProperty]
-        private string _totalVarieties = "--";
+        private string _totalVarieties = "0";
 
         [ObservableProperty]
         private bool _hasLands;
+
+        [ObservableProperty]
+        private bool _isLoading;
+
+        [ObservableProperty]
+        private bool _hasError;
+
+        [ObservableProperty]
+        private string? _errorMessage;
 
         [ObservableProperty]
         private string _greetingText = "Selamat Siang!";
@@ -40,13 +53,20 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSettingsView;
 
-        public string CurrentUserName => _authService.CurrentUser?.FullName ?? "Petani";
+        public string CurrentUserName => !string.IsNullOrWhiteSpace(_authService.CurrentUser?.FullName)
+            ? _authService.CurrentUser.FullName
+            : (!string.IsNullOrWhiteSpace(_authService.CurrentUser?.Username) ? _authService.CurrentUser.Username : "Petani");
 
-        public DashboardViewModel(MainViewModel main, ILandService landService, IAuthService authService)
+        public string CurrentUserUsername => !string.IsNullOrWhiteSpace(_authService.CurrentUser?.Username)
+            ? $"@{_authService.CurrentUser.Username}"
+            : "@petani";
+
+        public DashboardViewModel(MainViewModel main, ILandService landService, IAuthService authService, IErrorHandler? errorHandler = null)
         {
             _main = main;
             _landService = landService;
             _authService = authService;
+            _errorHandler = errorHandler ?? new ErrorHandler();
 
             UpdateGreeting();
             _ = LoadLandsAsync();
@@ -76,34 +96,52 @@ namespace Lahanku.ViewModels
         [RelayCommand]
         public async Task LoadLandsAsync()
         {
-            var landsList = await _landService.GetLandsAsync();
-            Lands.Clear();
-            foreach (var item in landsList)
+            IsLoading = true;
+            HasError = false;
+            ErrorMessage = null;
+
+            try
             {
-                Lands.Add(item);
+                var currentUserId = _authService.CurrentUser?.Id;
+                var landsList = await _landService.GetLandsAsync(currentUserId);
+                Lands.Clear();
+                foreach (var item in landsList)
+                {
+                    Lands.Add(item);
+                }
+
+                HasLands = Lands.Count > 0;
+
+                if (HasLands)
+                {
+                    TotalLands = Lands.Count.ToString();
+
+                    double totalHa = Lands.Sum(l => l.AreaHectares);
+                    TotalArea = totalHa.ToString("0.##", CultureInfo.InvariantCulture);
+
+                    var distinctCrops = Lands
+                        .SelectMany(l => (l.CropType ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                        .Distinct()
+                        .Count();
+
+                    TotalVarieties = distinctCrops.ToString();
+                }
+                else
+                {
+                    TotalLands = "0";
+                    TotalArea = "0";
+                    TotalVarieties = "0";
+                }
             }
-
-            HasLands = Lands.Count > 0;
-
-            if (HasLands)
+            catch (Exception ex)
             {
-                TotalLands = Lands.Count.ToString("D2");
-
-                double totalHa = Lands.Sum(l => l.AreaHectares);
-                TotalArea = totalHa.ToString("0.0", CultureInfo.InvariantCulture);
-
-                var distinctCrops = Lands
-                    .SelectMany(l => (l.CropType ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-                    .Distinct()
-                    .Count();
-
-                TotalVarieties = distinctCrops.ToString("D2");
+                HasError = true;
+                ErrorMessage = "Gagal memuat data dari Supabase. Silakan periksa koneksi internet Anda.";
+                _errorHandler.HandleError(ex, ErrorMessage);
             }
-            else
+            finally
             {
-                TotalLands = "--";
-                TotalArea = "--";
-                TotalVarieties = "--";
+                IsLoading = false;
             }
         }
 
