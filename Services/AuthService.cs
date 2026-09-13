@@ -1,55 +1,53 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lahanku.Helpers;
 using Lahanku.Models;
 
 namespace Lahanku.Services
 {
+    /// <summary>
+    /// Layanan autentikasi pengguna menggunakan database Supabase (tabel users).
+    /// Menerapkan Single Responsibility Principle (SRP) untuk manajemen sesi dan autentikasi.
+    /// </summary>
     public class AuthService : IAuthService
     {
-        private readonly List<User> _users = new()
-        {
-            new User
-            {
-                Id = 1,
-                Username = "admin",
-                Password = "password123",
-                FullName = "Administrator LahanKu",
-                CreatedAt = DateTime.UtcNow
-            },
-            new User
-            {
-                Id = 2,
-                Username = "josiah",
-                Password = "password123",
-                FullName = "Josiah Hermes",
-                CreatedAt = DateTime.UtcNow
-            }
-        };
-
         public User? CurrentUser { get; private set; }
 
         public async Task<User?> LoginAsync(string username, string password)
         {
-            await Task.Delay(100); // Simulate network / DB IO
-
-            var user = _users.FirstOrDefault(u => 
-                string.Equals(u.Username, username.Trim(), StringComparison.OrdinalIgnoreCase) && 
-                u.Password == password);
-
-            if (user != null)
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                CurrentUser = user;
+                return null;
             }
 
-            return user;
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var trimmed = username.Trim();
+
+                var response = await client
+                    .From<User>()
+                    .Where(u => u.Username == trimmed)
+                    .Get();
+
+                var user = response.Models.FirstOrDefault();
+                if (user != null && user.Password == password)
+                {
+                    CurrentUser = user;
+                    return user;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthService] Login error: {ex.Message}");
+            }
+
+            return null;
         }
 
         public async Task<(bool Success, string Message)> RegisterAsync(string username, string password)
         {
-            await Task.Delay(100);
-
             if (string.IsNullOrWhiteSpace(username))
             {
                 return (false, "Username tidak boleh kosong.");
@@ -60,24 +58,43 @@ namespace Lahanku.Services
                 return (false, "Password minimal 4 karakter.");
             }
 
-            if (_users.Any(u => string.Equals(u.Username, username.Trim(), StringComparison.OrdinalIgnoreCase)))
+            try
             {
-                return (false, "Username sudah digunakan.");
+                var client = await SupabaseConfig.GetClientAsync();
+                var trimmed = username.Trim();
+
+                // Cek apakah username sudah ada
+                var existing = await client
+                    .From<User>()
+                    .Where(u => u.Username == trimmed)
+                    .Get();
+
+                if (existing.Models.Count > 0)
+                {
+                    return (false, "Username sudah digunakan. Silakan gunakan username lain.");
+                }
+
+                var newUser = new User
+                {
+                    Username = trimmed,
+                    Password = password,
+                    FullName = trimmed,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var insertResponse = await client
+                    .From<User>()
+                    .Insert(newUser);
+
+                var createdUser = insertResponse.Models.FirstOrDefault() ?? newUser;
+                CurrentUser = createdUser;
+
+                return (true, "Registrasi berhasil.");
             }
-
-            var newUser = new User
+            catch (Exception ex)
             {
-                Id = _users.Count > 0 ? _users.Max(u => u.Id) + 1 : 1,
-                Username = username.Trim(),
-                Password = password,
-                FullName = username.Trim(),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _users.Add(newUser);
-            CurrentUser = newUser;
-
-            return (true, "Registrasi berhasil.");
+                return (false, $"Gagal mendaftar: {ex.Message}");
+            }
         }
 
         public void Logout()

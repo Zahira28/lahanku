@@ -3,198 +3,230 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Lahanku.Helpers;
 using Lahanku.Models;
+using static Supabase.Postgrest.Constants;
 
 namespace Lahanku.Services
 {
+    /// <summary>
+    /// Implementasi layanan lahan dan irigasi terhubung langsung ke cloud database Supabase.
+    /// Mematuhi Single Responsibility Principle (SRP) dan Dependency Inversion (DIP).
+    /// </summary>
     public class LandService : ILandService
     {
-        private readonly List<Land> _lands = new();
-        private int _nextLandId = 4;
-        private int _nextLogId = 10;
+        private List<Tanaman>? _tanamanCache;
 
-        public LandService()
+        public async Task<List<Tanaman>> GetTanamanListAsync()
         {
-            SeedInitialData();
+            if (_tanamanCache != null && _tanamanCache.Count > 0)
+            {
+                return _tanamanCache;
+            }
+
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var response = await client
+                    .From<Tanaman>()
+                    .Order(t => t.NamaTanaman, Ordering.Ascending)
+                    .Get();
+
+                _tanamanCache = response.Models;
+                return _tanamanCache;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error fetching tanaman: {ex.Message}");
+                return new List<Tanaman>();
+            }
         }
 
-        private void SeedInitialData()
+        public async Task<List<Land>> GetLandsAsync(long? userId = null)
         {
-            // Seed matching Mockup 5 & 6 exactly
-            var landA = new Land
+            try
             {
-                Id = 1,
-                Name = "Lahan A",
-                LocationDescription = "Sawah Sentosa Selatan",
-                Latitude = -6.2088,
-                Longitude = 106.8456,
-                AreaHectares = 0.5,
-                CropType = "Padi Pandan Wangi",
-                CreatedAt = new DateTime(2026, 3, 1, 10, 0, 0, DateTimeKind.Local),
-                IrrigationLogs = new ObservableCollection<IrrigationLog>
+                var client = await SupabaseConfig.GetClientAsync();
+                var query = client.From<Land>();
+
+                var response = userId.HasValue
+                    ? await query.Where(l => l.UserId == userId.Value).Get()
+                    : await query.Get();
+
+                var lands = response.Models;
+                var tanamanList = await GetTanamanListAsync();
+                var tanamanMap = tanamanList.ToDictionary(t => t.IdTanaman);
+
+                foreach (var land in lands)
                 {
-                    new IrrigationLog
+                    if (land.TanamanId.HasValue && tanamanMap.TryGetValue(land.TanamanId.Value, out var tanaman))
                     {
-                        Id = 1,
-                        LandId = 1,
-                        Date = new DateTime(2026, 3, 14, 8, 30, 0),
-                        VolumeLiters = 250,
-                        Notes = "Penyiraman pagi rutin, kondisi cuaca cerah."
-                    },
-                    new IrrigationLog
-                    {
-                        Id = 2,
-                        LandId = 1,
-                        Date = new DateTime(2026, 3, 13, 16, 15, 0),
-                        VolumeLiters = 200,
-                        Notes = "Sore hari, tanah kering di bagian selatan"
-                    },
-                    new IrrigationLog
-                    {
-                        Id = 3,
-                        LandId = 1,
-                        Date = new DateTime(2026, 3, 12, 8, 0, 0),
-                        VolumeLiters = 250,
-                        Notes = "Penyiraman pagi rutin"
-                    },
-                    new IrrigationLog
-                    {
-                        Id = 4,
-                        LandId = 1,
-                        Date = new DateTime(2026, 3, 11, 9, 0, 0),
-                        VolumeLiters = 300,
-                        Notes = "Volume ditingkatkan karena cuaca sangat terik"
-                    },
-                    new IrrigationLog
-                    {
-                        Id = 5,
-                        LandId = 1,
-                        Date = new DateTime(2026, 3, 10, 15, 45, 0),
-                        VolumeLiters = 200,
-                        Notes = "Penyiraman sore berkala"
+                        land.Tanaman = tanaman;
                     }
-                }
-            };
 
-            var landB = new Land
+                    var logs = await GetIrrigationLogsAsync(land.Id);
+                    land.IrrigationLogs = new ObservableCollection<IrrigationLog>(logs);
+                }
+
+                return lands;
+            }
+            catch (Exception ex)
             {
-                Id = 2,
-                Name = "Lahan B",
-                LocationDescription = "Kebun Jagung Lereng Barat",
-                Latitude = -6.2140,
-                Longitude = 106.8480,
-                AreaHectares = 4.0,
-                CropType = "Jagung Manis",
-                CreatedAt = new DateTime(2026, 3, 2, 9, 0, 0, DateTimeKind.Local),
-                IrrigationLogs = new ObservableCollection<IrrigationLog>
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error fetching lands: {ex.Message}");
+                return new List<Land>();
+            }
+        }
+
+        public async Task<Land?> GetLandByIdAsync(long id)
+        {
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var response = await client
+                    .From<Land>()
+                    .Where(l => l.Id == id)
+                    .Get();
+
+                var land = response.Models.FirstOrDefault();
+                if (land != null)
                 {
-                    new IrrigationLog
+                    if (land.TanamanId.HasValue)
                     {
-                        Id = 6,
-                        LandId = 2,
-                        Date = new DateTime(2026, 3, 14, 9, 0, 0),
-                        VolumeLiters = 180,
-                        Notes = "Penyiraman bibit muda jagung"
+                        var tanamanList = await GetTanamanListAsync();
+                        land.Tanaman = tanamanList.FirstOrDefault(t => t.IdTanaman == land.TanamanId.Value);
                     }
+
+                    var logs = await GetIrrigationLogsAsync(land.Id);
+                    land.IrrigationLogs = new ObservableCollection<IrrigationLog>(logs);
                 }
-            };
 
-            var landC = new Land
+                return land;
+            }
+            catch (Exception ex)
             {
-                Id = 3,
-                Name = "Lahan C",
-                LocationDescription = "Plaza Agro Mandiri",
-                Latitude = -6.2050,
-                Longitude = 106.8400,
-                AreaHectares = 8.0,
-                CropType = "Padi Pandan Wangi",
-                CreatedAt = new DateTime(2026, 3, 3, 8, 30, 0, DateTimeKind.Local),
-                IrrigationLogs = new ObservableCollection<IrrigationLog>()
-            };
-
-            _lands.Add(landA);
-            _lands.Add(landB);
-            _lands.Add(landC);
-        }
-
-        public async Task<List<Land>> GetLandsAsync()
-        {
-            await Task.Delay(50);
-            return _lands.Select(l => l.Clone()).ToList();
-        }
-
-        public async Task<Land?> GetLandByIdAsync(int id)
-        {
-            await Task.Delay(50);
-            var land = _lands.FirstOrDefault(l => l.Id == id);
-            return land?.Clone();
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error fetching land by ID: {ex.Message}");
+                return null;
+            }
         }
 
         public async Task<Land> AddLandAsync(Land land)
         {
-            await Task.Delay(50);
-            var newLand = land.Clone();
-            newLand.Id = _nextLandId++;
-            newLand.CreatedAt = DateTime.Now;
-            _lands.Add(newLand);
-            return newLand.Clone();
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var response = await client.From<Land>().Insert(land);
+                var created = response.Models.FirstOrDefault() ?? land;
+
+                // Sync Tanaman info
+                if (created.TanamanId.HasValue)
+                {
+                    var tanamanList = await GetTanamanListAsync();
+                    created.Tanaman = tanamanList.FirstOrDefault(t => t.IdTanaman == created.TanamanId.Value);
+                }
+
+                return created;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error adding land: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> UpdateLandAsync(Land land)
         {
-            await Task.Delay(50);
-            var existing = _lands.FirstOrDefault(l => l.Id == land.Id);
-            if (existing == null) return false;
-
-            existing.Name = land.Name;
-            existing.LocationDescription = land.LocationDescription;
-            existing.Latitude = land.Latitude;
-            existing.Longitude = land.Longitude;
-            existing.AreaHectares = land.AreaHectares;
-            existing.CropType = land.CropType;
-
-            return true;
-        }
-
-        public async Task<bool> DeleteLandAsync(int id)
-        {
-            await Task.Delay(50);
-            var existing = _lands.FirstOrDefault(l => l.Id == id);
-            if (existing == null) return false;
-
-            _lands.Remove(existing);
-            return true;
-        }
-
-        public async Task<IrrigationLog> AddIrrigationLogAsync(int landId, IrrigationLog log)
-        {
-            await Task.Delay(50);
-            var land = _lands.FirstOrDefault(l => l.Id == landId);
-            if (land == null)
+            try
             {
-                throw new KeyNotFoundException($"Land with ID {landId} not found.");
+                var client = await SupabaseConfig.GetClientAsync();
+                await client.From<Land>().Update(land);
+                return true;
             }
-
-            var newLog = new IrrigationLog
+            catch (Exception ex)
             {
-                Id = _nextLogId++,
-                LandId = landId,
-                Date = log.Date,
-                VolumeLiters = log.VolumeLiters,
-                Notes = log.Notes
-            };
-
-            land.IrrigationLogs.Insert(0, newLog);
-            return newLog;
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error updating land: {ex.Message}");
+                return false;
+            }
         }
 
-        public async Task<List<IrrigationLog>> GetIrrigationLogsAsync(int landId)
+        public async Task<bool> DeleteLandAsync(long id)
         {
-            await Task.Delay(50);
-            var land = _lands.FirstOrDefault(l => l.Id == landId);
-            if (land == null) return new List<IrrigationLog>();
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                await client.From<Land>().Where(l => l.Id == id).Delete();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error deleting land: {ex.Message}");
+                return false;
+            }
+        }
 
-            return land.IrrigationLogs.ToList();
+        public async Task<IrrigationLog> AddIrrigationLogAsync(long landId, IrrigationLog log)
+        {
+            try
+            {
+                log.LandId = landId;
+                var client = await SupabaseConfig.GetClientAsync();
+                var response = await client.From<IrrigationLog>().Insert(log);
+                return response.Models.FirstOrDefault() ?? log;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error adding irrigation log: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<IrrigationLog>> GetIrrigationLogsAsync(long landId)
+        {
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var response = await client
+                    .From<IrrigationLog>()
+                    .Where(l => l.LandId == landId)
+                    .Order(l => l.Date, Ordering.Descending)
+                    .Get();
+
+                return response.Models;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error fetching irrigation logs: {ex.Message}");
+                return new List<IrrigationLog>();
+            }
+        }
+
+        public async Task<bool> UpdateIrrigationLogAsync(IrrigationLog log)
+        {
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                await client.From<IrrigationLog>().Update(log);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error updating irrigation log: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteIrrigationLogAsync(long logId)
+        {
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                await client.From<IrrigationLog>().Where(l => l.Id == logId).Delete();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LandService] Error deleting irrigation log: {ex.Message}");
+                return false;
+            }
         }
     }
 }
