@@ -253,7 +253,7 @@
 
                 <!-- Login Button -->
                 <Button Content="Login"
-                        Command="{Binding LoginAsyncCommand}"
+                        Command="{Binding LoginCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="0,0,0,20" />
 
