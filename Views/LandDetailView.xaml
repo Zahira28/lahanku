@@ -749,7 +749,9 @@
                         </Grid>
 
                         <!-- Items List -->
+                        <!-- disembunyiin kalau kosong, kalau nggak dia nutupin tombol di empty state -->
                         <ScrollViewer Grid.Row="2"
+                                      Visibility="{Binding HasLogs, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled"
                                       Style="{StaticResource SlimScrollViewerStyle}">
