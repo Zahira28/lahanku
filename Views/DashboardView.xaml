@@ -429,11 +429,43 @@
                                    VerticalAlignment="Center" />
                     </Grid>
 
-                    <TextBlock Text="Memuat rencana penyiraman..."
-                               Foreground="{StaticResource TextMutedBrush}"
-                               FontSize="13"
-                               Margin="0,4,0,4"
-                               Visibility="{Binding IsLoadingPlans, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <!-- shimmer skeleton while plans load: one per land, same shape as the real card -->
+                    <ItemsControl ItemsSource="{Binding Lands}"
+                                  Margin="0,0,-12,0"
+                                  Visibility="{Binding IsLoadingPlans, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource CardBackgroundBrush}"
+                                        BorderBrush="#E2E8F0"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="14,13"
+                                        Margin="0,0,12,12">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <Border Style="{StaticResource SkeletonBoxStyle}" Width="34" Height="34" CornerRadius="9" Margin="0,0,10,0" />
+                                            <StackPanel VerticalAlignment="Center">
+                                                <Border Style="{StaticResource SkeletonBoxStyle}" Width="120" Height="12" CornerRadius="4" HorizontalAlignment="Left" Margin="0,0,0,6" />
+                                                <Border Style="{StaticResource SkeletonBoxStyle}" Width="50" Height="10" CornerRadius="4" HorizontalAlignment="Left" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="150" Height="12" CornerRadius="4" HorizontalAlignment="Left" Margin="0,0,0,7" />
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="190" Height="10" CornerRadius="4" HorizontalAlignment="Left" />
+                                        <Border Height="1" Background="#F1F5F9" Margin="0,14,0,0" />
+                                        <Grid Height="30" Margin="0,8,0,0">
+                                            <Border Style="{StaticResource SkeletonBoxStyle}" Width="44" Height="14" CornerRadius="4" HorizontalAlignment="Left" />
+                                            <Border Style="{StaticResource SkeletonBoxStyle}" Width="70" Height="12" CornerRadius="4" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
                     <ItemsControl ItemsSource="{Binding TodayPlans}"
                                   Margin="0,0,-12,0"
