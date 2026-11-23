@@ -139,6 +139,19 @@ namespace Lahanku.ViewModels
             CurrentView = new ImpactViewModel(this, LandService, AuthService);
         }
 
+        public void NavigateToProfile()
+        {
+            LeaveCurrentView();
+            CurrentView = new ProfileViewModel(this, AuthService);
+        }
+
+        // after the name changes, the sidebar card should follow
+        public void RefreshCurrentUser()
+        {
+            OnPropertyChanged(nameof(CurrentUserName));
+            OnPropertyChanged(nameof(CurrentUserUsername));
+        }
+
         private void LeaveCurrentView()
         {
             if (CurrentView is IDisposable disposable)
@@ -155,12 +168,10 @@ namespace Lahanku.ViewModels
         [RelayCommand]
         private void GoToDashboard()
         {
-            if (CurrentView is DashboardViewModel dashboard)
+            if (CurrentView is not DashboardViewModel)
             {
-                dashboard.SelectNavCommand.Execute("Ringkasan");
-                return;
+                NavigateToDashboard();
             }
-            NavigateToDashboard();
         }
 
         [RelayCommand]
@@ -173,13 +184,12 @@ namespace Lahanku.ViewModels
         }
 
         [RelayCommand]
-        private void GoToSettings()
+        private void GoToProfile()
         {
-            if (CurrentView is not DashboardViewModel)
+            if (CurrentView is not ProfileViewModel)
             {
-                NavigateToDashboard();
+                NavigateToProfile();
             }
-            (CurrentView as DashboardViewModel)?.SelectNavCommand.Execute("Pengaturan");
         }
 
         [RelayCommand]

@@ -5,7 +5,7 @@ namespace Lahanku.Controls
 {
     public partial class Sidebar : UserControl
     {
-        // "Ringkasan", "Dampak" or "Pengaturan"
+        // "Ringkasan", "Dampak" or "Profil"
         public static readonly DependencyProperty ActiveItemProperty = DependencyProperty.Register(
             nameof(ActiveItem), typeof(string), typeof(Sidebar),
             new PropertyMetadata("Ringkasan", (d, _) => ((Sidebar)d).Highlight()));
@@ -26,7 +26,7 @@ namespace Lahanku.Controls
         {
             NavSummary.Tag = ActiveItem == "Ringkasan" ? "active" : null;
             NavImpact.Tag = ActiveItem == "Dampak" ? "active" : null;
-            NavSettings.Tag = ActiveItem == "Pengaturan" ? "active" : null;
+            NavProfile.Tag = ActiveItem == "Profil" ? "active" : null;
         }
     }
 }
