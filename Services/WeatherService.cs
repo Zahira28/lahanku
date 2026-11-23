@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Lahanku.Helpers;
 using Lahanku.Models;
+using static Supabase.Postgrest.Constants;
 
 namespace Lahanku.Services
 {
@@ -50,10 +53,10 @@ namespace Lahanku.Services
                     Kelembapan = current.RelativeHumidity2m,
                     CurahHujan = current.Precipitation,
                     KondisiCuaca = kondisi,
+                    WeatherCode = current.WeatherCode,
                     WaktuCek = DateTime.UtcNow
                 };
 
-                // Sinkronkan snapshot cuaca ke Supabase di latar belakang jika terhubung
                 _ = SaveSnapshotToDatabaseAsync(cuaca);
 
                 return cuaca;
@@ -65,16 +68,48 @@ namespace Lahanku.Services
             }
         }
 
+        // simpan maksimal 1 snapshot per lahan per jam, biar tabel cuaca nggak bengkak
+        private static readonly TimeSpan SnapshotInterval = TimeSpan.FromHours(1);
+        private static readonly ConcurrentDictionary<long, DateTime> _lastSnapshotUtc = new();
+
         private async Task SaveSnapshotToDatabaseAsync(Cuaca cuaca)
         {
+            if (cuaca.IdLahan is not long landId)
+            {
+                return;
+            }
+
+            if (_lastSnapshotUtc.TryGetValue(landId, out var cached) && DateTime.UtcNow - cached < SnapshotInterval)
+            {
+                return;
+            }
+
             try
             {
                 var client = await SupabaseConfig.GetClientAsync();
+
+                // cek DB juga, soalnya cache di atas hilang tiap app ditutup
+                var latest = await client
+                    .From<Cuaca>()
+                    .Where(c => c.IdLahan == landId)
+                    .Order(c => c.WaktuCek, Ordering.Descending)
+                    .Limit(1)
+                    .Get();
+
+                var lastSaved = latest.Models.FirstOrDefault()?.WaktuCek.ToUniversalTime();
+                if (lastSaved.HasValue && DateTime.UtcNow - lastSaved.Value < SnapshotInterval)
+                {
+                    _lastSnapshotUtc[landId] = lastSaved.Value;
+                    return;
+                }
+
                 await client.From<Cuaca>().Insert(cuaca);
+                _lastSnapshotUtc[landId] = DateTime.UtcNow;
             }
-            catch
+            catch (Exception ex)
             {
-                // Pengambilan cuaca tetap berhasil meskipun simpan snapshot riwayat offline
+                // gagal simpan riwayat nggak masalah, data cuaca tetap tampil
+                System.Diagnostics.Debug.WriteLine($"[WeatherService] Gagal simpan snapshot: {ex.Message}");
             }
         }
 

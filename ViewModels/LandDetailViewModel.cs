@@ -109,13 +109,8 @@ namespace Lahanku.ViewModels
 
                 if (CurrentWeather != null)
                 {
-                    var (_, icon) = _weatherService.GetWmoDescription(0); // fallback
-                    // Dapatkan icon cuaca spesifik
-                    if (_weatherService is WeatherService ws)
-                    {
-                        var (_, wmoIcon) = ws.GetWmoDescription(CurrentWeather.KondisiCuaca.Contains("Hujan") ? 61 : CurrentWeather.KondisiCuaca.Contains("Mendung") ? 3 : 0);
-                        WeatherIcon = wmoIcon;
-                    }
+                    var (_, icon) = _weatherService.GetWmoDescription(CurrentWeather.WeatherCode);
+                    WeatherIcon = icon;
 
                     WeatherTempText = $"{CurrentWeather.Suhu.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} °C";
                     WeatherHumidityText = $"{CurrentWeather.Kelembapan:0}%";
@@ -140,7 +135,9 @@ namespace Lahanku.ViewModels
             }
             catch (Exception ex)
             {
+                // cukup tampil di panel cuaca, nggak usah toast tiap auto-refresh 5 menit
                 System.Diagnostics.Debug.WriteLine($"[LandDetail] Error loading weather: {ex.Message}");
+                WeatherIcon = "🌐";
                 WeatherConditionText = "Gagal memuat cuaca.";
             }
             finally
@@ -163,6 +160,10 @@ namespace Lahanku.ViewModels
                 }
 
                 HasLogs = IrrigationLogs.Count > 0;
+            }
+            catch (Exception ex)
+            {
+                _main.ErrorHandler.HandleError(ex, "Gagal memuat riwayat penyiraman. Periksa koneksi internet Anda.");
             }
             finally
             {
@@ -215,12 +216,20 @@ namespace Lahanku.ViewModels
         }
 
         [RelayCommand]
-        private void RefreshWeather()
+        private async Task RefreshWeatherAsync()
         {
             _weatherAutoRefreshTimer.Stop();
             _weatherAutoRefreshTimer.Start();
-            _ = LoadWeatherAndAdviceAsync();
-            _main.ShowSuccessToast("Data satelit cuaca diperbarui.", "Sinkronisasi Cuaca");
+            await LoadWeatherAndAdviceAsync();
+
+            if (CurrentWeather != null)
+            {
+                _main.ShowSuccessToast("Data satelit cuaca diperbarui.", "Sinkronisasi Cuaca");
+            }
+            else
+            {
+                _main.ShowWarningToast("Data cuaca belum bisa diambil, anjuran pakai estimasi standar dulu.", "Cuaca Offline");
+            }
         }
 
         [RelayCommand]

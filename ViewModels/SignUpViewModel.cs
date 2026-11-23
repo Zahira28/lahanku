@@ -28,6 +28,15 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isLoading;
 
+        [ObservableProperty]
+        private bool _isPasswordVisible;
+
+        [RelayCommand]
+        private void TogglePasswordVisibility()
+        {
+            IsPasswordVisible = !IsPasswordVisible;
+        }
+
         public SignUpViewModel(MainViewModel main, IAuthService authService)
         {
             _main = main;

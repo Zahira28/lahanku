@@ -184,6 +184,11 @@ namespace Lahanku.ViewModels
                     _main.ShowToast("Penyiraman berhasil dicatat!");
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[IrrigationModal] Save error: {ex.Message}");
+                ErrorMessage = "Gagal mencatat penyiraman. Periksa koneksi internet lalu coba lagi.";
+            }
             finally
             {
                 IsSaving = false;

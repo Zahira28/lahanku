@@ -58,15 +58,13 @@ namespace Lahanku.Services
                 var tanamanList = await GetTanamanListAsync();
                 var tanamanMap = tanamanList.ToDictionary(t => t.IdTanaman);
 
+                // log penyiraman nggak diambil di sini, Detail Lahan load sendiri
                 foreach (var land in lands)
                 {
                     if (land.TanamanId.HasValue && tanamanMap.TryGetValue(land.TanamanId.Value, out var tanaman))
                     {
                         land.Tanaman = tanaman;
                     }
-
-                    var logs = await GetIrrigationLogsAsync(land.Id);
-                    land.IrrigationLogs = new ObservableCollection<IrrigationLog>(logs);
                 }
 
                 return lands;

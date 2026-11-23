@@ -120,7 +120,8 @@ namespace Lahanku.ViewModels
                     TotalArea = totalHa.ToString("0.##", CultureInfo.InvariantCulture);
 
                     var distinctCrops = Lands
-                        .SelectMany(l => (l.CropType ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                        .Select(l => l.TanamanId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
+                        .Where(key => !string.IsNullOrEmpty(key))
                         .Distinct()
                         .Count();
 
