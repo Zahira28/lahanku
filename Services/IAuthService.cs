@@ -12,5 +12,12 @@ namespace Lahanku.Services
         Task<(bool Success, string Message)> RegisterAsync(string username, string password);
 
         Task LogoutAsync();
+
+        // the shared demo account can't change its name or password
+        bool IsDemoAccount { get; }
+
+        Task<(bool Success, string Message)> UpdateFullNameAsync(string fullName);
+
+        Task<(bool Success, string Message)> ChangePasswordAsync(string currentPassword, string newPassword);
     }
 }

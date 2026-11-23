@@ -48,12 +48,6 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private string _greetingText = "Selamat Siang!";
 
-        [ObservableProperty]
-        private string _selectedNav = "Ringkasan";
-
-        [ObservableProperty]
-        private bool _isSettingsView;
-
         // today's watering plan, one card per land
         [ObservableProperty]
         private ObservableCollection<LandPlan> _todayPlans = new();
@@ -277,13 +271,6 @@ namespace Lahanku.ViewModels
             {
                 _main.NavigateToLandDetail(land);
             }
-        }
-
-        [RelayCommand]
-        private void SelectNav(string nav)
-        {
-            SelectedNav = nav;
-            IsSettingsView = nav == "Pengaturan";
         }
 
         // Ctrl+N add land, F5 reload

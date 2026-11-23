@@ -86,13 +86,13 @@
                     </StackPanel>
                 </Border>
 
-                <Border x:Name="NavSettings" Style="{StaticResource NavItem}">
+                <Border x:Name="NavProfile" Style="{StaticResource NavItem}">
                     <Border.InputBindings>
-                        <MouseBinding MouseAction="LeftClick" Command="{Binding GoToSettingsCommand}" />
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding GoToProfileCommand}" />
                     </Border.InputBindings>
                     <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource SettingsPath}" Style="{StaticResource NavIcon}" />
-                        <TextBlock Text="Pengaturan" Style="{StaticResource NavText}" />
+                        <Path Data="{StaticResource UserPath}" Style="{StaticResource NavIcon}" />
+                        <TextBlock Text="Profil" Style="{StaticResource NavText}" />
                     </StackPanel>
                 </Border>
             </StackPanel>

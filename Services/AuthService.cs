@@ -18,6 +18,8 @@ namespace Lahanku.Services
 
         public User? CurrentUser { get; private set; }
 
+        public bool IsDemoAccount => string.Equals(CurrentUser?.Username, DemoAccount.Username, StringComparison.OrdinalIgnoreCase);
+
         public static string ToSyntheticEmail(string username) =>
             $"{username.Trim().ToLowerInvariant()}@{SyntheticEmailDomain}";
 
@@ -121,6 +123,79 @@ namespace Lahanku.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthService] Logout error: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> UpdateFullNameAsync(string fullName)
+        {
+            if (CurrentUser == null)
+            {
+                return (false, "Sesi berakhir. Silakan masuk kembali.");
+            }
+            if (IsDemoAccount)
+            {
+                return (false, "Nama akun demo tidak dapat diubah.");
+            }
+
+            var error = ProfileRules.ValidateFullName(fullName);
+            if (error != null)
+            {
+                return (false, error);
+            }
+
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var trimmed = fullName.Trim();
+                var userId = CurrentUser.Id;
+                await client.From<User>().Where(u => u.Id == userId).Set(u => u.FullName!, trimmed).Update();
+                CurrentUser.FullName = trimmed;
+                return (true, "Nama berhasil diperbarui.");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthService] Update name error: {ex.Message}");
+                return (false, "Gagal menyimpan nama. Periksa koneksi internet Anda.");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> ChangePasswordAsync(string currentPassword, string newPassword)
+        {
+            if (CurrentUser == null)
+            {
+                return (false, "Sesi berakhir. Silakan masuk kembali.");
+            }
+            if (IsDemoAccount)
+            {
+                return (false, "Password akun demo tidak dapat diubah.");
+            }
+
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+
+                // re-check the current password before changing it
+                try
+                {
+                    await client.Auth.SignIn(ToSyntheticEmail(CurrentUser.Username), currentPassword);
+                }
+                catch (GotrueException)
+                {
+                    return (false, "Password saat ini salah.");
+                }
+
+                await client.Auth.Update(new Supabase.Gotrue.UserAttributes { Password = newPassword });
+                return (true, "Password berhasil diubah.");
+            }
+            catch (GotrueException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthService] Change password error ({ex.Reason}): {ex.Message}");
+                return (false, MapAuthError(ex));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthService] Change password error: {ex.Message}");
+                return (false, "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.");
             }
         }
 

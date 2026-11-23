@@ -16,7 +16,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <controls:Sidebar Grid.Column="0" ActiveItem="{Binding SelectedNav}" />
+        <controls:Sidebar Grid.Column="0" ActiveItem="Ringkasan" />
 
         <!-- ================= MAIN CONTENT ================= -->
         <ScrollViewer Grid.Column="1"

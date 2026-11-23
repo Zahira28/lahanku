@@ -1,0 +1,196 @@
+<UserControl x:Class="Lahanku.Views.ProfileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:Lahanku.Controls"
+             xmlns:helpers="clr-namespace:Lahanku.Helpers"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1100">
+    <UserControl.Resources>
+        <Style x:Key="Panel" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="24,22" />
+        </Style>
+        <Style x:Key="PanelTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style x:Key="ErrorText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#DC2626" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+            <Style.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+                <Trigger Property="Text" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- same look as RoundedTextBoxStyle -->
+        <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1.2" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Height" Value="46" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Margin" Value="0,0,0,16" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" VerticalAlignment="Center"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                                          Padding="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#CBD5E1" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource InputFocusBorderBrush}" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PageBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <controls:Sidebar Grid.Column="0" ActiveItem="Profil" />
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="40,32">
+                <TextBlock Text="Profil" Foreground="{StaticResource TextPrimaryBrush}" FontSize="28" FontWeight="Bold" Margin="0,0,0,24" />
+
+                <!-- account card -->
+                <Border Style="{StaticResource Panel}" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="56" Height="56" CornerRadius="28" Background="{StaticResource MintBgBrush}" Margin="0,0,16,0">
+                            <Path Data="{StaticResource UserPath}" Fill="{StaticResource MintTextBrush}" Width="22" Height="22" Stretch="Uniform" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="18" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                <TextBlock Text="{Binding Handle}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="13" />
+                                <TextBlock Text="  ·  Bergabung sejak " Foreground="{StaticResource TextMutedBrush}" FontSize="13" />
+                                <TextBlock Text="{Binding JoinedText}" Foreground="{StaticResource TextMutedBrush}" FontSize="13" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Button Grid.Column="2"
+                                Content="Keluar Akun"
+                                Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Style="{StaticResource OutlineNeutralButtonStyle}"
+                                Height="40" Padding="18,0" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- demo notice -->
+                <Border Background="#FFFBEB" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="10" Padding="16,12" Margin="0,0,0,16"
+                        Visibility="{Binding IsDemo, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Anda menggunakan akun demo. Nama dan password akun ini tidak dapat diubah."
+                               Foreground="#92400E" FontSize="13" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- edit name + change password, same height -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Panel}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Data akun" Style="{StaticResource PanelTitle}" Margin="0,0,0,18" />
+                                <TextBlock Text="Nama tampilan" Style="{StaticResource FieldLabel}" />
+                                <TextBox Text="{Binding FullNameInput, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding CanEdit}"
+                                         helpers:PlaceholderHelper.Placeholder="Masukkan nama Anda"
+                                         Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,16" />
+                                <TextBlock Text="Username" Style="{StaticResource FieldLabel}" />
+                                <TextBox Text="{Binding Username, Mode=OneWay}" IsReadOnly="True" Focusable="False"
+                                         Foreground="{StaticResource TextSecondaryBrush}"
+                                         Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,6" />
+                                <TextBlock Text="Username digunakan untuk masuk dan tidak dapat diubah."
+                                           Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,0,0,16" />
+                                <TextBlock Text="{Binding NameError}" Style="{StaticResource ErrorText}" />
+                            </StackPanel>
+                            <Button Grid.Row="2" Content="Simpan Nama" Command="{Binding SaveNameCommand}"
+                                    Style="{StaticResource EmeraldButtonStyle}" Height="42" Padding="20,0" HorizontalAlignment="Left" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource Panel}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Ganti password" Style="{StaticResource PanelTitle}" Margin="0,0,0,18" />
+                                <TextBlock Text="Password saat ini" Style="{StaticResource FieldLabel}" />
+                                <PasswordBox Style="{StaticResource RoundedPasswordBox}" IsEnabled="{Binding CanEdit}"
+                                             helpers:PasswordBoxHelper.BindPassword="True"
+                                             helpers:PasswordBoxHelper.BoundPassword="{Binding CurrentPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Password baru" Style="{StaticResource FieldLabel}" />
+                                <PasswordBox Style="{StaticResource RoundedPasswordBox}" IsEnabled="{Binding CanEdit}"
+                                             helpers:PasswordBoxHelper.BindPassword="True"
+                                             helpers:PasswordBoxHelper.BoundPassword="{Binding NewPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Ulangi password baru" Style="{StaticResource FieldLabel}" />
+                                <PasswordBox Style="{StaticResource RoundedPasswordBox}" IsEnabled="{Binding CanEdit}"
+                                             helpers:PasswordBoxHelper.BindPassword="True"
+                                             helpers:PasswordBoxHelper.BoundPassword="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="{Binding PasswordError}" Style="{StaticResource ErrorText}" />
+                            </StackPanel>
+                            <Button Grid.Row="2" Content="Ubah Password" Command="{Binding ChangePasswordCommand}"
+                                    Style="{StaticResource EmeraldButtonStyle}" Height="42" Padding="20,0" HorizontalAlignment="Left" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
