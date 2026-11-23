@@ -99,6 +99,37 @@
         </Viewbox>
     </DataTemplate>
 
+    <!-- watering decision icons: sun + drop (extra), drop (normal) -->
+    <DataTemplate x:Key="WeatherIcon.sundrop">
+        <Viewbox>
+            <Canvas Width="48" Height="48">
+                <Canvas RenderTransform="0.75,0,0,0.75,-2,-2">
+                    <Path Data="{StaticResource WeatherSunRaysGeometry}" Stroke="{StaticResource WeatherSunBrush}" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Ellipse Canvas.Left="16" Canvas.Top="16" Width="16" Height="16" Fill="{StaticResource WeatherSunBrush}" />
+                </Canvas>
+                <Path Data="M36,22 C36,22 46,33 46,39 A10,10 0 0 1 26,39 C26,33 36,22 36,22 Z" Fill="{StaticResource WeatherRainBrush}" Stroke="#FFFFFF" StrokeThickness="2" />
+            </Canvas>
+        </Viewbox>
+    </DataTemplate>
+
+    <DataTemplate x:Key="WeatherIcon.drop">
+        <Viewbox>
+            <Canvas Width="48" Height="48">
+                <Path Data="M24,6 C24,6 38,22 38,31 A14,14 0 0 1 10,31 C10,22 24,6 24,6 Z" Fill="#10B981" />
+            </Canvas>
+        </Viewbox>
+    </DataTemplate>
+
+    <!-- usage: <ContentControl Content="{Binding Kind}" Style="{StaticResource DecisionIconStyle}" /> (tunda / ekstra / normal) -->
+    <Style x:Key="DecisionIconStyle" TargetType="ContentControl">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="ContentTemplate" Value="{StaticResource WeatherIcon.drop}" />
+        <Style.Triggers>
+            <Trigger Property="Content" Value="tunda"><Setter Property="ContentTemplate" Value="{StaticResource WeatherIcon.rain}" /></Trigger>
+            <Trigger Property="Content" Value="ekstra"><Setter Property="ContentTemplate" Value="{StaticResource WeatherIcon.sundrop}" /></Trigger>
+        </Style.Triggers>
+    </Style>
+
     <!-- usage: <ContentControl Content="{Binding WeatherIcon}" Style="{StaticResource WeatherIconStyle}" /> -->
     <Style x:Key="WeatherIconStyle" TargetType="ContentControl">
         <Setter Property="Focusable" Value="False" />

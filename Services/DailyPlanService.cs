@@ -18,15 +18,15 @@ namespace Lahanku.Services
             _recommendations = recommendation;
         }
 
-        public async Task<LandPlan> CalculateAsync(Land land, DateTime waktu)
+        public async Task<LandPlan> CalculateAsync(Land land, DateTime now)
         {
             // both weather requests run in parallel
             var weatherTask = _weather.GetCurrentWeatherAsync(land.Latitude, land.Longitude, land.Id);
             var forecastTask = _weather.GetRainForecastAsync(land.Latitude, land.Longitude);
             await Task.WhenAll(weatherTask, forecastTask);
 
-            var recommendation = _advisor.Calculate(land, weatherTask.Result, forecastTask.Result, waktu);
-            await _recommendations.SaveForDateAsync(land, recommendation, waktu);
+            var recommendation = _advisor.Calculate(land, weatherTask.Result, forecastTask.Result, now);
+            await _recommendations.SaveForDateAsync(land, recommendation, now);
 
             return new LandPlan(land, weatherTask.Result, recommendation);
         }

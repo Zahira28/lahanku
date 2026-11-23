@@ -57,6 +57,26 @@ namespace Lahanku.Tests
         }
 
         [Fact]
+        public void Weekly_sentence_when_saving()
+        {
+            var s = new WaterSummary(3360, 2100).ToWeeklySentence();
+            Assert.Equal("Pemakaian air minggu ini 2.100 L, lebih hemat 1.260 L (38%) dibandingkan penyiraman rutin.", s);
+        }
+
+        [Fact]
+        public void Weekly_sentence_when_using_more()
+        {
+            var s = new WaterSummary(1800, 2100).ToWeeklySentence();
+            Assert.Equal("Pemakaian air minggu ini 2.100 L, 300 L lebih banyak dibandingkan penyiraman rutin.", s);
+        }
+
+        [Fact]
+        public void Weekly_sentence_empty_without_data()
+        {
+            Assert.Equal(string.Empty, new WaterSummary(0, 0).ToWeeklySentence());
+        }
+
+        [Fact]
         public void No_data_means_zero_percent()
         {
             var r = WaterSummary.Calculate(Array.Empty<DailyRecommendation>(), Array.Empty<IrrigationLog>());

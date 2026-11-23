@@ -207,12 +207,6 @@
 
                     <!-- Titles -->
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="LAHANKU • DETAIL &amp; OPERASIONAL LAHAN"
-                                   Foreground="{StaticResource AccentEmeraldBrush}"
-                                   FontSize="11"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,4" />
-
                         <TextBlock Text="{Binding Land.Name, StringFormat='Detail {0}'}"
                                    Foreground="{StaticResource TextPrimaryBrush}"
                                    FontSize="32"
@@ -283,20 +277,11 @@
 
                                 <!-- Header: Title + Refresh Button -->
                                 <Grid Grid.Row="0" Margin="0,0,0,12">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Data="{StaticResource WeatherCloudGeometry}"
-                                              Fill="{StaticResource AccentEmeraldBrush}"
-                                              Width="14"
-                                              Height="14"
-                                              Stretch="Uniform"
-                                              VerticalAlignment="Center"
-                                              Margin="0,0,6,0" />
-                                        <TextBlock Text="SATELLITE WEATHER"
-                                                   Foreground="{StaticResource AccentEmeraldBrush}"
-                                                   FontSize="10.5"
-                                                   FontWeight="Bold"
-                                                   VerticalAlignment="Center" />
-                                    </StackPanel>
+                                    <TextBlock Text="Cuaca Saat Ini"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center" />
 
                                     <Button Command="{Binding RefreshWeatherCommand}"
                                             HorizontalAlignment="Right"
@@ -409,137 +394,150 @@
                         </Grid>
                     </Border>
 
-                    <!-- CARD 2: CLIMATE-SMART IRRIGATION ADVISOR (SDG 13) -->
+                    <!-- CARD 2: today's watering recommendation -->
                     <Border Grid.Column="1"
-                            Background="#F0FDF4"
-                            BorderBrush="#A7F3D0"
-                            BorderThickness="1.2"
+                            Background="{StaticResource CardBackgroundBrush}"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
                             CornerRadius="16"
                             Padding="20"
                             Effect="{StaticResource CardShadow}">
                         <Grid>
-                            <!-- Skeleton State (Visible when IsLoadingWeather is True) -->
+                            <!-- skeleton while weather loads -->
                             <Grid Visibility="{Binding IsLoadingWeather, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-
-                                <Grid Grid.Row="0" Margin="0,0,0,14">
-                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="150" Height="18" CornerRadius="6" HorizontalAlignment="Left" />
-                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="90" Height="18" CornerRadius="6" HorizontalAlignment="Right" />
-                                </Grid>
-
-                                <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                                    <Border Style="{StaticResource SkeletonBoxStyle}" Height="13" CornerRadius="4" Margin="0,0,0,6" />
-                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="280" Height="13" CornerRadius="4" HorizontalAlignment="Left" />
+                                <Border Grid.Row="0" Style="{StaticResource SkeletonBoxStyle}" Width="150" Height="14" CornerRadius="4" HorizontalAlignment="Left" Margin="0,0,0,16" />
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0" />
+                                    <StackPanel>
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="220" Height="16" CornerRadius="4" Margin="0,2,0,10" />
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="320" Height="12" CornerRadius="4" Margin="0,0,0,6" />
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="260" Height="12" CornerRadius="4" />
+                                    </StackPanel>
                                 </StackPanel>
-
-                                <Border Grid.Row="2" Style="{StaticResource SkeletonBoxStyle}" Width="160" Height="34" CornerRadius="17" HorizontalAlignment="Left" />
+                                <Border Grid.Row="2" Style="{StaticResource SkeletonBoxStyle}" Height="14" CornerRadius="4" Width="300" HorizontalAlignment="Left" />
                             </Grid>
 
-                            <!-- Real Content (Visible when IsLoadingWeather is False) -->
+                            <!-- real content -->
                             <Grid Visibility="{Binding IsLoadingWeather, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <!-- Header: SDG 13 Badge & Volume -->
-                                <Grid Grid.Row="0" Margin="0,0,0,10">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Border Background="#D1FAE5"
-                                                CornerRadius="6"
-                                                Padding="8,4"
-                                                Margin="0,0,10,0">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="{StaticResource LeafPath}"
-                                                      Fill="#065F46"
-                                                      Width="10"
-                                                      Height="10"
-                                                      Stretch="Uniform"
-                                                      VerticalAlignment="Center"
-                                                      Margin="0,0,5,0" />
-                                                <TextBlock Text="SDG 13 • CLIMATE-SMART"
-                                                           Foreground="#065F46"
-                                                           FontSize="10"
-                                                           FontWeight="Bold"
-                                                           VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Border>
-                                        <TextBlock Text="{Binding AdviceStatus}"
-                                                   Foreground="#047857"
-                                                   FontSize="11.5"
-                                                   FontWeight="Bold"
-                                                   VerticalAlignment="Center" />
-                                    </StackPanel>
+                                <TextBlock Grid.Row="0"
+                                           Text="Rekomendasi Hari Ini"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Margin="0,0,0,14" />
 
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <TextBlock Text="Anjuran: "
+                                <Grid Grid.Row="1" VerticalAlignment="Top">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="44" Height="44" CornerRadius="12" VerticalAlignment="Top" Margin="0,0,14,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#ECFDF5" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TodayKind}" Value="tunda">
+                                                        <Setter Property="Background" Value="#EFF6FF" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding TodayKind}" Value="ekstra">
+                                                        <Setter Property="Background" Value="#FFFBEB" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <ContentControl Content="{Binding TodayKind}" Style="{StaticResource DecisionIconStyle}" Width="26" Height="26" />
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding AdviceStatus}" FontSize="16" FontWeight="Bold" Margin="0,0,0,6">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#047857" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding TodayKind}" Value="tunda">
+                                                            <Setter Property="Foreground" Value="#1D4ED8" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding TodayKind}" Value="ekstra">
+                                                            <Setter Property="Foreground" Value="#B45309" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding AdviceText}"
                                                    Foreground="{StaticResource TextSecondaryBrush}"
-                                                   FontSize="11.5"
-                                                   VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding AdviceVolumeText}"
-                                                   Foreground="{StaticResource PrimaryGreenBrush}"
-                                                   FontSize="14"
-                                                   FontWeight="Bold"
-                                                   VerticalAlignment="Center" />
+                                                   FontSize="12.5"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="18" />
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Body: Advice Text -->
-                                <TextBlock Grid.Row="1"
-                                           Text="{Binding AdviceText}"
-                                           Foreground="#1F2937"
-                                           FontSize="12.5"
-                                           TextWrapping="Wrap"
-                                           LineHeight="18"
-                                           Margin="0,0,0,14" />
+                                <Border Grid.Row="2" Height="1" Background="#F1F5F9" Margin="0,14,0,12" />
 
-                                <!-- Action: Apply Recommendation Button -->
-                                <Button Grid.Row="2"
-                                        Command="{Binding ApplyRecommendedIrrigationCommand}"
-                                        IsEnabled="{Binding CanApplyAdvice}"
-                                        HorizontalAlignment="Left"
-                                        Height="34"
-                                        Padding="14,0"
-                                        Background="{StaticResource AccentEmeraldBrush}"
-                                        Foreground="#FFFFFF"
-                                        BorderThickness="0"
-                                        Cursor="Hand">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="btnBdr"
-                                                    Background="{TemplateBinding Background}"
-                                                    CornerRadius="17"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Path Data="{StaticResource WaterDropPath}"
-                                                          Fill="#FFFFFF"
-                                                          Width="12"
-                                                          Height="12"
-                                                          Stretch="Uniform"
-                                                          VerticalAlignment="Center"
-                                                          Margin="0,0,6,0" />
-                                                    <TextBlock Text="Siram Sesuai Anjuran"
-                                                               FontWeight="SemiBold"
-                                                               FontSize="12"
-                                                               Foreground="#FFFFFF" />
-                                                </StackPanel>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="btnBdr" Property="Background" Value="#047857" />
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="btnBdr" Property="Background" Value="#94A3B8" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
+                                <Grid Grid.Row="3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Kebutuhan normal: " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12.5" />
+                                        <TextBlock Text="{Binding BaselineVolumeText}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" FontWeight="SemiBold" />
+                                        <TextBlock Text="  ·  Rekomendasi hari ini: " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12.5" />
+                                        <TextBlock Text="{Binding RecommendedVolumeText}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" FontWeight="SemiBold" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="1"
+                                            Command="{Binding ApplyRecommendedIrrigationCommand}"
+                                            Visibility="{Binding CanApplyAdvice, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            ToolTip="Catat penyiraman sesuai rekomendasi"
+                                            Height="34"
+                                            Padding="14,0"
+                                            Background="{StaticResource AccentEmeraldBrush}"
+                                            BorderThickness="0"
+                                            Cursor="Hand">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="btnBdr"
+                                                        Background="{TemplateBinding Background}"
+                                                        CornerRadius="17"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Path Data="{StaticResource WaterDropPath}"
+                                                              Fill="#FFFFFF"
+                                                              Width="12"
+                                                              Height="12"
+                                                              Stretch="Uniform"
+                                                              VerticalAlignment="Center"
+                                                              Margin="0,0,6,0" />
+                                                        <TextBlock Text="Siram Sesuai Anjuran"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="12"
+                                                                   Foreground="#FFFFFF" />
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="btnBdr" Property="Background" Value="#047857" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Border>
@@ -636,38 +634,28 @@
                                     </Style.Triggers>
                                 </Style>
                             </Grid.Style>
+                            <Grid.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </Style>
+                            </Grid.Resources>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="200" />
-                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="170" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="80" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0"
-                                       Text="TANGGAL &amp; WAKTU"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       FontSize="11"
-                                       FontWeight="SemiBold" />
-
-                            <TextBlock Grid.Column="1"
-                                       Text="VOLUME AIR"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       FontSize="11"
-                                       FontWeight="SemiBold" />
-
-                            <TextBlock Grid.Column="2"
-                                       Text="CATATAN"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       FontSize="11"
-                                       FontWeight="SemiBold" />
-
-                            <TextBlock Grid.Column="3"
-                                       Text="AKSI"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="0" Text="Tanggal &amp; Waktu" />
+                            <TextBlock Grid.Column="1" Text="Volume" />
+                            <TextBlock Grid.Column="2" Text="Rekomendasi" />
+                            <TextBlock Grid.Column="3" Text="Evaluasi" />
+                            <TextBlock Grid.Column="4" Text="Catatan" />
+                            <TextBlock Grid.Column="5" Text="Aksi" HorizontalAlignment="Right" Margin="0,0,8,0" />
                         </Grid>
 
                         <!-- ================= SKELETON STATE: LOGS ================= -->
@@ -787,7 +775,7 @@
                                       VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled"
                                       Style="{StaticResource SlimScrollViewerStyle}">
-                        <ItemsControl ItemsSource="{Binding IrrigationLogs}">
+                        <ItemsControl ItemsSource="{Binding HistoryRows}">
                             <ItemsControl.Style>
                                 <Style TargetType="ItemsControl">
                                     <Setter Property="Visibility" Value="Visible" />
@@ -808,50 +796,93 @@
                                             Padding="12,14">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="200" />
-                                                <ColumnDefinition Width="150" />
+                                                <ColumnDefinition Width="170" />
+                                                <ColumnDefinition Width="110" />
+                                                <ColumnDefinition Width="110" />
+                                                <ColumnDefinition Width="170" />
                                                 <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="80" />
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- Date & Time -->
                                             <TextBlock Grid.Column="0"
-                                                       Text="{Binding FormattedDate}"
+                                                       Text="{Binding DateText}"
                                                        Foreground="{StaticResource TextPrimaryBrush}"
                                                        FontSize="13.5"
                                                        FontWeight="SemiBold"
                                                        VerticalAlignment="Center" />
 
-                                            <!-- Volume Air Badge -->
                                             <Border Grid.Column="1"
                                                     HorizontalAlignment="Left"
                                                     Background="{StaticResource MintBgBrush}"
                                                     CornerRadius="8"
-                                                    Padding="12,5"
+                                                    Padding="10,5"
                                                     VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding FormattedVolume}"
+                                                <TextBlock Text="{Binding VolumeText}"
                                                            Foreground="{StaticResource MintTextBrush}"
                                                            FontSize="12"
                                                            FontWeight="SemiBold" />
                                             </Border>
 
-                                            <!-- Catatan -->
                                             <TextBlock Grid.Column="2"
-                                                       Text="{Binding Notes}"
+                                                       Text="{Binding RecommendationText}"
                                                        Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="13"
+                                                       VerticalAlignment="Center" />
+
+                                            <!-- evaluation, colored by kind -->
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding EvaluationText}"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,12,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EvaluationKind}" Value="ok">
+                                                                <Setter Property="Foreground" Value="#047857" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EvaluationKind}" Value="warn">
+                                                                <Setter Property="Foreground" Value="#B45309" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding EvaluationKind}" Value="skip">
+                                                                <Setter Property="Foreground" Value="#1D4ED8" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+
+                                            <!-- notes, italic gray when empty -->
+                                            <TextBlock Grid.Column="4"
+                                                       Text="{Binding NotesText}"
                                                        FontSize="13"
                                                        TextTrimming="CharacterEllipsis"
                                                        VerticalAlignment="Center"
-                                                       Margin="0,0,12,0" />
+                                                       Margin="0,0,12,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding NotesEmpty}" Value="True">
+                                                                <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+                                                                <Setter Property="FontStyle" Value="Italic" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
 
-                                            <!-- Aksi: Edit & Delete Buttons -->
-                                            <StackPanel Grid.Column="3"
+                                            <!-- actions, hidden on postponed-day rows -->
+                                            <StackPanel Grid.Column="5"
                                                         Orientation="Horizontal"
                                                         HorizontalAlignment="Right"
-                                                        VerticalAlignment="Center">
-                                                <!-- Edit Button -->
+                                                        VerticalAlignment="Center"
+                                                        Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                 <Button Command="{Binding DataContext.OpenEditIrrigationModalCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
+                                                        CommandParameter="{Binding Log}"
                                                         ToolTip="Edit catatan penyiraman"
                                                         Width="30"
                                                         Height="30"
@@ -881,9 +912,8 @@
                                                     </Button.Template>
                                                 </Button>
 
-                                                <!-- Delete Button -->
                                                 <Button Command="{Binding DataContext.OpenDeleteIrrigationModalCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
+                                                        CommandParameter="{Binding Log}"
                                                         ToolTip="Hapus catatan penyiraman"
                                                         Width="30"
                                                         Height="30"

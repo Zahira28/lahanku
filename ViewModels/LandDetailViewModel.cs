@@ -24,9 +24,6 @@ namespace Lahanku.ViewModels
         private Land _land;
 
         [ObservableProperty]
-        private ObservableCollection<IrrigationLog> _irrigationLogs = new();
-
-        [ObservableProperty]
         private string _selectedTab = "Penyiraman";
 
         [ObservableProperty]
@@ -75,8 +72,19 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private string _adviceText = "Menghubungkan ke satelit Open-Meteo...";
 
+        // "tunda", "ekstra", or "normal" → picks the recommendation icon & color
         [ObservableProperty]
-        private string _adviceVolumeText = "-- Liter";
+        private string _todayKind = "normal";
+
+        [ObservableProperty]
+        private string _baselineVolumeText = "-- L";
+
+        [ObservableProperty]
+        private string _recommendedVolumeText = "-- L";
+
+        // history table rows: real logs + postponed days, with evaluation
+        [ObservableProperty]
+        private ObservableCollection<HistoryRow> _historyRows = new();
 
         [ObservableProperty]
         private bool _canApplyAdvice;
@@ -145,8 +153,13 @@ namespace Lahanku.ViewModels
                 AdviceText = string.IsNullOrEmpty(TodayRecommendation.TimingAdvice)
                     ? TodayRecommendation.Reason
                     : $"{TodayRecommendation.Reason} {TodayRecommendation.TimingAdvice}";
-                AdviceVolumeText = $"{TodayRecommendation.RecommendedVolume:N0} Liter";
+                TodayKind = plan.Kind;
+                BaselineVolumeText = Liters(TodayRecommendation.BaselineVolume);
+                RecommendedVolumeText = Liters(TodayRecommendation.RecommendedVolume);
                 CanApplyAdvice = TodayRecommendation.RecommendedVolume > 0;
+
+                // today's record may have just been created → show it in the history without a skeleton flash
+                await LoadHistoryAsync(showSkeleton: false);
             }
             catch (Exception ex)
             {
@@ -188,19 +201,29 @@ namespace Lahanku.ViewModels
         }
 
         [RelayCommand]
-        public async Task LoadLogsAsync()
+        public Task LoadLogsAsync() => LoadHistoryAsync(showSkeleton: true);
+
+        private async Task LoadHistoryAsync(bool showSkeleton)
         {
-            IsLoadingLogs = true;
+            if (showSkeleton)
+            {
+                IsLoadingLogs = true;
+            }
+
             try
             {
-                var logs = await _landService.GetIrrigationLogsAsync(Land.Id);
-                IrrigationLogs.Clear();
-                foreach (var log in logs)
+                var logsTask = _landService.GetIrrigationLogsAsync(Land.Id);
+                var recordsTask = _dailyRecommendations.GetHistoryAsync(Land.Id, DateTime.Today.AddDays(-HistoryDays), DateTime.Today);
+                await Task.WhenAll(logsTask, recordsTask);
+
+                var rows = HistoryRow.Build(logsTask.Result, recordsTask.Result);
+                HistoryRows.Clear();
+                foreach (var row in rows)
                 {
-                    IrrigationLogs.Add(log);
+                    HistoryRows.Add(row);
                 }
 
-                HasLogs = IrrigationLogs.Count > 0;
+                HasLogs = HistoryRows.Count > 0;
             }
             catch (Exception ex)
             {
@@ -211,6 +234,11 @@ namespace Lahanku.ViewModels
                 IsLoadingLogs = false;
             }
         }
+
+        private const int HistoryDays = 90;
+
+        private static string Liters(double value) =>
+            value.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("id-ID")) + " L";
 
         public string CurrentUserName => _main.AuthService.CurrentUser?.DisplayName ?? "Petani";
 

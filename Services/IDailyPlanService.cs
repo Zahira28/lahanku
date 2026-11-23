@@ -7,6 +7,6 @@ namespace Lahanku.Services
     public interface IDailyPlanService
     {
         // get weather + forecast, calculate the recommendation, save the daily record
-        Task<LandPlan> CalculateAsync(Land land, DateTime waktu);
+        Task<LandPlan> CalculateAsync(Land land, DateTime now);
     }
 }

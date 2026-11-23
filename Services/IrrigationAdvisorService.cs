@@ -14,7 +14,7 @@ namespace Lahanku.Services
         private const double ProbabilityThreshold = 60;
         private static readonly CultureInfo Culture = CultureInfo.InvariantCulture;
 
-        public Recommendation Calculate(Land land, Weather? weather, RainForecast? forecast, DateTime waktu)
+        public Recommendation Calculate(Land land, Weather? weather, RainForecast? forecast, DateTime now)
         {
             double areaM2 = land.AreaHectares > 0 ? land.AreaHectares * 10000 : DefaultAreaM2;
             double needMm = land.Crop?.DailyWaterNeedMm ?? DefaultNeedMm;
@@ -27,7 +27,7 @@ namespace Lahanku.Services
                 return new Recommendation(WateringDecision.Water, baseline, baseline, areaM2,
                     "Siram dengan takaran standar",
                     "Data cuaca tidak tersedia, gunakan takaran standar.",
-                    TimingAdvice(waktu), forecastRain, probability);
+                    TimingAdvice(now), forecastRain, probability);
             }
 
             if (weather.Rainfall >= RainThresholdMm)
@@ -70,13 +70,13 @@ namespace Lahanku.Services
                 return new Recommendation(WateringDecision.WaterExtra, volume, baseline, areaM2,
                     "Tambah volume penyiraman",
                     $"Suhu {tempText}°C dan kelembapan {weather.Humidity:0}% berada di bawah batas ideal, sehingga air lebih cepat menguap.",
-                    TimingAdvice(waktu), forecastRain, probability);
+                    TimingAdvice(now), forecastRain, probability);
             }
 
             return new Recommendation(WateringDecision.Water, volume, baseline, areaM2,
                 "Siram sesuai kebutuhan normal",
                 $"Kondisi cuaca {weather.Condition.ToLowerInvariant()} dengan suhu {tempText}°C dan kelembapan {weather.Humidity:0}%.",
-                TimingAdvice(waktu), forecastRain, probability);
+                TimingAdvice(now), forecastRain, probability);
         }
 
         public DailyRecommendation CalculateRecommendation(Land land, Weather? weather)
@@ -96,7 +96,7 @@ namespace Lahanku.Services
         private static Recommendation Postpone(double baseline, double areaM2, string reason, double? forecastRain, double? probability) =>
             new(WateringDecision.Postpone, 0, baseline, areaM2, "Penyiraman ditunda", reason, string.Empty, forecastRain, probability);
 
-        private static string TimingAdvice(DateTime waktu) =>
-            waktu.Hour < 9 ? "Lakukan sebelum pukul 09.00." : "Waktu terbaik setelah pukul 16.00.";
+        private static string TimingAdvice(DateTime now) =>
+            now.Hour < 9 ? "Lakukan sebelum pukul 09.00." : "Waktu terbaik setelah pukul 16.00.";
     }
 }

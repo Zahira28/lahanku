@@ -54,6 +54,21 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSettingsView;
 
+        // today's watering plan, one card per land
+        [ObservableProperty]
+        private ObservableCollection<LandPlan> _todayPlans = new();
+
+        [ObservableProperty]
+        private bool _isLoadingPlans;
+
+        [ObservableProperty]
+        private string _weeklySummaryText = string.Empty;
+
+        public string TodayText => DateTime.Today.ToString("dddd, d MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
+
+        private readonly IDailyPlanService _dailyPlan;
+        private readonly IDailyRecommendationService _dailyRecommendations;
+
         public string CurrentUserName => _authService.CurrentUser?.DisplayName ?? "Petani";
 
         public string CurrentUserUsername => _authService.CurrentUser?.Handle ?? "@petani";
@@ -64,6 +79,8 @@ namespace Lahanku.ViewModels
             _landService = landService;
             _authService = authService;
             _errorHandler = errorHandler ?? new ErrorHandler();
+            _dailyRecommendations = new DailyRecommendationService(landService);
+            _dailyPlan = new DailyPlanService(new WeatherService(), new IrrigationAdvisorService(), _dailyRecommendations);
 
             UpdateGreeting();
             _ = LoadLandsAsync();
@@ -123,12 +140,15 @@ namespace Lahanku.ViewModels
                         .Count();
 
                     TotalVarieties = distinctCrops.ToString();
+                    _ = LoadPlansAsync();
                 }
                 else
                 {
                     TotalLands = "0";
                     TotalArea = "0";
                     TotalVarieties = "0";
+                    TodayPlans.Clear();
+                    WeeklySummaryText = string.Empty;
                 }
             }
             catch (Exception ex)
@@ -141,6 +161,59 @@ namespace Lahanku.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        // weather + recommendation per land (in parallel), then the weekly summary line
+        private async Task LoadPlansAsync()
+        {
+            IsLoadingPlans = true;
+            try
+            {
+                var lands = Lands.ToList();
+                var plans = await Task.WhenAll(lands.Select(l => _dailyPlan.CalculateAsync(l, DateTime.Now)));
+                TodayPlans.Clear();
+                foreach (var plan in plans)
+                {
+                    TodayPlans.Add(plan);
+                }
+
+                WeeklySummaryText = await BuildWeeklySummaryAsync(lands);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Dashboard] Failed to load plans: {ex}");
+            }
+            finally
+            {
+                IsLoadingPlans = false;
+            }
+        }
+
+        private async Task<string> BuildWeeklySummaryAsync(System.Collections.Generic.List<Land> lands)
+        {
+            var from = DateTime.Today.AddDays(-6);
+            var perLand = await Task.WhenAll(lands.Select(async l =>
+            {
+                var records = await _dailyRecommendations.GetHistoryAsync(l.Id, from, DateTime.Today);
+                var logs = await _landService.GetIrrigationLogsAsync(l.Id);
+                return (records, logs);
+            }));
+
+            var summary = WaterSummary.Calculate(
+                perLand.SelectMany(p => p.records),
+                perLand.SelectMany(p => p.logs));
+            return summary.ToWeeklySentence();
+        }
+
+        [RelayCommand]
+        private void RecordWatering(LandPlan? plan)
+        {
+            if (plan == null)
+            {
+                return;
+            }
+
+            _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadPlansAsync, plan.Land, plan.Recommendation.RecommendedVolume));
         }
 
         [RelayCommand]

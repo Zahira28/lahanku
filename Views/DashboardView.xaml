@@ -233,12 +233,6 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="LAHANKU • SISTEM MANAJEMEN LAHAN"
-                                   Foreground="{StaticResource AccentEmeraldBrush}"
-                                   FontSize="11"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,4" />
-
                         <TextBlock Text="{Binding GreetingText}"
                                    Foreground="{StaticResource TextPrimaryBrush}"
                                    FontSize="32"
@@ -321,6 +315,184 @@
                     </Grid>
                 </Border>
 
+                <!-- Today's watering plan: one card per land, all cards in a row share the same height -->
+                <StackPanel Margin="0,0,0,32"
+                            Visibility="{Binding HasLands, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid Margin="0,0,0,14">
+                        <TextBlock Text="Rencana Penyiraman Hari Ini"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TodayText}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="12.5"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <TextBlock Text="Memuat rencana penyiraman..."
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="13"
+                               Margin="0,4,0,4"
+                               Visibility="{Binding IsLoadingPlans, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <ItemsControl ItemsSource="{Binding TodayPlans}"
+                                  Margin="0,0,-12,0"
+                                  Visibility="{Binding IsLoadingPlans, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- UniformGrid gives every cell the same size → equal card heights -->
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource CardBackgroundBrush}"
+                                        BorderBrush="#E2E8F0"
+                                        BorderThickness="1"
+                                        CornerRadius="14"
+                                        Padding="16"
+                                        Margin="0,0,12,12"
+                                        Effect="{StaticResource CardShadow}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="40" />
+                                        </Grid.RowDefinitions>
+
+                                        <!-- icon + land name -->
+                                        <Grid Grid.Row="0" Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="38" Height="38" CornerRadius="10" Margin="0,0,12,0">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="#ECFDF5" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="tunda">
+                                                                <Setter Property="Background" Value="#EFF6FF" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="ekstra">
+                                                                <Setter Property="Background" Value="#FFFBEB" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <ContentControl Content="{Binding Kind}" Style="{StaticResource DecisionIconStyle}" Width="22" Height="22" />
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Land.Name}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontSize="14"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding Land.AreaText}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           FontSize="12" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- title (always reserves 2 lines) + reason (max 3 lines) -->
+                                        <StackPanel Grid.Row="1">
+                                            <TextBlock Text="{Binding Recommendation.Title}"
+                                                       FontSize="13.5"
+                                                       FontWeight="SemiBold"
+                                                       TextWrapping="Wrap"
+                                                       LineHeight="18"
+                                                       LineStackingStrategy="BlockLineHeight"
+                                                       Height="36"
+                                                       TextTrimming="CharacterEllipsis">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#047857" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="tunda">
+                                                                <Setter Property="Foreground" Value="#1D4ED8" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="ekstra">
+                                                                <Setter Property="Foreground" Value="#B45309" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding ShortReason}"
+                                                       ToolTip="{Binding ShortReason}"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="12"
+                                                       TextWrapping="Wrap"
+                                                       LineHeight="17"
+                                                       LineStackingStrategy="BlockLineHeight"
+                                                       MaxHeight="51"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
+
+                                        <Border Grid.Row="2" Height="1" Background="#F1F5F9" Margin="0,12,0,0" />
+
+                                        <!-- volume + action, fixed height so every footer lines up -->
+                                        <Grid Grid.Row="3" VerticalAlignment="Bottom">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding VolumeNumber}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontSize="20"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Text=" L"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Bottom"
+                                                           Margin="2,0,0,4" />
+                                            </StackPanel>
+
+                                            <!-- postponed: show the routine amount instead of a button -->
+                                            <TextBlock Text="{Binding Caption}"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="12"
+                                                       HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center"
+                                                       Visibility="{Binding IsPostponed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                            <Button Content="Catat"
+                                                    Command="{Binding DataContext.RecordWateringCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Catat penyiraman lahan ini"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center"
+                                                    Cursor="Hand"
+                                                    Visibility="{Binding IsPostponed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="bd" Background="#F0FDF4" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="8" Padding="14,6">
+                                                            <ContentPresenter TextElement.Foreground="#047857" TextElement.FontWeight="SemiBold" TextElement.FontSize="12.5" />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="bd" Property="Background" Value="#DCFCE7" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{Binding WeeklySummaryText}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="12.5"
+                               Margin="0,2,0,0"
+                               Visibility="{Binding WeeklySummaryText, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Inverse}" />
+                </StackPanel>
                 <!-- ================= 3 METRIC CARDS: SKELETON SHIMMER STATE ================= -->
                 <!-- Visible when IsLoading is True -->
                 <Grid Margin="0,0,0,32"
@@ -458,9 +630,9 @@
                             Effect="{StaticResource CardShadow}">
                         <StackPanel>
                             <Grid Margin="0,0,0,16">
-                                <TextBlock Text="TOTAL LAHAN"
+                                <TextBlock Text="Total Lahan"
                                            Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
+                                           FontSize="12.5"
                                            FontWeight="SemiBold"
                                            VerticalAlignment="Center" />
                                 <Border HorizontalAlignment="Right"
@@ -502,9 +674,9 @@
                             Effect="{StaticResource CardShadow}">
                         <StackPanel>
                             <Grid Margin="0,0,0,16">
-                                <TextBlock Text="LUAS AREA"
+                                <TextBlock Text="Luas Area"
                                            Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
+                                           FontSize="12.5"
                                            FontWeight="SemiBold"
                                            VerticalAlignment="Center" />
                                 <Border HorizontalAlignment="Right"
@@ -546,9 +718,9 @@
                             Effect="{StaticResource CardShadow}">
                         <StackPanel>
                             <Grid Margin="0,0,0,16">
-                                <TextBlock Text="TANAMAN AKTIF"
+                                <TextBlock Text="Tanaman Aktif"
                                            Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
+                                           FontSize="12.5"
                                            FontWeight="SemiBold"
                                            VerticalAlignment="Center" />
                                 <Border HorizontalAlignment="Right"
