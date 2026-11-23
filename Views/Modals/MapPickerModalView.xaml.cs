@@ -131,7 +131,9 @@ namespace Lahanku.Views.Modals
 
         private static string GenerateLeafletHtml(string lat, string lon, int zoom)
         {
-            var cartoKey = Lahanku.Helpers.MapConfig.CartoApiKey;
+            var cartoKeyQuery = string.IsNullOrEmpty(Lahanku.Helpers.MapConfig.CartoApiKey)
+                ? string.Empty
+                : "?key=" + Uri.EscapeDataString(Lahanku.Helpers.MapConfig.CartoApiKey);
             return $@"<!DOCTYPE html>
 <html>
 <head>
@@ -187,7 +189,7 @@ namespace Lahanku.Views.Modals
         }});
 
         // Layer CartoDB Voyager (Resmi dengan CARTO Basemaps API Key dari MapConfig)
-        var streetLayer = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png?key={cartoKey}', {{
+        var streetLayer = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png{cartoKeyQuery}', {{
             attribution: '&copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> &copy; <a href=""https://carto.com/attributions"">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
