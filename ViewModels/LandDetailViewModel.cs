@@ -55,6 +55,15 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private string _weatherPrecipText = "-- mm";
 
+        // kelembapan sekarang dibanding rentang ideal lahan: "ok", "low", "high", atau "" kalau nggak ada data
+        [ObservableProperty]
+        private string _humidityStatus = string.Empty;
+
+        [ObservableProperty]
+        private string _humidityStatusText = string.Empty;
+
+        public string HumidityIdealText => Land.HasIdealMoisture ? $"Ideal {Land.MoistureRangeText}" : string.Empty;
+
         [ObservableProperty]
         private string _weatherConditionText = "Memuat data satelit cuaca...";
 
@@ -117,6 +126,7 @@ namespace Lahanku.ViewModels
                     WeatherHumidityText = $"{CurrentWeather.Kelembapan:0}%";
                     WeatherPrecipText = $"{CurrentWeather.CurahHujan.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} mm";
                     WeatherConditionText = CurrentWeather.KondisiCuaca;
+                    UpdateHumidityStatus(CurrentWeather.Kelembapan);
                 }
                 else
                 {
@@ -144,6 +154,32 @@ namespace Lahanku.ViewModels
             finally
             {
                 IsLoadingWeather = false;
+            }
+        }
+
+        private void UpdateHumidityStatus(double humidity)
+        {
+            if (!Land.HasIdealMoisture)
+            {
+                HumidityStatus = string.Empty;
+                HumidityStatusText = string.Empty;
+                return;
+            }
+
+            if (humidity < Land.IdealMoistureMin)
+            {
+                HumidityStatus = "low";
+                HumidityStatusText = "Terlalu kering";
+            }
+            else if (humidity > Land.IdealMoistureMax)
+            {
+                HumidityStatus = "high";
+                HumidityStatusText = "Terlalu lembap";
+            }
+            else
+            {
+                HumidityStatus = "ok";
+                HumidityStatusText = "Sesuai";
             }
         }
 

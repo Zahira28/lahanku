@@ -15,6 +15,12 @@
             VerticalAlignment="Center"
             Effect="{StaticResource ModalShadow}">
 
+        <!-- scroll cuma muncul kalau jendelanya pendek -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Style="{StaticResource SlimScrollViewerStyle}"
+                      Margin="0,0,-12,0"
+                      Padding="0,0,12,0">
         <StackPanel>
             <!-- Subtitle -->
             <TextBlock Text="{Binding ModalSubtitle}"
@@ -443,6 +449,37 @@
                 </Popup>
             </Grid>
 
+            <!-- Field: Kelembapan Ideal (ide dari Josiah) -->
+            <TextBlock Text="Kelembapan Udara Ideal (%)"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,8" />
+            <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding MinMoistureText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource RoundedTextBoxStyle}"
+                         helpers:PlaceholderHelper.Placeholder="Contoh: 60"
+                         helpers:PlaceholderHelper.SuffixText="MIN %" />
+
+                <TextBox Grid.Column="2"
+                         Text="{Binding MaxMoistureText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource RoundedTextBoxStyle}"
+                         helpers:PlaceholderHelper.Placeholder="Contoh: 80"
+                         helpers:PlaceholderHelper.SuffixText="MAKS %" />
+            </Grid>
+            <TextBlock Text="Terisi otomatis dari katalog tanaman, boleh diubah sesuai kondisi lahan."
+                       Foreground="{StaticResource TextMutedBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Margin="4,0,0,20" />
+
             <!-- Error Message -->
             <TextBlock Text="{Binding ErrorMessage}"
                        Foreground="{StaticResource DangerRedBrush}"
@@ -465,5 +502,6 @@
                         Style="{StaticResource EmeraldButtonStyle}" />
             </StackPanel>
         </StackPanel>
+        </ScrollViewer>
     </Border>
 </UserControl>
