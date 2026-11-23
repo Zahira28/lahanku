@@ -147,7 +147,8 @@ namespace Lahanku.Services
             {
                 var client = await SupabaseConfig.GetClientAsync();
                 var trimmed = fullName.Trim();
-                await client.From<User>().Where(u => u.Id == CurrentUser.Id).Set(u => u.FullName!, trimmed).Update();
+                var userId = CurrentUser.Id;
+                await client.From<User>().Where(u => u.Id == userId).Set(u => u.FullName!, trimmed).Update();
                 CurrentUser.FullName = trimmed;
                 return (true, "Nama berhasil diperbarui.");
             }

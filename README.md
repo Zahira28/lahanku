@@ -38,6 +38,24 @@ Environment variable selalu diprioritaskan di atas `appsettings.json`:
 | `LAHANKU_SUPABASE_ANON_KEY` | Anon (public) key Supabase |
 | `LAHANKU_CARTO_API_KEY` | Opsional, key basemap CARTO |
 
+## Akun Demo
+
+Untuk mencoba aplikasi tanpa mendaftar, masuk dengan akun demo:
+
+| Username | Password |
+|---|---|
+| `demo` | `demo123` |
+
+Akun demo berisi tiga lahan pekarangan di sekitar Yogyakarta dengan riwayat penyiraman 30 hari terakhir, sehingga halaman **Dampak** langsung menampilkan grafik penghematan air. Nama dan password akun demo tidak dapat diubah dari aplikasi.
+
+Data demo dibuat dari cuaca asli 30 hari terakhir (Open-Meteo) dan dapat dibuat ulang kapan saja agar tetap terbaru:
+
+```powershell
+dotnet run -- --seed-demo
+```
+
+Perintah ini menghapus lahan lama milik akun demo lalu mengisinya kembali.
+
 ## Setup Database (Supabase Auth + RLS)
 
 Login memakai **Supabase Auth**; password di-hash oleh Supabase dan setiap user hanya bisa mengakses lahannya sendiri (Row Level Security).

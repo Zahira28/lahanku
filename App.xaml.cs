@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Lahanku.Models.Errors;
@@ -31,6 +33,12 @@ namespace Lahanku
                 return;
             }
 
+            if (Array.Exists(e.Args, a => a == "--seed-demo"))
+            {
+                _ = SeedDemoAsync();
+                return;
+            }
+
             // Init the centralized error handler service (SRP & DIP)
             var errorHandler = new ErrorHandler();
             _errorHandler = errorHandler;
@@ -52,6 +60,34 @@ namespace Lahanku
             this.MainWindow = mainWindow;
             mainWindow.Show();
         }
+
+        // `dotnet run -- --seed-demo`: no window, progress goes to the terminal that started us
+        private async Task SeedDemoAsync()
+        {
+            // run from a terminal: borrow its console. Output piped (e.g. by a script): just write to the pipe
+            if (!Console.IsOutputRedirected)
+            {
+                AttachConsole(AttachParentProcess);
+            }
+            Console.WriteLine();
+            Console.WriteLine("Mengisi akun demo LahanKu...");
+            int exitCode = 0;
+            try
+            {
+                exitCode = await new DemoSeeder(Console.WriteLine).RunAsync() ? 0 : 1;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Gagal: {ex.Message}");
+                exitCode = 1;
+            }
+            Shutdown(exitCode);
+        }
+
+        private const int AttachParentProcess = -1;
+
+        [DllImport("kernel32.dll")]
+        private static extern bool AttachConsole(int processId);
 
         private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {

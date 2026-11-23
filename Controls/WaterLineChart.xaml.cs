@@ -82,12 +82,16 @@ namespace Lahanku.Controls
             double step = NiceStep(Math.Max(points.Max(p => p.Used), ReferenceValue) * 1.1 / 3);
             _maxY = step * 3;
 
-            // grid + y labels
+            // grid + y labels (a label hidden behind the reference badge is skipped)
+            double refY = ReferenceValue > 0 ? Y(ReferenceValue) : double.NaN;
             for (int k = 0; k <= 3; k++)
             {
                 double v = step * k, y = Y(v);
                 Plot.Children.Add(new Line { X1 = PadLeft, X2 = width - PadRight, Y1 = y, Y2 = y, Stroke = k == 0 ? BaseLine : GridLine, StrokeThickness = 1 });
-                AddText(k == 0 ? "0" : $"{v.ToString("#,0", Culture)} L", PadLeft - 8, y, AxisText, 11, alignRight: true);
+                if (double.IsNaN(refY) || Math.Abs(y - refY) > 16)
+                {
+                    AddText(k == 0 ? "0" : $"{v.ToString("#,0", Culture)} L", PadLeft - 8, y, AxisText, 11, alignRight: true);
+                }
             }
 
             // x positions + a few date labels
@@ -257,10 +261,10 @@ namespace Lahanku.Controls
             Plot.Children.Add(tb);
         }
 
-        // at most 5 evenly spread date labels (always first and last)
+        // every day up to a week, otherwise 5 evenly spread labels (always first and last)
         private static IEnumerable<int> LabelIndices(int n)
         {
-            if (n <= 5)
+            if (n <= 7)
             {
                 return Enumerable.Range(0, n);
             }

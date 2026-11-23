@@ -194,7 +194,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Air yang dihemat" Style="{StaticResource TileLabel}" />
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,6">
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,10" VerticalAlignment="Top">
                                     <TextBlock Text="{Binding SavedText}" Style="{StaticResource TileValue}" FontSize="30" />
                                     <TextBlock Text="L" Style="{StaticResource TileUnit}" Margin="5,0,0,6" />
                                 </StackPanel>
@@ -210,7 +210,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Ditunda karena hujan" Style="{StaticResource TileLabel}" />
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,6" VerticalAlignment="Bottom">
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,10" VerticalAlignment="Top">
                                     <TextBlock Text="{Binding PostponedDaysText}" Style="{StaticResource TileValue}" />
                                     <TextBlock Text="hari" Style="{StaticResource TileUnit}" />
                                 </StackPanel>
@@ -226,7 +226,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Penyesuaian takaran" Style="{StaticResource TileLabel}" />
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,6" VerticalAlignment="Bottom">
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,10" VerticalAlignment="Top">
                                     <TextBlock Text="{Binding AdjustmentText}" Style="{StaticResource TileValue}" />
                                     <TextBlock Text="L" Style="{StaticResource TileUnit}" />
                                 </StackPanel>
@@ -242,7 +242,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Sesuai rekomendasi" Style="{StaticResource TileLabel}" />
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,6" VerticalAlignment="Bottom">
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,10" VerticalAlignment="Top">
                                     <TextBlock Text="{Binding OnTargetText}" Style="{StaticResource TileValue}" />
                                     <TextBlock Text="%" Style="{StaticResource TileUnit}" />
                                 </StackPanel>

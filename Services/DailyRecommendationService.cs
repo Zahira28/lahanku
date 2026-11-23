@@ -79,7 +79,7 @@ namespace Lahanku.Services
             }
         }
 
-        private static void Fill(DailyRecommendation target, Recommendation r)
+        public static void Fill(DailyRecommendation target, Recommendation r)
         {
             target.Decision = r.Decision.ToDb();
             target.RecommendedVolume = r.RecommendedVolume;
