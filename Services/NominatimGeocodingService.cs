@@ -17,7 +17,7 @@ namespace Lahanku.Services
 
         static NominatimGeocodingService()
         {
-            // OpenStreetMap Nominatim mewajibkan User-Agent yang jelas agar tidak diblokir
+            // OpenStreetMap Nominatim requires a clear User-Agent so we don't get blocked
             if (!_httpClient.DefaultRequestHeaders.Contains("User-Agent"))
             {
                 _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("LahanKu-PrecisionAgriculture/1.0 (desktop-app)");
@@ -145,7 +145,7 @@ namespace Lahanku.Services
                 return (rawLat, rawLon);
             }
 
-            // 2. Jika link pendek (maps.app.goo.gl atau goo.gl/maps), resolve URL aslinya terlebih dahulu
+            // 2. If it's a short link (maps.app.goo.gl or goo.gl/maps), resolve the real URL first
             var targetUrl = trimmed;
             if (trimmed.Contains("maps.app.goo.gl") || trimmed.Contains("goo.gl/maps"))
             {
@@ -162,11 +162,11 @@ namespace Lahanku.Services
                 }
                 catch
                 {
-                    // Fallback jika redirect gagal
+                    // Fallback if the redirect fails
                 }
             }
 
-            // 3. Ekstrak pola koordinat dari URL Google Maps:
+            // 3. Extract coordinate patterns from the Google Maps URL:
             // Pola A: @-7.9826,112.6308
             var atMatch = Regex.Match(targetUrl, @"@(-?\d+\.\d+),(-?\d+\.\d+)");
             if (atMatch.Success &&
@@ -176,7 +176,7 @@ namespace Lahanku.Services
                 return (atLat, atLon);
             }
 
-            // Pola B: ?q=-7.9826,112.6308 atau &ll=-7.9826,112.6308
+            // Pattern B: ?q=-7.9826,112.6308 or &ll=-7.9826,112.6308
             var qMatch = Regex.Match(targetUrl, @"[?&](?:q|ll)=(-?\d+\.\d+),(-?\d+\.\d+)");
             if (qMatch.Success &&
                 double.TryParse(qMatch.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double qLat) &&

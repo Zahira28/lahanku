@@ -3,7 +3,7 @@ using System;
 namespace Lahanku.Models.Errors
 {
     /// <summary>
-    /// Base class untuk semua exception internal aplikasi LahanKu (OOP Inheritance & Polymorphism).
+    /// Base class for all internal LahanKu exceptions (OOP Inheritance & Polymorphism).
     /// </summary>
     public abstract class LahankuException : Exception
     {

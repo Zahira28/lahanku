@@ -7,7 +7,7 @@ using System.Windows.Input;
 namespace Lahanku.ViewModels
 {
     /// <summary>
-    /// ViewModel untuk halaman Login pengguna (SRP & DIP).
+    /// ViewModel for the user Login page (SRP & DIP).
     /// </summary>
     public partial class LoginViewModel : ViewModelBase, IKeyboardShortcutHandler
     {

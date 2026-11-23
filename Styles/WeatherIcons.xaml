@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Ikon cuaca vector, kanvas 48x48. Dipilih lewat key dari WeatherService (sun, partly, cloudy, ...) -->
+    <!-- Vector weather icons, 48x48 canvas. Picked by key from WeatherService (sun, partly, cloudy, ...) -->
 
     <GeometryGroup x:Key="WeatherCloudGeometry" FillRule="Nonzero">
         <RectangleGeometry Rect="8,26,34,12" RadiusX="6" RadiusY="6" />
@@ -35,7 +35,7 @@
                     <Path Data="{StaticResource WeatherSunRaysGeometry}" Stroke="{StaticResource WeatherSunBrush}" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                     <Ellipse Canvas.Left="16" Canvas.Top="16" Width="16" Height="16" Fill="{StaticResource WeatherSunBrush}" />
                 </Canvas>
-                <!-- halo putih di belakang awan biar kepisah dari matahari -->
+                <!-- white halo behind the cloud so it separates from the sun -->
                 <Path Data="{StaticResource WeatherCloudGeometry}" Fill="#FFFFFF" Stroke="#FFFFFF" StrokeThickness="4" RenderTransform="0.9,0,0,0.9,7,9" />
                 <Path Data="{StaticResource WeatherCloudGeometry}" Fill="{StaticResource WeatherCloudBrush}" RenderTransform="0.9,0,0,0.9,7,9" />
             </Canvas>
@@ -99,7 +99,7 @@
         </Viewbox>
     </DataTemplate>
 
-    <!-- pakai: <ContentControl Content="{Binding WeatherIcon}" Style="{StaticResource WeatherIconStyle}" /> -->
+    <!-- usage: <ContentControl Content="{Binding WeatherIcon}" Style="{StaticResource WeatherIconStyle}" /> -->
     <Style x:Key="WeatherIconStyle" TargetType="ContentControl">
         <Setter Property="Focusable" Value="False" />
         <Setter Property="ContentTemplate" Value="{StaticResource WeatherIcon.partly}" />

@@ -13,8 +13,8 @@ using System.Windows.Input;
 namespace Lahanku.ViewModels
 {
     /// <summary>
-    /// ViewModel untuk dialog tambah dan edit lahan.
-    /// Memuat katalog varietas tanaman secara dinamis dari Supabase (SRP & Loose Coupling).
+    /// ViewModel for the add/edit land dialog.
+    /// Loads the crop variety catalog dynamically from Supabase (SRP & Loose Coupling).
     /// </summary>
     public partial class LandModalViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
@@ -23,7 +23,7 @@ namespace Lahanku.ViewModels
         private readonly DashboardViewModel _dashboard;
         private readonly Land? _originalLand;
         private readonly IGeocodingService _geocodingService;
-        private List<Tanaman> _availableTanaman = new();
+        private List<Crop> _availableCrops = new();
 
         public bool IsEditMode { get; }
 
@@ -85,7 +85,7 @@ namespace Lahanku.ViewModels
         public string AreaPlaceholder => SelectedAreaUnit?.Contains("m²") == true ? "Contoh: 500" : "Contoh: 0.5";
 
         /// <summary>
-        /// Alias untuk kompatibilitas properti lama
+        /// Alias for the old property name
         /// </summary>
         public string AreaHectaresText
         {
@@ -116,7 +116,7 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private string _selectedCropType = string.Empty;
 
-        // kelembapan udara ideal (%), otomatis keisi dari katalog waktu tanaman dipilih
+        // ideal air humidity (%), auto-filled from the catalog when a crop is picked
         [ObservableProperty]
         private string _minMoistureText = string.Empty;
 
@@ -228,12 +228,12 @@ namespace Lahanku.ViewModels
             IsLoadingCrops = true;
             try
             {
-                _availableTanaman = await _landService.GetTanamanListAsync();
+                _availableCrops = await _landService.GetCropsAsync();
 
                 CropOptions.Clear();
-                foreach (var tanaman in _availableTanaman)
+                foreach (var crop in _availableCrops)
                 {
-                    CropOptions.Add(tanaman.DisplayName);
+                    CropOptions.Add(crop.DisplayName);
                 }
 
                 if (IsEditMode && !string.IsNullOrWhiteSpace(SelectedCropType))
@@ -304,11 +304,11 @@ namespace Lahanku.ViewModels
             {
                 SelectedCropType = crop;
 
-                var tanaman = _availableTanaman.FirstOrDefault(t => t.DisplayName == crop);
-                if (tanaman != null && tanaman.KelembapanIdealMax > 0)
+                var selected = _availableCrops.FirstOrDefault(t => t.DisplayName == crop);
+                if (selected != null && selected.IdealHumidityMax > 0)
                 {
-                    MinMoistureText = FormatMoisture(tanaman.KelembapanIdealMin);
-                    MaxMoistureText = FormatMoisture(tanaman.KelembapanIdealMax);
+                    MinMoistureText = FormatMoisture(selected.IdealHumidityMin);
+                    MaxMoistureText = FormatMoisture(selected.IdealHumidityMax);
                 }
             }
             IsCropDropdownOpen = false;
@@ -317,7 +317,7 @@ namespace Lahanku.ViewModels
         private static string FormatMoisture(double? value) =>
             value.HasValue ? value.Value.ToString("0.##", CultureInfo.InvariantCulture) : string.Empty;
 
-        // kosong dua-duanya = ikut katalog tanaman
+        // both empty = follow the crop catalog
         private bool TryParseMoisture(out double? min, out double? max)
         {
             min = null;
@@ -407,10 +407,10 @@ namespace Lahanku.ViewModels
                 return;
             }
 
-            // Cari ID Tanaman yang cocok dari pilihan katalog
-            var matchedTanaman = _availableTanaman.FirstOrDefault(t => 
+            // Find the matching Crop ID from the catalog selection
+            var matchedCrop = _availableCrops.FirstOrDefault(t => 
                 string.Equals(t.DisplayName, SelectedCropType, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(t.NamaTanaman, SelectedCropType, StringComparison.OrdinalIgnoreCase));
+                string.Equals(t.Name, SelectedCropType, StringComparison.OrdinalIgnoreCase));
 
             IsSaving = true;
             try
@@ -426,8 +426,8 @@ namespace Lahanku.ViewModels
                     _originalLand.AreaHectares = areaInHectares;
                     _originalLand.MinMoisture = minMoisture;
                     _originalLand.MaxMoisture = maxMoisture;
-                    _originalLand.TanamanId = matchedTanaman?.IdTanaman ?? _originalLand.TanamanId;
-                    _originalLand.Tanaman = matchedTanaman ?? _originalLand.Tanaman;
+                    _originalLand.CropId = matchedCrop?.Id ?? _originalLand.CropId;
+                    _originalLand.Crop = matchedCrop ?? _originalLand.Crop;
                     _originalLand.CropType = SelectedCropType;
 
                     bool success = await _landService.UpdateLandAsync(_originalLand);
@@ -447,8 +447,8 @@ namespace Lahanku.ViewModels
                     var newLand = new Land
                     {
                         OwnerId = currentUserId,
-                        TanamanId = matchedTanaman?.IdTanaman,
-                        Tanaman = matchedTanaman,
+                        CropId = matchedCrop?.Id,
+                        Crop = matchedCrop,
                         Name = Name.Trim(),
                         LocationDescription = string.IsNullOrWhiteSpace(LocationDescription) ? Name.Trim() : LocationDescription.Trim(),
                         Latitude = lat,
@@ -484,7 +484,7 @@ namespace Lahanku.ViewModels
 
         public bool HandleKey(Key key, ModifierKeys modifiers)
         {
-            // kalau dropdown tanaman kebuka, Enter pilih hasil teratas dan Esc nutup dropdown-nya aja
+            // if the crop dropdown is open, Enter picks the top result and Esc just closes the dropdown
             if (IsCropDropdownOpen)
             {
                 if (key == Key.Enter)

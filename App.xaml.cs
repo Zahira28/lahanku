@@ -31,11 +31,11 @@ namespace Lahanku
                 return;
             }
 
-            // Inisialisasi layanan penanganan error terpusat (SRP & DIP)
+            // Init the centralized error handler service (SRP & DIP)
             var errorHandler = new ErrorHandler();
             _errorHandler = errorHandler;
 
-            // Global exception handler untuk thread background/non-UI
+            // Global exception handler for background/non-UI threads
             AppDomain.CurrentDomain.UnhandledException += (s, args) =>
             {
                 if (args.ExceptionObject is Exception ex)
@@ -55,7 +55,7 @@ namespace Lahanku
 
         private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            // Jika mainWindow belum terbuka, tampilkan MessageBox fallback agar user tahu
+            // If mainWindow isn't open yet, show a fallback MessageBox so the user knows
             if (MainWindow == null || !MainWindow.IsLoaded)
             {
                 MessageBox.Show($"Terjadi kesalahan saat memulai aplikasi:\n{e.Exception.Message}", "LahanKu - Kesalahan", MessageBoxButton.OK, MessageBoxImage.Error);

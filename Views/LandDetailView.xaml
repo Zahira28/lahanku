@@ -102,7 +102,7 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Bottom User Info & Logout (sama dengan Dashboard) -->
+                <!-- Bottom User Info & Logout (same as Dashboard) -->
                 <Border Grid.Row="2"
                         Background="#FFFFFF"
                         BorderBrush="#E2E8F0"
@@ -156,7 +156,7 @@
         </Border>
 
         <!-- ================= MAIN CONTENT ================= -->
-        <!-- halaman nggak di-scroll; card riwayat ngisi sisa tinggi, daftarnya yang di-scroll di dalam card -->
+        <!-- the page doesn't scroll; the history card fills the remaining height and its list scrolls inside the card -->
         <Grid Grid.Column="1" Margin="40,32">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -353,7 +353,7 @@
                                                        FontSize="13"
                                                        FontWeight="Bold" />
 
-                                            <!-- dibandingin sama kelembapan ideal lahan -->
+                                            <!-- compared with the land's ideal humidity -->
                                             <StackPanel Orientation="Horizontal"
                                                         Margin="0,3,0,0"
                                                         Visibility="{Binding HumidityStatusText, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Inverse}">
@@ -387,7 +387,7 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Curah Hujan -->
+                                    <!-- Rainfall -->
                                     <Border Grid.Column="1"
                                             Background="#F8FAFC"
                                             CornerRadius="10"
@@ -491,7 +491,7 @@
 
                                 <!-- Body: Advice Text -->
                                 <TextBlock Grid.Row="1"
-                                           Text="{Binding AdviceSaran}"
+                                           Text="{Binding AdviceText}"
                                            Foreground="#1F2937"
                                            FontSize="12.5"
                                            TextWrapping="Wrap"
@@ -545,7 +545,7 @@
                     </Border>
                 </Grid>
 
-                <!-- Sub-header Row: Tabs & "+ Siram Lahan" Button -->
+                <!-- Sub-header Row: Tabs & "+ Water Land" Button -->
                 <Grid Grid.Row="2" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -556,7 +556,7 @@
                     <StackPanel Grid.Column="0"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Bottom">
-                        <!-- Penyiraman Tab (Active) -->
+                        <!-- Watering Tab (Active) -->
                         <StackPanel Margin="0,0,24,0">
                             <TextBlock Text="Penyiraman"
                                        Foreground="{StaticResource PrimaryGreenBrush}"
@@ -569,7 +569,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- + Siram Lahan Button -->
+                    <!-- + Water Land Button -->
                     <Button Grid.Column="1"
                             Command="{Binding OpenAddIrrigationModalCommand}"
                             ToolTip="Catat penyiraman (Ctrl+N)"
@@ -704,7 +704,7 @@
                         </StackPanel>
 
                         <!-- Rows (Empty State if no logs) -->
-                        <!-- Empty state: isi sisa tinggi card kalau belum ada riwayat -->
+                        <!-- Empty state: fill the remaining card height when there's no history yet -->
                         <Grid Grid.Row="2">
                             <Grid.Style>
                                 <Style TargetType="Grid">
@@ -721,7 +721,7 @@
                                 </Style>
                             </Grid.Style>
 
-                            <!-- DownOnly: ngecil sendiri kalau jendelanya pendek, nggak pernah ngebesar -->
+                            <!-- DownOnly: shrinks itself when the window is short, never grows -->
                             <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,12">
                                 <Grid Width="112" Height="112" HorizontalAlignment="Center" Margin="0,0,0,22">
@@ -781,7 +781,7 @@
                         </Grid>
 
                         <!-- Items List -->
-                        <!-- disembunyiin kalau kosong, kalau nggak dia nutupin tombol di empty state -->
+                        <!-- hidden when empty, otherwise it covers the button in the empty state -->
                         <ScrollViewer Grid.Row="2"
                                       Visibility="{Binding HasLogs, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       VerticalScrollBarVisibility="Auto"
@@ -814,7 +814,7 @@
                                                 <ColumnDefinition Width="90" />
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- Tanggal & Waktu -->
+                                            <!-- Date & Time -->
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding FormattedDate}"
                                                        Foreground="{StaticResource TextPrimaryBrush}"

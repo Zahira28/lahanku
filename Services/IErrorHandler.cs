@@ -4,7 +4,7 @@ using Lahanku.Models.Errors;
 namespace Lahanku.Services
 {
     /// <summary>
-    /// Kontrak layanan manajemen penanganan error terpusat (ISP & DIP).
+    /// Contract for the centralized error handling service (ISP & DIP).
     /// </summary>
     public interface IErrorHandler
     {

@@ -4,48 +4,48 @@ using Lahanku.Models;
 
 namespace Lahanku.Services
 {
-    // Hitung rekomendasi penyiraman harian dari kebutuhan air tanaman (mm/hari),
-    // cuaca sekarang, dan prakiraan hujan 24 jam. Fungsi murni, gampang dites.
+    // Calculate the daily watering recommendation from the crop's water need (mm/day),
+    // current weather, and the 24h rain forecast. Pure function, easy to test.
     public class IrrigationAdvisorService : IIrrigationAdvisorService
     {
-        private const double KebutuhanDefaultMm = 4.5;
-        private const double LuasDefaultM2 = 100;
-        private const double BatasHujanMm = 3.0;
-        private const double BatasPeluang = 60;
-        private static readonly CultureInfo Id = CultureInfo.InvariantCulture;
+        private const double DefaultNeedMm = 4.5;
+        private const double DefaultAreaM2 = 100;
+        private const double RainThresholdMm = 3.0;
+        private const double ProbabilityThreshold = 60;
+        private static readonly CultureInfo Culture = CultureInfo.InvariantCulture;
 
-        public Rekomendasi Hitung(Land land, Cuaca? cuaca, PrakiraanHujan? prakiraan, DateTime waktu)
+        public Recommendation Calculate(Land land, Weather? weather, RainForecast? forecast, DateTime waktu)
         {
-            double luasM2 = land.AreaHectares > 0 ? land.AreaHectares * 10000 : LuasDefaultM2;
-            double kebutuhanMm = land.Tanaman?.KebutuhanAirHarian ?? KebutuhanDefaultMm;
-            double standar = Math.Round(kebutuhanMm * luasM2, 0);
-            double? hujanPrakiraan = prakiraan?.TotalMm;
-            double? peluang = prakiraan?.PeluangMaks;
+            double areaM2 = land.AreaHectares > 0 ? land.AreaHectares * 10000 : DefaultAreaM2;
+            double needMm = land.Crop?.DailyWaterNeedMm ?? DefaultNeedMm;
+            double baseline = Math.Round(needMm * areaM2, 0);
+            double? forecastRain = forecast?.TotalMm;
+            double? probability = forecast?.MaxProbability;
 
-            if (cuaca == null)
+            if (weather == null)
             {
-                return new Rekomendasi(KeputusanSiram.Siram, standar, standar, luasM2,
+                return new Recommendation(WateringDecision.Water, baseline, baseline, areaM2,
                     "Siram dengan takaran standar",
                     "Data cuaca tidak tersedia, gunakan takaran standar.",
-                    SaranWaktu(waktu), hujanPrakiraan, peluang);
+                    TimingAdvice(waktu), forecastRain, probability);
             }
 
-            if (cuaca.CurahHujan >= BatasHujanMm)
+            if (weather.Rainfall >= RainThresholdMm)
             {
-                return Tunda(standar, luasM2,
-                    $"Sedang turun hujan sekitar {cuaca.CurahHujan.ToString("0.#", Id)} mm. Kelembapan tanah mencukupi sehingga penyiraman tidak diperlukan.",
-                    hujanPrakiraan, peluang);
+                return Postpone(baseline, areaM2,
+                    $"Sedang turun hujan sekitar {weather.Rainfall.ToString("0.#", Culture)} mm. Kelembapan tanah mencukupi sehingga penyiraman tidak diperlukan.",
+                    forecastRain, probability);
             }
 
-            if (prakiraan != null && prakiraan.TotalMm >= BatasHujanMm && prakiraan.PeluangMaks >= BatasPeluang)
+            if (forecast != null && forecast.TotalMm >= RainThresholdMm && forecast.MaxProbability >= ProbabilityThreshold)
             {
-                string jam = prakiraan.JamMulai.HasValue ? $" sekitar pukul {prakiraan.JamMulai.Value:00}.00" : string.Empty;
-                return Tunda(standar, luasM2,
-                    $"Hujan sekitar {prakiraan.TotalMm.ToString("0.#", Id)} mm diperkirakan turun{jam} (peluang {prakiraan.PeluangMaks:0}%). Kelembapan tanah diperkirakan mencukupi sehingga penyiraman tidak diperlukan.",
-                    hujanPrakiraan, peluang);
+                string hour = forecast.StartHour.HasValue ? $" sekitar pukul {forecast.StartHour.Value:00}.00" : string.Empty;
+                return Postpone(baseline, areaM2,
+                    $"Hujan sekitar {forecast.TotalMm.ToString("0.#", Culture)} mm diperkirakan turun{hour} (peluang {forecast.MaxProbability:0}%). Kelembapan tanah diperkirakan mencukupi sehingga penyiraman tidak diperlukan.",
+                    forecastRain, probability);
             }
 
-            double faktorSuhu = cuaca.Suhu switch
+            double tempFactor = weather.Temperature switch
             {
                 >= 33.0 => 1.30,
                 >= 30.0 => 1.15,
@@ -53,50 +53,50 @@ namespace Lahanku.Services
                 _ => 1.0
             };
 
-            double batasKering = land.HasIdealMoisture ? land.IdealMoistureMin!.Value : 45.0;
-            double batasLembap = land.HasIdealMoisture ? land.IdealMoistureMax!.Value : 80.0;
-            double faktorKelembapan = cuaca.Kelembapan <= batasKering ? 1.20
-                : cuaca.Kelembapan >= batasLembap ? 0.85
+            double dryLimit = land.HasIdealMoisture ? land.IdealMoistureMin!.Value : 45.0;
+            double wetLimit = land.HasIdealMoisture ? land.IdealMoistureMax!.Value : 80.0;
+            double humidityFactor = weather.Humidity <= dryLimit ? 1.20
+                : weather.Humidity >= wetLimit ? 0.85
                 : 1.0;
 
-            // hujan ringan yang diprediksi ikut mengurangi takaran sesuai peluangnya
-            double hujanEfektif = cuaca.CurahHujan + (prakiraan == null ? 0 : prakiraan.TotalMm * prakiraan.PeluangMaks / 100.0);
-            double netMm = Math.Max(0.5, kebutuhanMm * faktorSuhu * faktorKelembapan - 0.8 * hujanEfektif);
-            double volume = Math.Round(netMm * luasM2, 0);
+            // light rain in the forecast reduces the volume, weighted by its probability
+            double effectiveRain = weather.Rainfall + (forecast == null ? 0 : forecast.TotalMm * forecast.MaxProbability / 100.0);
+            double netMm = Math.Max(0.5, needMm * tempFactor * humidityFactor - 0.8 * effectiveRain);
+            double volume = Math.Round(netMm * areaM2, 0);
 
-            string suhu = cuaca.Suhu.ToString("0.#", Id);
-            if (cuaca.Suhu >= 32.0 && cuaca.Kelembapan < batasKering)
+            string tempText = weather.Temperature.ToString("0.#", Culture);
+            if (weather.Temperature >= 32.0 && weather.Humidity < dryLimit)
             {
-                return new Rekomendasi(KeputusanSiram.SiramEkstra, volume, standar, luasM2,
+                return new Recommendation(WateringDecision.WaterExtra, volume, baseline, areaM2,
                     "Tambah volume penyiraman",
-                    $"Suhu {suhu}°C dan kelembapan {cuaca.Kelembapan:0}% berada di bawah batas ideal, sehingga air lebih cepat menguap.",
-                    SaranWaktu(waktu), hujanPrakiraan, peluang);
+                    $"Suhu {tempText}°C dan kelembapan {weather.Humidity:0}% berada di bawah batas ideal, sehingga air lebih cepat menguap.",
+                    TimingAdvice(waktu), forecastRain, probability);
             }
 
-            return new Rekomendasi(KeputusanSiram.Siram, volume, standar, luasM2,
+            return new Recommendation(WateringDecision.Water, volume, baseline, areaM2,
                 "Siram sesuai kebutuhan normal",
-                $"Kondisi cuaca {cuaca.KondisiCuaca.ToLowerInvariant()} dengan suhu {suhu}°C dan kelembapan {cuaca.Kelembapan:0}%.",
-                SaranWaktu(waktu), hujanPrakiraan, peluang);
+                $"Kondisi cuaca {weather.Condition.ToLowerInvariant()} dengan suhu {tempText}°C dan kelembapan {weather.Humidity:0}%.",
+                TimingAdvice(waktu), forecastRain, probability);
         }
 
-        public EvaluasiIrigasi CalculateRecommendation(Land land, Cuaca? cuaca)
+        public DailyRecommendation CalculateRecommendation(Land land, Weather? weather)
         {
-            var r = Hitung(land, cuaca, null, DateTime.Now);
-            return new EvaluasiIrigasi
+            var r = Calculate(land, weather, null, DateTime.Now);
+            return new DailyRecommendation
             {
-                IdLahan = land.Id,
-                IdCuaca = cuaca?.IdCuaca,
-                VolumeAnjuran = r.VolumeAnjuran,
-                StatusEfisiensi = r.Judul,
-                Saran = string.IsNullOrEmpty(r.SaranWaktu) ? r.Alasan : $"{r.Alasan} {r.SaranWaktu}",
+                LandId = land.Id,
+                WeatherId = weather?.WeatherId,
+                RecommendedVolume = r.RecommendedVolume,
+                StatusLabel = r.Title,
+                Advice = string.IsNullOrEmpty(r.TimingAdvice) ? r.Reason : $"{r.Reason} {r.TimingAdvice}",
                 CreatedAt = DateTime.UtcNow
             };
         }
 
-        private static Rekomendasi Tunda(double standar, double luasM2, string alasan, double? hujanPrakiraan, double? peluang) =>
-            new(KeputusanSiram.Tunda, 0, standar, luasM2, "Penyiraman ditunda", alasan, string.Empty, hujanPrakiraan, peluang);
+        private static Recommendation Postpone(double baseline, double areaM2, string reason, double? forecastRain, double? probability) =>
+            new(WateringDecision.Postpone, 0, baseline, areaM2, "Penyiraman ditunda", reason, string.Empty, forecastRain, probability);
 
-        private static string SaranWaktu(DateTime waktu) =>
+        private static string TimingAdvice(DateTime waktu) =>
             waktu.Hour < 9 ? "Lakukan sebelum pukul 09.00." : "Waktu terbaik setelah pukul 16.00.";
     }
 }

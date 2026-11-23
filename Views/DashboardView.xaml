@@ -223,9 +223,9 @@
         <ScrollViewer Grid.Column="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <!-- padding ditaruh di sini, bukan di ScrollViewer, biar shadow card nggak kepotong -->
+            <!-- padding lives here, not on the ScrollViewer, so card shadows don't get clipped -->
             <StackPanel Margin="40,32">
-                <!-- Top Header: Subtitle, Greeting, + Tambah Lahan Button -->
+                <!-- Top Header: Subtitle, Greeting, + Add Land Button -->
                 <Grid Margin="0,0,0,28">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -245,7 +245,7 @@
                                    FontWeight="Bold" />
                     </StackPanel>
 
-                    <!-- + Tambah Lahan Button -->
+                    <!-- + Add Land Button -->
                     <Button Grid.Column="1"
                             Command="{Binding OpenAddLandModalCommand}"
                             ToolTip="Tambah lahan (Ctrl+N)"
@@ -448,7 +448,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Card 1: TOTAL LAHAN -->
+                    <!-- Card 1: TOTAL LANDS -->
                     <Border Grid.Column="0"
                             Background="{StaticResource CardBackgroundBrush}"
                             CornerRadius="18"
@@ -536,7 +536,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Card 3: TANAMAN AKTIF -->
+                    <!-- Card 3: ACTIVE CROPS -->
                     <Border Grid.Column="4"
                             Background="{StaticResource CardBackgroundBrush}"
                             CornerRadius="18"

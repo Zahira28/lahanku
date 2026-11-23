@@ -12,7 +12,7 @@ using System.Windows.Input;
 namespace Lahanku.ViewModels
 {
     /// <summary>
-    /// ViewModel Dashboard utama dengan indikator loading, penanganan error, dan banner coba lagi (SRP).
+    /// Main Dashboard ViewModel with loading indicator, error handling, and retry banner (SRP).
     /// </summary>
     public partial class DashboardViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
@@ -117,7 +117,7 @@ namespace Lahanku.ViewModels
                     TotalArea = totalHa.ToString("0.##", CultureInfo.InvariantCulture);
 
                     var distinctCrops = Lands
-                        .Select(l => l.TanamanId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
+                        .Select(l => l.CropId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
                         .Where(key => !string.IsNullOrEmpty(key))
                         .Distinct()
                         .Count();
@@ -190,7 +190,7 @@ namespace Lahanku.ViewModels
             _main.NavigateToLogin();
         }
 
-        // Ctrl+N tambah lahan, F5 muat ulang
+        // Ctrl+N add land, F5 reload
         public bool HandleKey(Key key, ModifierKeys modifiers) => key switch
         {
             Key.N when modifiers == ModifierKeys.Control => OpenAddLandModalCommand.TryRun(),

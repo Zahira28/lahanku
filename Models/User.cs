@@ -5,7 +5,7 @@ using Supabase.Postgrest.Models;
 
 namespace Lahanku.Models
 {
-    // Profil user dari tabel profiles. Password dikelola Supabase Auth, nggak disimpan di sini.
+    // User profile from the profiles table. Password is handled by Supabase Auth, not stored here.
     [Table("profiles")]
     public class User : BaseModel
     {

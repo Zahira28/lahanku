@@ -12,7 +12,7 @@ using static Supabase.Postgrest.Constants;
 namespace Lahanku.Services
 {
     /// <summary>
-    /// Layanan penarik data satelit cuaca real-time Open-Meteo API (SRP & DIP).
+    /// Real-time satellite weather service using the Open-Meteo API (SRP & DIP).
     /// </summary>
     public class WeatherService : IWeatherService
     {
@@ -21,7 +21,7 @@ namespace Lahanku.Services
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        public async Task<Cuaca?> GetCurrentWeatherAsync(double latitude, double longitude, long? landId = null)
+        public async Task<Weather?> GetCurrentWeatherAsync(double latitude, double longitude, long? landId = null)
         {
             try
             {
@@ -46,20 +46,20 @@ namespace Lahanku.Services
                 var current = meteoData.Current;
                 var (kondisi, _) = GetWmoDescription(current.WeatherCode);
 
-                var cuaca = new Cuaca
+                var weather = new Weather
                 {
-                    IdLahan = landId,
-                    Suhu = current.Temperature2m,
-                    Kelembapan = current.RelativeHumidity2m,
-                    CurahHujan = current.Precipitation,
-                    KondisiCuaca = kondisi,
+                    LandId = landId,
+                    Temperature = current.Temperature2m,
+                    Humidity = current.RelativeHumidity2m,
+                    Rainfall = current.Precipitation,
+                    Condition = kondisi,
                     WeatherCode = current.WeatherCode,
-                    WaktuCek = DateTime.UtcNow
+                    CheckedAt = DateTime.UtcNow
                 };
 
-                _ = SaveSnapshotToDatabaseAsync(cuaca);
+                _ = SaveSnapshotToDatabaseAsync(weather);
 
-                return cuaca;
+                return weather;
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace Lahanku.Services
             }
         }
 
-        public async Task<PrakiraanHujan?> GetPrakiraanHujanAsync(double latitude, double longitude)
+        public async Task<RainForecast?> GetRainForecastAsync(double latitude, double longitude)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace Lahanku.Services
                     return null;
                 }
 
-                return PrakiraanHujan.DariPerJam(hourly.Time, hourly.Precipitation, hourly.PrecipitationProbability);
+                return RainForecast.FromHourly(hourly.Time, hourly.Precipitation, hourly.PrecipitationProbability);
             }
             catch (Exception ex)
             {
@@ -98,13 +98,13 @@ namespace Lahanku.Services
             }
         }
 
-        // simpan maksimal 1 snapshot per lahan per jam, biar tabel cuaca nggak bengkak
+        // save at most 1 snapshot per land per hour, so the weather table doesn't bloat
         private static readonly TimeSpan SnapshotInterval = TimeSpan.FromHours(1);
         private static readonly ConcurrentDictionary<long, DateTime> _lastSnapshotUtc = new();
 
-        private async Task SaveSnapshotToDatabaseAsync(Cuaca cuaca)
+        private async Task SaveSnapshotToDatabaseAsync(Weather weather)
         {
-            if (cuaca.IdLahan is not long landId)
+            if (weather.LandId is not long landId)
             {
                 return;
             }
@@ -118,27 +118,27 @@ namespace Lahanku.Services
             {
                 var client = await SupabaseConfig.GetClientAsync();
 
-                // cek DB juga, soalnya cache di atas hilang tiap app ditutup
+                // check the DB too, because the cache above is lost every time the app closes
                 var latest = await client
-                    .From<Cuaca>()
-                    .Where(c => c.IdLahan == landId)
-                    .Order(c => c.WaktuCek, Ordering.Descending)
+                    .From<Weather>()
+                    .Where(c => c.LandId == landId)
+                    .Order(c => c.CheckedAt, Ordering.Descending)
                     .Limit(1)
                     .Get();
 
-                var lastSaved = latest.Models.FirstOrDefault()?.WaktuCek.ToUniversalTime();
+                var lastSaved = latest.Models.FirstOrDefault()?.CheckedAt.ToUniversalTime();
                 if (lastSaved.HasValue && DateTime.UtcNow - lastSaved.Value < SnapshotInterval)
                 {
                     _lastSnapshotUtc[landId] = lastSaved.Value;
                     return;
                 }
 
-                await client.From<Cuaca>().Insert(cuaca);
+                await client.From<Weather>().Insert(weather);
                 _lastSnapshotUtc[landId] = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
-                // gagal simpan riwayat nggak masalah, data cuaca tetap tampil
+                // failing to save the history is fine, the weather still shows
                 System.Diagnostics.Debug.WriteLine($"[WeatherService] Gagal simpan snapshot: {ex.Message}");
             }
         }

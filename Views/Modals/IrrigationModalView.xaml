@@ -31,13 +31,13 @@
                        FontWeight="Bold"
                        Margin="0,0,0,24" />
 
-            <!-- Field: Tanggal & Waktu (kalender custom, tanggal masa depan dikunci) -->
+            <!-- Field: Date & Time (custom calendar, future dates locked) -->
             <TextBlock Text="Tanggal &amp; Waktu Penyiraman"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        FontSize="13"
                        FontWeight="SemiBold"
                        Margin="0,0,0,8" />
-            <controls:TanggalPicker Value="{Binding Date, Mode=TwoWay}"
+            <controls:DateTimePicker Value="{Binding Date, Mode=TwoWay}"
                                     Margin="0,0,0,18" />
 
             <!-- Field: Volume Air -->

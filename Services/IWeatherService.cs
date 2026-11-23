@@ -4,20 +4,20 @@ using Lahanku.Models;
 namespace Lahanku.Services
 {
     /// <summary>
-    /// Abstraksi layanan data satelit cuaca (DIP - Dependency Inversion Principle).
+    /// Abstraction for the satellite weather data service (DIP - Dependency Inversion Principle).
     /// </summary>
     public interface IWeatherService
     {
         /// <summary>
-        /// Mengambil data cuaca real-time dari koordinat satelit Open-Meteo.
+        /// Gets real-time weather data from Open-Meteo for the given coordinates.
         /// </summary>
-        Task<Cuaca?> GetCurrentWeatherAsync(double latitude, double longitude, long? landId = null);
+        Task<Weather?> GetCurrentWeatherAsync(double latitude, double longitude, long? landId = null);
 
-        // total hujan 24 jam ke depan, null kalau gagal ambil
-        Task<PrakiraanHujan?> GetPrakiraanHujanAsync(double latitude, double longitude);
+        // total rain for the next 24 hours, null if the request fails
+        Task<RainForecast?> GetRainForecastAsync(double latitude, double longitude);
 
         /// <summary>
-        /// Menerjemahkan kode WMO ke deskripsi bahasa Indonesia dan key ikon cuaca (lihat Styles/WeatherIcons.xaml).
+        /// Translates WMO codes into an Indonesian description and a weather icon key (see Styles/WeatherIcons.xaml).
         /// </summary>
         (string Condition, string IconKey) GetWmoDescription(int weatherCode);
     }

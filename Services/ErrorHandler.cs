@@ -7,14 +7,14 @@ using Lahanku.Models.Errors;
 namespace Lahanku.Services
 {
     /// <summary>
-    /// Implementasi layanan penanganan error terpusat (SRP - Single Responsibility Principle).
-    /// Bertanggung jawab mencatat log, memetakan exception, dan mendispatch notifikasi ke UI.
+    /// Centralized error handling service (SRP - Single Responsibility Principle).
+    /// Responsible for logging, mapping exceptions, and dispatching notifications to the UI.
     /// </summary>
     public class ErrorHandler : IErrorHandler
     {
         public event EventHandler<AppError>? ErrorOccurred;
 
-        // Callback delegates yang dihubungkan ke MainViewModel
+        // Callback delegates wired to MainViewModel
         public Action<string, string?>? ShowErrorToastAction { get; set; }
         public Action<string, string?>? ShowSuccessToastAction { get; set; }
         public Action<string, string?>? ShowWarningToastAction { get; set; }
@@ -28,17 +28,17 @@ namespace Lahanku.Services
 
         public void HandleError(AppError error)
         {
-            // 1. Log error untuk keperluan debugging/diagnostik
+            // 1. Log the error for debugging/diagnostics
             Debug.WriteLine($"[ErrorHandler] [{error.Severity}] [{error.Code}] {error.Title}: {error.Message}");
             if (!string.IsNullOrWhiteSpace(error.TechnicalDetails))
             {
                 Debug.WriteLine($"[ErrorHandler] Details: {error.TechnicalDetails}");
             }
 
-            // 2. Trigger event jika ada observer
+            // 2. Trigger the event if there are observers
             ErrorOccurred?.Invoke(this, error);
 
-            // 3. Dispatch visual feedback ke UI sesuai tingkat keparahan
+            // 3. Dispatch visual feedback to the UI based on severity
             if (error.Severity == ErrorSeverity.Critical)
             {
                 ShowErrorDialogAction?.Invoke(error, null);

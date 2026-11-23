@@ -105,7 +105,7 @@ namespace Lahanku.ViewModels
             {
                 var input = SearchQuery.Trim();
 
-                // 1. Cek apakah pengguna menempel link Google Maps atau koordinat langsung
+                // 1. Check whether the user pasted a Google Maps link or raw coordinates
                 var parsedCoords = await _geocodingService.ParseGoogleMapsUrlAsync(input);
                 if (parsedCoords.HasValue)
                 {
@@ -119,7 +119,7 @@ namespace Lahanku.ViewModels
                     return;
                 }
 
-                // 2. Jika bukan link, cari nama tempat / daerah
+                // 2. If it's not a link, search by place / area name
                 var searchResults = await _geocodingService.SearchPlaceAsync(input);
                 if (searchResults.Count > 0)
                 {

@@ -49,7 +49,7 @@ namespace Lahanku.Helpers
             return _client;
         }
 
-        // nilai "YOUR_..." dari appsettings.example.json dianggap belum diisi
+        // "YOUR_..." values from appsettings.example.json count as not filled in
         private static bool IsMissing(string? value) =>
             string.IsNullOrWhiteSpace(value) || value.Contains("YOUR_", System.StringComparison.OrdinalIgnoreCase);
     }

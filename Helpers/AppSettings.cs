@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Lahanku.Helpers
 {
-    // Baca config dari environment variable dulu, kalau nggak ada baru dari appsettings.json.
+    // Read config from environment variables first, then fall back to appsettings.json.
     public static class AppSettings
     {
         public const string FileName = "appsettings.json";

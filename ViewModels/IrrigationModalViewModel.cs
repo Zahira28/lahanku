@@ -15,7 +15,7 @@ namespace Lahanku.ViewModels
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
-        // dipanggil setelah simpan, biar halaman pemanggil (Detail/Dashboard) bisa muat ulang
+        // called after saving, so the calling page (Detail/Dashboard) can reload
         private readonly Func<Task> _onSaved;
         private readonly double? _suggestedVolume;
 
@@ -45,7 +45,7 @@ namespace Lahanku.ViewModels
         public string NotesPlaceholder => "Contoh: Penyiraman rutin pagi hari, kondisi tanah cukup lembap.";
 
         /// <summary>
-        /// Alias properti untuk kompatibilitas
+        /// Property alias for compatibility
         /// </summary>
         public string VolumeLitersText
         {
@@ -149,7 +149,7 @@ namespace Lahanku.ViewModels
 
             double volumeInLiters = SelectedVolumeUnit.Contains("mL") ? (rawVolume / 1000.0) : rawVolume;
 
-            // kalender sudah ngunci, ini jaga-jaga kalau tetap lolos
+            // the calendar already blocks it, this is just a safety net
             if (Date > DateTime.Now.AddMinutes(1))
             {
                 ErrorMessage = "Tanggal penyiraman tidak boleh melebihi hari ini.";
@@ -188,17 +188,17 @@ namespace Lahanku.ViewModels
                     };
 
                     await _landService.AddIrrigationLogAsync(TargetLand.Id, newLog);
-                    var pesan = await BuatPesanEvaluasiAsync(Date);
+                    var message = await BuildEvaluationMessageAsync(Date);
                     await _onSaved();
 
                     _main.CloseModal();
-                    if (pesan.Peringatan)
+                    if (message.IsWarning)
                     {
-                        _main.ShowWarningToast(pesan.Isi, pesan.Judul);
+                        _main.ShowWarningToast(message.Body, message.Title);
                     }
                     else
                     {
-                        _main.ShowSuccessToast(pesan.Isi, pesan.Judul);
+                        _main.ShowSuccessToast(message.Body, message.Title);
                     }
                 }
             }
@@ -213,28 +213,28 @@ namespace Lahanku.ViewModels
             }
         }
 
-        // bandingin total penyiraman di tanggal itu dengan catatan rekomendasi hari itu
-        private async Task<PesanEvaluasi> BuatPesanEvaluasiAsync(DateTime tanggal)
+        // compare the total watering on that date with that day's recommendation record
+        private async Task<EvaluationMessage> BuildEvaluationMessageAsync(DateTime date)
         {
-            var standar = new PesanEvaluasi("Berhasil", "Penyiraman berhasil dicatat.", false);
+            var baseline = new EvaluationMessage("Berhasil", "Penyiraman berhasil dicatat.", false);
             try
             {
-                var catatan = (await new RekomendasiHarianService(_landService)
-                    .GetRiwayatAsync(TargetLand.Id, tanggal, tanggal)).FirstOrDefault();
-                if (catatan == null)
+                var records = (await new DailyRecommendationService(_landService)
+                    .GetHistoryAsync(TargetLand.Id, date, date)).FirstOrDefault();
+                if (records == null)
                 {
-                    return standar;
+                    return baseline;
                 }
 
                 var logs = await _landService.GetIrrigationLogsAsync(TargetLand.Id);
-                double total = logs.Where(l => l.Date.Date == tanggal.Date).Sum(l => l.VolumeLiters);
-                var hasil = EvaluasiPenyiraman.Nilai(KeputusanSiramExtensions.FromDb(catatan.Keputusan), catatan.VolumeAnjuran, total);
-                return EvaluasiPenyiraman.Pesan(hasil, catatan.VolumeStandar, total);
+                double total = logs.Where(l => l.Date.Date == date.Date).Sum(l => l.VolumeLiters);
+                var result = WateringEvaluator.Evaluate(WateringDecisionExtensions.FromDb(records.Decision), records.RecommendedVolume, total);
+                return WateringEvaluator.BuildMessage(result, records.BaselineVolume, total);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[IrrigationModal] Gagal evaluasi: {ex}");
-                return standar;
+                return baseline;
             }
         }
 

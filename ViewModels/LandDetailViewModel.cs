@@ -16,8 +16,8 @@ namespace Lahanku.ViewModels
         private readonly ILandService _landService;
         private readonly IWeatherService _weatherService;
         private readonly IIrrigationAdvisorService _advisorService;
-        private readonly IRekomendasiHarianService _rekomendasiHarian;
-        private readonly IRencanaHarianService _rencanaHarian;
+        private readonly IDailyRecommendationService _dailyRecommendations;
+        private readonly IDailyPlanService _dailyPlan;
         private readonly DispatcherTimer _weatherAutoRefreshTimer;
 
         [ObservableProperty]
@@ -37,10 +37,10 @@ namespace Lahanku.ViewModels
 
         // Visual Weather & Climate-Smart State
         [ObservableProperty]
-        private Cuaca? _currentWeather;
+        private Weather? _currentWeather;
 
         [ObservableProperty]
-        private Rekomendasi? _rekomendasiHariIni;
+        private Recommendation? _todayRecommendation;
 
         [ObservableProperty]
         private bool _isLoadingWeather = true;
@@ -57,7 +57,7 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private string _weatherPrecipText = "-- mm";
 
-        // kelembapan sekarang dibanding rentang ideal lahan: "ok", "low", "high", atau "" kalau nggak ada data
+        // current humidity vs the land's ideal range: "ok", "low", "high", or "" if there's no data
         [ObservableProperty]
         private string _humidityStatus = string.Empty;
 
@@ -73,7 +73,7 @@ namespace Lahanku.ViewModels
         private string _adviceStatus = "Menghitung...";
 
         [ObservableProperty]
-        private string _adviceSaran = "Menghubungkan ke satelit Open-Meteo...";
+        private string _adviceText = "Menghubungkan ke satelit Open-Meteo...";
 
         [ObservableProperty]
         private string _adviceVolumeText = "-- Liter";
@@ -93,8 +93,8 @@ namespace Lahanku.ViewModels
             _land = land;
             _weatherService = weatherService ?? new WeatherService();
             _advisorService = advisorService ?? new IrrigationAdvisorService();
-            _rekomendasiHarian = new RekomendasiHarianService(landService);
-            _rencanaHarian = new RencanaHarianService(_weatherService, _advisorService, _rekomendasiHarian);
+            _dailyRecommendations = new DailyRecommendationService(landService);
+            _dailyPlan = new DailyPlanService(_weatherService, _advisorService, _dailyRecommendations);
 
             _weatherAutoRefreshTimer = new DispatcherTimer
             {
@@ -118,20 +118,20 @@ namespace Lahanku.ViewModels
             IsLoadingWeather = true;
             try
             {
-                // cuaca + prakiraan + rekomendasi + simpan catatan harian, sekaligus
-                var rencana = await _rencanaHarian.HitungAsync(Land, DateTime.Now);
-                CurrentWeather = rencana.Cuaca;
+                // weather + forecast + recommendation + save the daily record, all at once
+                var plan = await _dailyPlan.CalculateAsync(Land, DateTime.Now);
+                CurrentWeather = plan.Weather;
 
                 if (CurrentWeather != null)
                 {
                     var (_, icon) = _weatherService.GetWmoDescription(CurrentWeather.WeatherCode);
                     WeatherIcon = icon;
 
-                    WeatherTempText = $"{CurrentWeather.Suhu.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} °C";
-                    WeatherHumidityText = $"{CurrentWeather.Kelembapan:0}%";
-                    WeatherPrecipText = $"{CurrentWeather.CurahHujan.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} mm";
-                    WeatherConditionText = CurrentWeather.KondisiCuaca;
-                    UpdateHumidityStatus(CurrentWeather.Kelembapan);
+                    WeatherTempText = $"{CurrentWeather.Temperature.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} °C";
+                    WeatherHumidityText = $"{CurrentWeather.Humidity:0}%";
+                    WeatherPrecipText = $"{CurrentWeather.Rainfall.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} mm";
+                    WeatherConditionText = CurrentWeather.Condition;
+                    UpdateHumidityStatus(CurrentWeather.Humidity);
                 }
                 else
                 {
@@ -139,18 +139,18 @@ namespace Lahanku.ViewModels
                     WeatherConditionText = "Data satelit offline (menggunakan estimasi)";
                 }
 
-                RekomendasiHariIni = rencana.Rekomendasi;
+                TodayRecommendation = plan.Recommendation;
 
-                AdviceStatus = RekomendasiHariIni.Judul;
-                AdviceSaran = string.IsNullOrEmpty(RekomendasiHariIni.SaranWaktu)
-                    ? RekomendasiHariIni.Alasan
-                    : $"{RekomendasiHariIni.Alasan} {RekomendasiHariIni.SaranWaktu}";
-                AdviceVolumeText = $"{RekomendasiHariIni.VolumeAnjuran:N0} Liter";
-                CanApplyAdvice = RekomendasiHariIni.VolumeAnjuran > 0;
+                AdviceStatus = TodayRecommendation.Title;
+                AdviceText = string.IsNullOrEmpty(TodayRecommendation.TimingAdvice)
+                    ? TodayRecommendation.Reason
+                    : $"{TodayRecommendation.Reason} {TodayRecommendation.TimingAdvice}";
+                AdviceVolumeText = $"{TodayRecommendation.RecommendedVolume:N0} Liter";
+                CanApplyAdvice = TodayRecommendation.RecommendedVolume > 0;
             }
             catch (Exception ex)
             {
-                // cukup tampil di panel cuaca, nggak usah toast tiap auto-refresh 5 menit
+                // only shown in the weather panel, no toast on every 5-minute auto-refresh
                 System.Diagnostics.Debug.WriteLine($"[LandDetail] Error loading weather: {ex.Message}");
                 WeatherIcon = "offline";
                 WeatherConditionText = "Gagal memuat cuaca.";
@@ -269,9 +269,9 @@ namespace Lahanku.ViewModels
         [RelayCommand]
         private void ApplyRecommendedIrrigation()
         {
-            if (RekomendasiHariIni != null && RekomendasiHariIni.VolumeAnjuran > 0)
+            if (TodayRecommendation != null && TodayRecommendation.RecommendedVolume > 0)
             {
-                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadLogsAsync, Land, RekomendasiHariIni.VolumeAnjuran));
+                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadLogsAsync, Land, TodayRecommendation.RecommendedVolume));
             }
             else
             {
@@ -308,7 +308,7 @@ namespace Lahanku.ViewModels
             _weatherAutoRefreshTimer.Tick -= OnWeatherAutoRefreshTick;
         }
 
-        // Ctrl+N siram lahan, F5 segarkan, Esc / Alt+Kiri balik ke dashboard
+        // Ctrl+N water land, F5 refresh, Esc / Alt+Left back to dashboard
         public bool HandleKey(Key key, ModifierKeys modifiers)
         {
             switch (key)

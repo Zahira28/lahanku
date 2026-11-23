@@ -93,7 +93,7 @@ namespace Lahanku.Views.Modals
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[MapPicker] WebView2 initialization error: {ex.Message}");
-                // Jika webview2 gagal (misal runtime belum terinstal), sembunyikan overlay agar tidak hang
+                // If WebView2 fails (e.g. runtime not installed), hide the overlay so it doesn't hang
                 MapLoadingOverlay.Visibility = Visibility.Collapsed;
             }
         }
@@ -188,14 +188,14 @@ namespace Lahanku.Views.Modals
             zoomControl: true
         }});
 
-        // Layer CartoDB Voyager (Resmi dengan CARTO Basemaps API Key dari MapConfig)
+        // CartoDB Voyager layer (official, using the CARTO Basemaps API key from MapConfig)
         var streetLayer = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png{cartoKeyQuery}', {{
             attribution: '&copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> &copy; <a href=""https://carto.com/attributions"">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
         }});
 
-        // Layer Satelit Esri (Foto udara lahan/kebun nyata)
+        // Esri satellite layer (real aerial photos of fields/gardens)
         var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{{z}}/{{y}}/{{x}}', {{
             attribution: 'Tiles &copy; Esri World Imagery',
             maxZoom: 19

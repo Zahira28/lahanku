@@ -2,7 +2,7 @@ using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
-    // Dipanggil MainWindow tiap ada tombol ditekan. Return true kalau tombolnya dipakai.
+    // Called by MainWindow on every key press. Return true if the key was handled.
     public interface IKeyboardShortcutHandler
     {
         bool HandleKey(Key key, ModifierKeys modifiers);
