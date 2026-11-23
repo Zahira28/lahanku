@@ -22,4 +22,11 @@
     </None>
   </ItemGroup>
 
+  <!-- folder tes punya project sendiri -->
+  <ItemGroup>
+    <Compile Remove="Lahanku.Tests/**" />
+    <None Remove="Lahanku.Tests/**" />
+    <Page Remove="Lahanku.Tests/**" />
+  </ItemGroup>
+
 </Project>

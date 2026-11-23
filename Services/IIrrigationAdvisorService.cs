@@ -1,16 +1,14 @@
-﻿using Lahanku.Models;
+﻿using System;
+using Lahanku.Models;
 
 namespace Lahanku.Services
 {
-    /// <summary>
-    /// Abstraksi sistem penasihat irigasi cerdas Climate-Smart Agriculture (SDG 13).
-    /// </summary>
     public interface IIrrigationAdvisorService
     {
-        /// <summary>
-        /// Menghitung volume anjuran penyiraman dan analisis efisiensi air
-        /// berdasarkan standar tanaman FAO 56, luas lahan, dan cuaca real-time.
-        /// </summary>
+        // rekomendasi hari ini dari cuaca sekarang + prakiraan 24 jam
+        Rekomendasi Hitung(Land land, Cuaca? cuaca, PrakiraanHujan? prakiraan, DateTime waktu);
+
+        // versi lama, dipertahankan sampai UI pindah ke Hitung
         EvaluasiIrigasi CalculateRecommendation(Land land, Cuaca? cuaca);
     }
 }

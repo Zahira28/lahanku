@@ -68,6 +68,36 @@ namespace Lahanku.Services
             }
         }
 
+        public async Task<PrakiraanHujan?> GetPrakiraanHujanAsync(double latitude, double longitude)
+        {
+            try
+            {
+                var lat = latitude.ToString(CultureInfo.InvariantCulture);
+                var lon = longitude.ToString(CultureInfo.InvariantCulture);
+                var url = $"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=precipitation,precipitation_probability&forecast_hours=24&timezone=auto";
+
+                var response = await _httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                var data = JsonSerializer.Deserialize<OpenMeteoResponse>(await response.Content.ReadAsStringAsync());
+                var hourly = data?.Hourly;
+                if (hourly == null || hourly.Time.Count == 0)
+                {
+                    return null;
+                }
+
+                return PrakiraanHujan.DariPerJam(hourly.Time, hourly.Precipitation, hourly.PrecipitationProbability);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WeatherService] Gagal ambil prakiraan: {ex.Message}");
+                return null;
+            }
+        }
+
         // simpan maksimal 1 snapshot per lahan per jam, biar tabel cuaca nggak bengkak
         private static readonly TimeSpan SnapshotInterval = TimeSpan.FromHours(1);
         private static readonly ConcurrentDictionary<long, DateTime> _lastSnapshotUtc = new();

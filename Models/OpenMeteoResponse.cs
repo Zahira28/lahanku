@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Lahanku.Models
@@ -19,6 +20,22 @@ namespace Lahanku.Models
 
         [JsonPropertyName("current")]
         public OpenMeteoCurrent? Current { get; set; }
+
+        [JsonPropertyName("hourly")]
+        public OpenMeteoHourly? Hourly { get; set; }
+    }
+
+    // data per jam buat prakiraan hujan
+    public class OpenMeteoHourly
+    {
+        [JsonPropertyName("time")]
+        public List<string> Time { get; set; } = new();
+
+        [JsonPropertyName("precipitation")]
+        public List<double?> Precipitation { get; set; } = new();
+
+        [JsonPropertyName("precipitation_probability")]
+        public List<double?> PrecipitationProbability { get; set; } = new();
     }
 
     public class OpenMeteoCurrent
