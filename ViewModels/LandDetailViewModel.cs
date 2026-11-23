@@ -245,7 +245,7 @@ namespace Lahanku.ViewModels
         [RelayCommand]
         private void OpenAddIrrigationModal()
         {
-            _main.OpenModal(new IrrigationModalViewModel(_main, _landService, this, Land));
+            _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadLogsAsync, Land));
         }
 
         [RelayCommand]
@@ -253,7 +253,7 @@ namespace Lahanku.ViewModels
         {
             if (log != null)
             {
-                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, this, Land, log));
+                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadLogsAsync, Land, log));
             }
         }
 
@@ -262,7 +262,7 @@ namespace Lahanku.ViewModels
         {
             if (log != null)
             {
-                _main.OpenModal(new DeleteIrrigationModalViewModel(_main, _landService, this, log));
+                _main.OpenModal(new DeleteIrrigationModalViewModel(_main, _landService, LoadLogsAsync, log));
             }
         }
 
@@ -271,7 +271,7 @@ namespace Lahanku.ViewModels
         {
             if (RekomendasiHariIni != null && RekomendasiHariIni.VolumeAnjuran > 0)
             {
-                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, this, Land, RekomendasiHariIni.VolumeAnjuran));
+                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadLogsAsync, Land, RekomendasiHariIni.VolumeAnjuran));
             }
             else
             {

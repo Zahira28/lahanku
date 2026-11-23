@@ -45,6 +45,33 @@ namespace Lahanku.Tests
         }
 
         [Fact]
+        public void Pesan_sesuai_menyebut_penghematan()
+        {
+            var h = EvaluasiPenyiraman.Nilai(KeputusanSiram.Siram, 450, 460);
+            var p = EvaluasiPenyiraman.Pesan(h, standar: 480, totalHariItu: 460);
+            Assert.False(p.Peringatan);
+            Assert.Equal("Sesuai rekomendasi. Lebih hemat 20 L dibandingkan penyiraman rutin.", p.Isi);
+        }
+
+        [Fact]
+        public void Pesan_melebihi_jadi_peringatan()
+        {
+            var h = EvaluasiPenyiraman.Nilai(KeputusanSiram.Siram, 420, 700);
+            var p = EvaluasiPenyiraman.Pesan(h, standar: 480, totalHariItu: 700);
+            Assert.True(p.Peringatan);
+            Assert.Contains("280 L", p.Isi);
+        }
+
+        [Fact]
+        public void Pesan_tidak_diperlukan_saat_hujan()
+        {
+            var h = EvaluasiPenyiraman.Nilai(KeputusanSiram.Tunda, 0, 100);
+            var p = EvaluasiPenyiraman.Pesan(h, standar: 480, totalHariItu: 100);
+            Assert.True(p.Peringatan);
+            Assert.Contains("tidak diperlukan", p.Isi);
+        }
+
+        [Fact]
         public void Kurang_dari_80_persen_kurang()
         {
             var h = EvaluasiPenyiraman.Nilai(KeputusanSiram.SiramEkstra, 500, 300);

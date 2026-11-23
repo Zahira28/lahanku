@@ -17,6 +17,8 @@ namespace Lahanku.Models
         public bool SesuaiRekomendasi => Kategori is KategoriEvaluasi.Ditunda or KategoriEvaluasi.Sesuai;
     }
 
+    public record PesanEvaluasi(string Judul, string Isi, bool Peringatan);
+
     // bandingin total air yang disiram dalam sehari dengan anjuran hari itu
     public static class EvaluasiPenyiraman
     {
@@ -45,6 +47,25 @@ namespace Lahanku.Models
             }
 
             return new HasilEvaluasi(KategoriEvaluasi.Sesuai, Math.Round(Math.Abs(aktual - anjuran), 0), "Sesuai rekomendasi");
+        }
+
+        // isi toast setelah penyiraman disimpan
+        public static PesanEvaluasi Pesan(HasilEvaluasi hasil, double standar, double totalHariItu)
+        {
+            double hemat = Math.Round(standar - totalHariItu, 0);
+            return hasil.Kategori switch
+            {
+                KategoriEvaluasi.Sesuai => new PesanEvaluasi("Sesuai Rekomendasi",
+                    hemat > 0 ? $"Sesuai rekomendasi. Lebih hemat {Liter(hemat)} dibandingkan penyiraman rutin." : "Sesuai rekomendasi.",
+                    false),
+                KategoriEvaluasi.Melebihi => new PesanEvaluasi("Melebihi Rekomendasi",
+                    $"Penyiraman hari ini melebihi rekomendasi sebanyak {Liter(hasil.Selisih)}.", true),
+                KategoriEvaluasi.Kurang => new PesanEvaluasi("Penyiraman Dicatat",
+                    $"Volume hari ini masih kurang {Liter(hasil.Selisih)} dari rekomendasi.", false),
+                KategoriEvaluasi.TidakDiperlukan => new PesanEvaluasi("Penyiraman Dicatat",
+                    "Penyiraman hari ini sebenarnya tidak diperlukan karena hujan diperkirakan turun.", true),
+                _ => new PesanEvaluasi("Berhasil", "Penyiraman berhasil dicatat.", false)
+            };
         }
 
         private static string Liter(double value) =>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,7 +15,8 @@ namespace Lahanku.ViewModels
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
-        private readonly LandDetailViewModel _detailViewModel;
+        // dipanggil setelah simpan, biar halaman pemanggil (Detail/Dashboard) bisa muat ulang
+        private readonly Func<Task> _onSaved;
         private readonly double? _suggestedVolume;
 
         public Land TargetLand { get; }
@@ -80,11 +82,11 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSaving;
 
-        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand, double? suggestedVolume = null)
+        public IrrigationModalViewModel(MainViewModel main, ILandService landService, Func<Task> onSaved, Land targetLand, double? suggestedVolume = null)
         {
             _main = main;
             _landService = landService;
-            _detailViewModel = detailViewModel;
+            _onSaved = onSaved;
             TargetLand = targetLand;
             _suggestedVolume = suggestedVolume;
 
@@ -110,11 +112,11 @@ namespace Lahanku.ViewModels
             }
         }
 
-        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand, IrrigationLog existingLog)
+        public IrrigationModalViewModel(MainViewModel main, ILandService landService, Func<Task> onSaved, Land targetLand, IrrigationLog existingLog)
         {
             _main = main;
             _landService = landService;
-            _detailViewModel = detailViewModel;
+            _onSaved = onSaved;
             TargetLand = targetLand;
             ExistingLog = existingLog;
 
@@ -147,6 +149,13 @@ namespace Lahanku.ViewModels
 
             double volumeInLiters = SelectedVolumeUnit.Contains("mL") ? (rawVolume / 1000.0) : rawVolume;
 
+            // kalender sudah ngunci, ini jaga-jaga kalau tetap lolos
+            if (Date > DateTime.Now.AddMinutes(1))
+            {
+                ErrorMessage = "Tanggal penyiraman tidak boleh melebihi hari ini.";
+                return;
+            }
+
             IsSaving = true;
             try
             {
@@ -159,7 +168,7 @@ namespace Lahanku.ViewModels
                     bool success = await _landService.UpdateIrrigationLogAsync(ExistingLog);
                     if (success)
                     {
-                        await _detailViewModel.LoadLogsAsync();
+                        await _onSaved();
                         _main.CloseModal();
                         _main.ShowToast("Catatan penyiraman berhasil diperbarui!");
                     }
@@ -179,10 +188,18 @@ namespace Lahanku.ViewModels
                     };
 
                     await _landService.AddIrrigationLogAsync(TargetLand.Id, newLog);
-                    await _detailViewModel.LoadLogsAsync();
+                    var pesan = await BuatPesanEvaluasiAsync(Date);
+                    await _onSaved();
 
                     _main.CloseModal();
-                    _main.ShowToast("Penyiraman berhasil dicatat!");
+                    if (pesan.Peringatan)
+                    {
+                        _main.ShowWarningToast(pesan.Isi, pesan.Judul);
+                    }
+                    else
+                    {
+                        _main.ShowSuccessToast(pesan.Isi, pesan.Judul);
+                    }
                 }
             }
             catch (Exception ex)
@@ -193,6 +210,31 @@ namespace Lahanku.ViewModels
             finally
             {
                 IsSaving = false;
+            }
+        }
+
+        // bandingin total penyiraman di tanggal itu dengan catatan rekomendasi hari itu
+        private async Task<PesanEvaluasi> BuatPesanEvaluasiAsync(DateTime tanggal)
+        {
+            var standar = new PesanEvaluasi("Berhasil", "Penyiraman berhasil dicatat.", false);
+            try
+            {
+                var catatan = (await new RekomendasiHarianService(_landService)
+                    .GetRiwayatAsync(TargetLand.Id, tanggal, tanggal)).FirstOrDefault();
+                if (catatan == null)
+                {
+                    return standar;
+                }
+
+                var logs = await _landService.GetIrrigationLogsAsync(TargetLand.Id);
+                double total = logs.Where(l => l.Date.Date == tanggal.Date).Sum(l => l.VolumeLiters);
+                var hasil = EvaluasiPenyiraman.Nilai(KeputusanSiramExtensions.FromDb(catatan.Keputusan), catatan.VolumeAnjuran, total);
+                return EvaluasiPenyiraman.Pesan(hasil, catatan.VolumeStandar, total);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[IrrigationModal] Gagal evaluasi: {ex}");
+                return standar;
             }
         }
 

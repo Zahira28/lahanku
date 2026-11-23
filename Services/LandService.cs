@@ -167,6 +167,7 @@ namespace Lahanku.Services
             try
             {
                 log.LandId = landId;
+                log.Date = WaktuLokal.Pastikan(log.Date);
                 var client = await SupabaseConfig.GetClientAsync();
                 var response = await client.From<IrrigationLog>().Insert(log);
                 return response.Models.FirstOrDefault() ?? log;
@@ -202,6 +203,7 @@ namespace Lahanku.Services
         {
             try
             {
+                log.Date = WaktuLokal.Pastikan(log.Date);
                 var client = await SupabaseConfig.GetClientAsync();
                 await client.From<IrrigationLog>().Update(log);
                 return true;
