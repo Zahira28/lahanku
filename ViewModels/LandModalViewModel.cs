@@ -40,7 +40,13 @@ namespace Lahanku.ViewModels
         private string _areaHectaresText = "0.5";
 
         [ObservableProperty]
-        private string _selectedCropType = "Padi Pandan Wangi, Jagung Manis";
+        private string _selectedCropType = "Padi Pandan Wangi";
+
+        [ObservableProperty]
+        private string _minMoistureText = "60";
+
+        [ObservableProperty]
+        private string _maxMoistureText = "80";
 
         [ObservableProperty]
         private string? _errorMessage;
@@ -50,12 +56,12 @@ namespace Lahanku.ViewModels
 
         public List<string> CropOptions { get; } = new()
         {
-            "Padi Pandan Wangi, Jagung Manis",
             "Padi Pandan Wangi",
             "Jagung Manis",
             "Cabai Rawit Merah",
             "Bawang Merah Brebes",
-            "Tomat Cherry & Selada",
+            "Tomat Cherry",
+            "Selada",
             "Kedelai Anjasmoro"
         };
 
@@ -75,7 +81,20 @@ namespace Lahanku.ViewModels
                 LatitudeText = landToEdit.Latitude.ToString("0.0000", CultureInfo.InvariantCulture);
                 LongitudeText = landToEdit.Longitude.ToString("0.0000", CultureInfo.InvariantCulture);
                 AreaHectaresText = landToEdit.AreaHectares.ToString("0.##", CultureInfo.InvariantCulture);
-                SelectedCropType = landToEdit.CropType;
+
+                var crop = landToEdit.CropType ?? string.Empty;
+                if (crop.Contains(','))
+                {
+                    crop = crop.Split(',')[0].Trim();
+                }
+                else if (crop.Contains('&'))
+                {
+                    crop = crop.Split('&')[0].Trim();
+                }
+                SelectedCropType = crop;
+
+                MinMoistureText = (landToEdit.MinMoisture != 0 || landToEdit.MaxMoisture != 0 ? landToEdit.MinMoisture : 60).ToString("0.##", CultureInfo.InvariantCulture);
+                MaxMoistureText = (landToEdit.MinMoisture != 0 || landToEdit.MaxMoisture != 0 ? landToEdit.MaxMoisture : 80).ToString("0.##", CultureInfo.InvariantCulture);
 
                 if (!CropOptions.Contains(SelectedCropType) && !string.IsNullOrWhiteSpace(SelectedCropType))
                 {
@@ -89,6 +108,8 @@ namespace Lahanku.ViewModels
                 LatitudeText = "-6.2088";
                 LongitudeText = "106.8456";
                 AreaHectaresText = "0.5";
+                MinMoistureText = "60";
+                MaxMoistureText = "80";
                 SelectedCropType = CropOptions[0];
             }
         }
@@ -122,6 +143,36 @@ namespace Lahanku.ViewModels
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(SelectedCropType))
+            {
+                ErrorMessage = "Pilihan jenis tanaman wajib diisi.";
+                return;
+            }
+
+            if (SelectedCropType.Contains(',') || SelectedCropType.Contains('&') || SelectedCropType.Contains(" dan "))
+            {
+                ErrorMessage = "Dalam satu lahan hanya diperbolehkan maksimal 1 tanaman.";
+                return;
+            }
+
+            if (!double.TryParse(MinMoistureText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double minMoist) || minMoist < 0 || minMoist > 100)
+            {
+                ErrorMessage = "Kelembapan ideal minimal harus berupa angka antara 0% dan 100%.";
+                return;
+            }
+
+            if (!double.TryParse(MaxMoistureText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double maxMoist) || maxMoist < 0 || maxMoist > 100)
+            {
+                ErrorMessage = "Kelembapan ideal maksimal harus berupa angka antara 0% dan 100%.";
+                return;
+            }
+
+            if (minMoist > maxMoist)
+            {
+                ErrorMessage = "Kelembapan ideal minimal tidak boleh lebih besar dari kelembapan maksimal.";
+                return;
+            }
+
             IsSaving = true;
             try
             {
@@ -132,7 +183,9 @@ namespace Lahanku.ViewModels
                     _originalLand.Latitude = lat;
                     _originalLand.Longitude = lon;
                     _originalLand.AreaHectares = area;
-                    _originalLand.CropType = SelectedCropType;
+                    _originalLand.CropType = SelectedCropType.Trim();
+                    _originalLand.MinMoisture = minMoist;
+                    _originalLand.MaxMoisture = maxMoist;
 
                     await _landService.UpdateLandAsync(_originalLand);
                     await _dashboard.LoadLandsAsync();
@@ -149,7 +202,9 @@ namespace Lahanku.ViewModels
                         Latitude = lat,
                         Longitude = lon,
                         AreaHectares = area,
-                        CropType = SelectedCropType
+                        CropType = SelectedCropType.Trim(),
+                        MinMoisture = minMoist,
+                        MaxMoisture = maxMoist
                     };
 
                     await _landService.AddLandAsync(newLand);

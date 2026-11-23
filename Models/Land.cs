@@ -13,6 +13,8 @@ namespace Lahanku.Models
         public double Longitude { get; set; }
         public double AreaHectares { get; set; }
         public string CropType { get; set; } = string.Empty;
+        public double MinMoisture { get; set; }
+        public double MaxMoisture { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ObservableCollection<IrrigationLog> IrrigationLogs { get; set; } = new();
@@ -27,6 +29,8 @@ namespace Lahanku.Models
             ? $"Koordinat: {CoordinateText}" 
             : $"{LocationDescription} • Koordinat: {CoordinateText}";
 
+        public string MoistureRangeText => $"{MinMoisture.ToString("0.##", CultureInfo.InvariantCulture)}% - {MaxMoisture.ToString("0.##", CultureInfo.InvariantCulture)}%";
+
         public Land Clone()
         {
             var clone = new Land
@@ -38,6 +42,8 @@ namespace Lahanku.Models
                 Longitude = this.Longitude,
                 AreaHectares = this.AreaHectares,
                 CropType = this.CropType,
+                MinMoisture = this.MinMoisture,
+                MaxMoisture = this.MaxMoisture,
                 CreatedAt = this.CreatedAt
             };
 

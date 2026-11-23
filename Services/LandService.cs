@@ -30,6 +30,8 @@ namespace Lahanku.Services
                 Longitude = 106.8456,
                 AreaHectares = 0.5,
                 CropType = "Padi Pandan Wangi",
+                MinMoisture = 60,
+                MaxMoisture = 80,
                 CreatedAt = new DateTime(2026, 3, 1, 10, 0, 0, DateTimeKind.Local),
                 IrrigationLogs = new ObservableCollection<IrrigationLog>
                 {
@@ -85,6 +87,8 @@ namespace Lahanku.Services
                 Longitude = 106.8480,
                 AreaHectares = 4.0,
                 CropType = "Jagung Manis",
+                MinMoisture = 50,
+                MaxMoisture = 70,
                 CreatedAt = new DateTime(2026, 3, 2, 9, 0, 0, DateTimeKind.Local),
                 IrrigationLogs = new ObservableCollection<IrrigationLog>
                 {
@@ -108,6 +112,8 @@ namespace Lahanku.Services
                 Longitude = 106.8400,
                 AreaHectares = 8.0,
                 CropType = "Padi Pandan Wangi",
+                MinMoisture = 60,
+                MaxMoisture = 80,
                 CreatedAt = new DateTime(2026, 3, 3, 8, 30, 0, DateTimeKind.Local),
                 IrrigationLogs = new ObservableCollection<IrrigationLog>()
             };
@@ -152,6 +158,8 @@ namespace Lahanku.Services
             existing.Longitude = land.Longitude;
             existing.AreaHectares = land.AreaHectares;
             existing.CropType = land.CropType;
+            existing.MinMoisture = land.MinMoisture;
+            existing.MaxMoisture = land.MaxMoisture;
 
             return true;
         }

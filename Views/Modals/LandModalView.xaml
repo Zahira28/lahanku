@@ -87,7 +87,35 @@
             <ComboBox ItemsSource="{Binding CropOptions}"
                       SelectedItem="{Binding SelectedCropType}"
                       Style="{StaticResource RoundedComboBoxStyle}"
-                      Margin="0,0,0,20" />
+                      Margin="0,0,0,18" />
+
+            <!-- Field: Kelembapan Ideal -->
+            <TextBlock Text="Kelembapan Ideal (%)"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,8" />
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Kelembapan Minimal -->
+                <TextBox Grid.Column="0"
+                         Text="{Binding MinMoistureText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource RoundedTextBoxStyle}"
+                         helpers:PlaceholderHelper.Placeholder="Min"
+                         helpers:PlaceholderHelper.SuffixText="MIN %" />
+
+                <!-- Kelembapan Maksimal -->
+                <TextBox Grid.Column="2"
+                         Text="{Binding MaxMoistureText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource RoundedTextBoxStyle}"
+                         helpers:PlaceholderHelper.Placeholder="Maks"
+                         helpers:PlaceholderHelper.SuffixText="MAKS %" />
+            </Grid>
 
             <!-- Error Message -->
             <TextBlock Text="{Binding ErrorMessage}"
