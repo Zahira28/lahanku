@@ -29,6 +29,9 @@
         <DataTemplate DataType="{x:Type viewmodels:LandDetailViewModel}">
             <views:LandDetailView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:ImpactViewModel}">
+            <views:ImpactView />
+        </DataTemplate>
 
         <!-- Modal Mapping DataTemplates -->
         <DataTemplate DataType="{x:Type viewmodels:LandModalViewModel}">

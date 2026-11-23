@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:Lahanku.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1100">
 
@@ -14,146 +15,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- ================= SIDEBAR ================= -->
-        <Border Grid.Column="0"
-                Background="{StaticResource SidebarBackgroundBrush}"
-                BorderBrush="#E2E8F0"
-                BorderThickness="0,0,1,0"
-                Padding="24,28">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <!-- Brand Header -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,36">
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="10"
-                            Background="{StaticResource AccentEmeraldBrush}"
-                            Margin="0,0,12,0">
-                        <Path Data="{StaticResource LeafPath}"
-                              Fill="#FFFFFF"
-                              Width="18"
-                              Height="18"
-                              Stretch="Uniform"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-                    </Border>
-                    <TextBlock Text="LahanKu"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               VerticalAlignment="Center" />
-                </StackPanel>
-
-                <!-- Navigation Links -->
-                <StackPanel Grid.Row="1">
-                    <!-- Ringkasan (Returns to Dashboard) -->
-                    <Border Background="#E8F5E9"
-                            CornerRadius="12"
-                            Padding="16,12"
-                            Margin="0,0,0,8"
-                            Cursor="Hand">
-                        <Border.InputBindings>
-                            <MouseBinding MouseAction="LeftClick" Command="{Binding BackToDashboardCommand}" />
-                        </Border.InputBindings>
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource HomePath}"
-                                  Fill="{StaticResource PrimaryGreenBrush}"
-                                  Width="18"
-                                  Height="18"
-                                  Stretch="Uniform"
-                                  VerticalAlignment="Center"
-                                  Margin="0,0,14,0" />
-                            <TextBlock Text="Ringkasan"
-                                       Foreground="{StaticResource PrimaryGreenBrush}"
-                                       FontWeight="SemiBold"
-                                       FontSize="14"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Pengaturan -->
-                    <Border Background="Transparent"
-                            CornerRadius="12"
-                            Padding="16,12"
-                            Margin="0,0,0,8"
-                            Cursor="Hand">
-                        <Border.InputBindings>
-                            <MouseBinding MouseAction="LeftClick" Command="{Binding OpenSettingsCommand}" />
-                        </Border.InputBindings>
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource SettingsPath}"
-                                  Fill="{StaticResource TextSecondaryBrush}"
-                                  Width="18"
-                                  Height="18"
-                                  Stretch="Uniform"
-                                  VerticalAlignment="Center"
-                                  Margin="0,0,14,0" />
-                            <TextBlock Text="Pengaturan"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       FontWeight="Medium"
-                                       FontSize="14"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- Bottom User Info & Logout (same as Dashboard) -->
-                <Border Grid.Row="2"
-                        Background="#FFFFFF"
-                        BorderBrush="#E2E8F0"
-                        BorderThickness="1"
-                        CornerRadius="14"
-                        Padding="14,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border Grid.Column="0"
-                                Width="34" Height="34"
-                                CornerRadius="17"
-                                Background="{StaticResource MintBgBrush}"
-                                Margin="0,0,10,0">
-                            <Path Data="{StaticResource UserPath}"
-                                  Fill="{StaticResource MintTextBrush}"
-                                  Width="14" Height="14"
-                                  Stretch="Uniform"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center" />
-                        </Border>
-
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentUserName}"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                       FontSize="12.5"
-                                       FontWeight="SemiBold"
-                                       TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding CurrentUserUsername}"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       FontSize="10.5"
-                                       TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-
-                        <Button Grid.Column="2"
-                                Command="{Binding LogoutCommand}"
-                                ToolTip="Keluar Akun"
-                                Style="{StaticResource IconButtonStyle}">
-                            <Path Data="{StaticResource ArrowLeftPath}"
-                                  Fill="{StaticResource TextSecondaryBrush}"
-                                  Width="14" Height="14"
-                                  Stretch="Uniform" />
-                        </Button>
-                    </Grid>
-                </Border>
-            </Grid>
-        </Border>
+        <controls:Sidebar Grid.Column="0" ActiveItem="Ringkasan" />
 
         <!-- ================= MAIN CONTENT ================= -->
         <!-- the page doesn't scroll; the history card fills the remaining height and its list scrolls inside the card -->

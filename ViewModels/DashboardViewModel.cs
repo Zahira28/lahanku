@@ -76,10 +76,6 @@ namespace Lahanku.ViewModels
         private readonly IDailyPlanService _dailyPlan;
         private readonly IDailyRecommendationService _dailyRecommendations;
 
-        public string CurrentUserName => _authService.CurrentUser?.DisplayName ?? "Petani";
-
-        public string CurrentUserUsername => _authService.CurrentUser?.Handle ?? "@petani";
-
         public DashboardViewModel(MainViewModel main, ILandService landService, IAuthService authService, IErrorHandler? errorHandler = null)
         {
             _main = main;
@@ -288,13 +284,6 @@ namespace Lahanku.ViewModels
         {
             SelectedNav = nav;
             IsSettingsView = nav == "Pengaturan";
-        }
-
-        [RelayCommand]
-        private async Task LogoutAsync()
-        {
-            await _authService.LogoutAsync();
-            _main.NavigateToLogin();
         }
 
         // Ctrl+N add land, F5 reload

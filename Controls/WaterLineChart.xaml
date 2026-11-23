@@ -1,0 +1,39 @@
+<UserControl x:Class="Lahanku.Controls.WaterLineChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <!-- everything is drawn in code-behind so it can follow the real control size -->
+        <Canvas x:Name="Plot"
+                Background="Transparent"
+                ClipToBounds="False"
+                MouseMove="Plot_MouseMove"
+                MouseLeave="Plot_MouseLeave" />
+
+        <TextBlock x:Name="EmptyText"
+                   Text="Belum ada data untuk periode ini."
+                   Foreground="{StaticResource TextMutedBrush}"
+                   FontSize="13"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Visibility="Collapsed" />
+
+        <!-- hover popover, positioned with Margin -->
+        <Border x:Name="Popover"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Width="190"
+                Padding="10,8"
+                Background="#FFFFFF"
+                BorderBrush="#E2E8F0"
+                BorderThickness="1"
+                CornerRadius="8"
+                IsHitTestVisible="False"
+                Visibility="Collapsed"
+                Effect="{StaticResource CardShadow}">
+            <StackPanel>
+                <TextBlock x:Name="PopDate" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,4" />
+                <StackPanel x:Name="PopRows" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
