@@ -15,6 +15,23 @@ namespace Lahanku
         {
             base.OnStartup(e);
 
+            // Validasi konfigurasi sebelum aplikasi berjalan (tanpa kredensial hardcode)
+            if (!Helpers.SupabaseConfig.IsConfigured)
+            {
+                MessageBox.Show(
+                    "Konfigurasi Supabase belum ditemukan.\n\n" +
+                    "Yang kurang:\n• " + string.Join("\n• ", Helpers.SupabaseConfig.GetMissingSettings()) + "\n\n" +
+                    "Cara memperbaiki:\n" +
+                    "1. Salin appsettings.example.json menjadi appsettings.json\n" +
+                    "2. Isi Url dan AnonKey dari dashboard Supabase (Project Settings → API)\n" +
+                    "3. Jalankan ulang aplikasi",
+                    "LahanKu - Konfigurasi Belum Lengkap",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                Shutdown(1);
+                return;
+            }
+
             // Inisialisasi layanan penanganan error terpusat (SRP & DIP)
             var errorHandler = new ErrorHandler();
             _errorHandler = errorHandler;
