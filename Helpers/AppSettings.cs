@@ -4,25 +4,15 @@ using System.Text.Json;
 
 namespace Lahanku.Helpers
 {
-    /// <summary>
-    /// Sumber konfigurasi terpusat aplikasi (SRP).
-    /// Urutan prioritas: Environment Variable → appsettings.json.
-    /// Tidak ada nilai rahasia yang di-hardcode di source code.
-    /// </summary>
+    // Baca config dari environment variable dulu, kalau nggak ada baru dari appsettings.json.
     public static class AppSettings
     {
         public const string FileName = "appsettings.json";
 
         private static readonly JsonDocument? _document = LoadDocument();
 
-        /// <summary>
-        /// Path appsettings.json yang ditemukan, atau null jika file tidak ada.
-        /// </summary>
         public static string? LoadedFilePath { get; private set; }
 
-        /// <summary>
-        /// Mengambil nilai konfigurasi. Environment variable selalu menang atas isi file.
-        /// </summary>
         public static string? Get(string section, string key, string? environmentVariable = null)
         {
             if (!string.IsNullOrWhiteSpace(environmentVariable))

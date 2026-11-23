@@ -37,3 +37,14 @@ Environment variable selalu diprioritaskan di atas `appsettings.json`:
 | `LAHANKU_SUPABASE_URL` | URL project Supabase |
 | `LAHANKU_SUPABASE_ANON_KEY` | Anon (public) key Supabase |
 | `LAHANKU_CARTO_API_KEY` | Opsional, key basemap CARTO |
+
+## Setup Database (Supabase Auth + RLS)
+
+Login memakai **Supabase Auth**; password di-hash oleh Supabase dan setiap user hanya bisa mengakses lahannya sendiri (Row Level Security).
+
+1. **Matikan konfirmasi email:** Supabase Dashboard → *Authentication* → *Sign In / Providers* → *Email* → nonaktifkan **Confirm email** → *Save*.
+   Username dipetakan ke email sintetis `username@lahanku.local`, jadi tidak ada email sungguhan yang dikirim.
+2. Jalankan [`database/migrations/001_supabase_auth_rls.sql`](database/migrations/001_supabase_auth_rls.sql) di *SQL Editor*.
+3. (Hanya untuk data lama) Setelah pemilik akun lama mendaftar ulang dengan username yang sama, jalankan [`database/migrations/002_migrate_legacy_users.sql`](database/migrations/002_migrate_legacy_users.sql) langkah A–B, cek hasilnya, lalu langkah C.
+
+Aturan akun: username 3–30 karakter (huruf, angka, `.`, `_`), password minimal 6 karakter.

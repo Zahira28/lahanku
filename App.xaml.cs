@@ -15,7 +15,6 @@ namespace Lahanku
         {
             base.OnStartup(e);
 
-            // Validasi konfigurasi sebelum aplikasi berjalan (tanpa kredensial hardcode)
             if (!Helpers.SupabaseConfig.IsConfigured)
             {
                 MessageBox.Show(

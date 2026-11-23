@@ -9,7 +9,7 @@ namespace Lahanku.Services
     /// </summary>
     public interface ILandService
     {
-        Task<List<Land>> GetLandsAsync(long? userId = null);
+        Task<List<Land>> GetLandsAsync(Guid? ownerId = null);
         Task<Land?> GetLandByIdAsync(long id);
         Task<Land> AddLandAsync(Land land);
         Task<bool> UpdateLandAsync(Land land);

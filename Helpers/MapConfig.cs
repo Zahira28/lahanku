@@ -1,10 +1,6 @@
 ﻿namespace Lahanku.Helpers
 {
-    /// <summary>
-    /// Menyediakan konfigurasi terpusat untuk layanan Peta & CARTO Basemaps.
-    /// Key dibaca dari environment variable atau appsettings.json (lihat <see cref="AppSettings"/>).
-    /// Key bersifat opsional: tanpa key, basemap CARTO publik tetap dapat dimuat.
-    /// </summary>
+    // Key CARTO opsional, tanpa key basemap-nya tetap bisa dimuat.
     public static class MapConfig
     {
         public const string CartoApiKeyEnvVar = "LAHANKU_CARTO_API_KEY";
@@ -14,7 +10,7 @@
         private static string ResolveCartoKey()
         {
             var key = AppSettings.Get("Maps", "CartoApiKey", CartoApiKeyEnvVar)
-                      ?? AppSettings.Get("Carto", "ApiKey"); // kompatibilitas format lama
+                      ?? AppSettings.Get("Carto", "ApiKey"); // format config lama
 
             return key == null || key.Contains("YOUR_", System.StringComparison.OrdinalIgnoreCase)
                 ? string.Empty

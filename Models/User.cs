@@ -4,17 +4,15 @@ using Supabase.Postgrest.Models;
 
 namespace Lahanku.Models
 {
-    [Table("users")]
+    // Profil user dari tabel profiles. Password dikelola Supabase Auth, nggak disimpan di sini.
+    [Table("profiles")]
     public class User : BaseModel
     {
-        [PrimaryKey("id_user", false)]
-        public long Id { get; set; }
+        [PrimaryKey("id", true)]
+        public Guid Id { get; set; }
 
         [Column("username")]
         public string Username { get; set; } = string.Empty;
-
-        [Column("password")]
-        public string Password { get; set; } = string.Empty;
 
         [Column("full_name")]
         public string? FullName { get; set; }

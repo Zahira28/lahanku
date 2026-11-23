@@ -365,7 +365,7 @@ namespace Lahanku.ViewModels
                 {
                     var newLand = new Land
                     {
-                        UserId = currentUserId,
+                        OwnerId = currentUserId,
                         TanamanId = matchedTanaman?.IdTanaman,
                         Tanaman = matchedTanaman,
                         Name = Name.Trim(),
