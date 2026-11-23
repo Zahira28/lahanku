@@ -15,7 +15,7 @@
             VerticalAlignment="Center"
             Effect="{StaticResource ModalShadow}">
 
-        <!-- scroll cuma muncul kalau jendelanya pendek -->
+        <!-- scroll only shows up when the window is short -->
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       Style="{StaticResource SlimScrollViewerStyle}"
@@ -36,7 +36,7 @@
                        FontWeight="Bold"
                        Margin="0,0,0,24" />
 
-            <!-- Field: Nama Lahan -->
+            <!-- Field: Land Name -->
             <TextBlock Text="Nama Lahan"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        FontSize="13"
@@ -62,7 +62,7 @@
                            FontWeight="SemiBold"
                            VerticalAlignment="Center" />
 
-                <!-- Button: Pilih Titik di Peta -->
+                <!-- Button: Pick a Point on the Map -->
                 <Button Grid.Column="1"
                         Command="{Binding OpenMapPickerCommand}"
                         Cursor="Hand"
@@ -123,7 +123,7 @@
                          helpers:PlaceholderHelper.SuffixText="LONG" />
             </Grid>
 
-            <!-- Field: Luas Lahan -->
+            <!-- Field: Land Area -->
             <TextBlock Text="Luas Lahan"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        FontSize="13"
@@ -147,7 +147,7 @@
                           Style="{StaticResource RoundedComboBoxStyle}" />
             </Grid>
 
-            <!-- Field: Ditanami apa aja (Custom Searchable Animated Dropdown) -->
+            <!-- Field: What's planted (Custom Searchable Animated Dropdown) -->
             <TextBlock Text="Ditanami apa aja"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        FontSize="13"
@@ -449,7 +449,7 @@
                 </Popup>
             </Grid>
 
-            <!-- Field: Kelembapan Ideal (ide dari Josiah) -->
+            <!-- Field: Ideal Humidity (idea from Josiah) -->
             <TextBlock Text="Kelembapan Udara Ideal (%)"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        FontSize="13"

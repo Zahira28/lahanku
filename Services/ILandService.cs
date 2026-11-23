@@ -5,7 +5,7 @@ using Lahanku.Models;
 namespace Lahanku.Services
 {
     /// <summary>
-    /// Kontrak layanan untuk manajemen lahan, irigasi, dan katalog tanaman (DIP - Dependency Inversion Principle).
+    /// Contract for land, irrigation, and crop catalog management (DIP - Dependency Inversion Principle).
     /// </summary>
     public interface ILandService
     {
@@ -18,6 +18,6 @@ namespace Lahanku.Services
         Task<List<IrrigationLog>> GetIrrigationLogsAsync(long landId);
         Task<bool> UpdateIrrigationLogAsync(IrrigationLog log);
         Task<bool> DeleteIrrigationLogAsync(long logId);
-        Task<List<Tanaman>> GetTanamanListAsync();
+        Task<List<Crop>> GetCropsAsync();
     }
 }

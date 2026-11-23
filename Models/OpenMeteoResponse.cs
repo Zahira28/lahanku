@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Lahanku.Models
 {
     /// <summary>
-    /// Response DTO dari Open-Meteo Weather Forecast API.
+    /// Response DTO from the Open-Meteo Weather Forecast API.
     /// </summary>
     public class OpenMeteoResponse
     {
@@ -25,7 +25,7 @@ namespace Lahanku.Models
         public OpenMeteoHourly? Hourly { get; set; }
     }
 
-    // data per jam buat prakiraan hujan
+    // hourly data for the rain forecast
     public class OpenMeteoHourly
     {
         [JsonPropertyName("time")]

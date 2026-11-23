@@ -5,10 +5,10 @@ namespace Lahanku.Services
 {
     public interface IIrrigationAdvisorService
     {
-        // rekomendasi hari ini dari cuaca sekarang + prakiraan 24 jam
-        Rekomendasi Hitung(Land land, Cuaca? cuaca, PrakiraanHujan? prakiraan, DateTime waktu);
+        // today's recommendation from current weather + 24h forecast
+        Recommendation Calculate(Land land, Weather? weather, RainForecast? forecast, DateTime now);
 
-        // versi lama, dipertahankan sampai UI pindah ke Hitung
-        EvaluasiIrigasi CalculateRecommendation(Land land, Cuaca? cuaca);
+        // old version, kept until the UI moves to Calculate
+        DailyRecommendation CalculateRecommendation(Land land, Weather? weather);
     }
 }

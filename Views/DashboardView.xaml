@@ -223,9 +223,9 @@
         <ScrollViewer Grid.Column="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <!-- padding ditaruh di sini, bukan di ScrollViewer, biar shadow card nggak kepotong -->
+            <!-- padding lives here, not on the ScrollViewer, so card shadows don't get clipped -->
             <StackPanel Margin="40,32">
-                <!-- Top Header: Subtitle, Greeting, + Tambah Lahan Button -->
+                <!-- Top Header: Subtitle, Greeting, + Add Land Button -->
                 <Grid Margin="0,0,0,28">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -233,19 +233,13 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="LAHANKU • SISTEM MANAJEMEN LAHAN"
-                                   Foreground="{StaticResource AccentEmeraldBrush}"
-                                   FontSize="11"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,4" />
-
                         <TextBlock Text="{Binding GreetingText}"
                                    Foreground="{StaticResource TextPrimaryBrush}"
                                    FontSize="32"
                                    FontWeight="Bold" />
                     </StackPanel>
 
-                    <!-- + Tambah Lahan Button -->
+                    <!-- + Add Land Button -->
                     <Button Grid.Column="1"
                             Command="{Binding OpenAddLandModalCommand}"
                             ToolTip="Tambah lahan (Ctrl+N)"
@@ -321,265 +315,263 @@
                     </Grid>
                 </Border>
 
-                <!-- ================= 3 METRIC CARDS: SKELETON SHIMMER STATE ================= -->
-                <!-- Visible when IsLoading is True -->
-                <Grid Margin="0,0,0,32"
-                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="20" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="20" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <!-- Summary: four equal columns (lands, area, varieties, water saved) -->
+                <Border Background="{StaticResource CardBackgroundBrush}"
+                        BorderBrush="#E2E8F0"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="0,6"
+                        Margin="0,0,0,28"
+                        Effect="{StaticResource CardShadow}">
+                    <Border.Resources>
+                        <Style x:Key="SummaryLabel" TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                        <Style x:Key="SummaryValue" TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                            <Setter Property="FontSize" Value="20" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Style>
+                        <Style x:Key="SummaryUnit" TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="VerticalAlignment" Value="Bottom" />
+                            <Setter Property="Margin" Value="4,0,0,4" />
+                        </Style>
+                        <Style x:Key="SummaryDot" TargetType="Border">
+                            <Setter Property="Width" Value="22" />
+                            <Setter Property="Height" Value="22" />
+                            <Setter Property="CornerRadius" Value="7" />
+                            <Setter Property="Background" Value="#ECFDF5" />
+                            <Setter Property="Margin" Value="0,0,8,0" />
+                        </Style>
+                    </Border.Resources>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <!-- Skeleton Card 1 -->
-                    <Border Grid.Column="0"
-                            Background="{StaticResource CardBackgroundBrush}"
-                            CornerRadius="18"
-                            Padding="22,20"
-                            BorderBrush="#F1F5F9"
-                            BorderThickness="1"
-                            Effect="{StaticResource CardShadow}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,20">
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="85" Height="12"
-                                        CornerRadius="4"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center" />
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="36" Height="36"
-                                        CornerRadius="18"
-                                        HorizontalAlignment="Right" />
-                            </Grid>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="55" Height="28"
-                                        CornerRadius="6"
-                                        Margin="0,0,10,0" />
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="70" Height="14"
-                                        CornerRadius="4"
-                                        VerticalAlignment="Bottom"
-                                        Margin="0,0,0,4" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Skeleton Card 2 -->
-                    <Border Grid.Column="2"
-                            Background="{StaticResource CardBackgroundBrush}"
-                            CornerRadius="18"
-                            Padding="22,20"
-                            BorderBrush="#F1F5F9"
-                            BorderThickness="1"
-                            Effect="{StaticResource CardShadow}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,20">
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="75" Height="12"
-                                        CornerRadius="4"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center" />
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="36" Height="36"
-                                        CornerRadius="18"
-                                        HorizontalAlignment="Right" />
-                            </Grid>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="55" Height="28"
-                                        CornerRadius="6"
-                                        Margin="0,0,10,0" />
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="80" Height="14"
-                                        CornerRadius="4"
-                                        VerticalAlignment="Bottom"
-                                        Margin="0,0,0,4" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Skeleton Card 3 -->
-                    <Border Grid.Column="4"
-                            Background="{StaticResource CardBackgroundBrush}"
-                            CornerRadius="18"
-                            Padding="22,20"
-                            BorderBrush="#F1F5F9"
-                            BorderThickness="1"
-                            Effect="{StaticResource CardShadow}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,20">
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="95" Height="12"
-                                        CornerRadius="4"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center" />
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="36" Height="36"
-                                        CornerRadius="18"
-                                        HorizontalAlignment="Right" />
-                            </Grid>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="45" Height="28"
-                                        CornerRadius="6"
-                                        Margin="0,0,10,0" />
-                                <Border Style="{StaticResource SkeletonBoxStyle}"
-                                        Width="60" Height="14"
-                                        CornerRadius="4"
-                                        VerticalAlignment="Bottom"
-                                        Margin="0,0,0,4" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- ================= 3 METRIC CARDS: REAL STATE ================= -->
-                <!-- Visible when IsLoading is False -->
-                <Grid Margin="0,0,0,32"
-                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="20" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="20" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Card 1: TOTAL LAHAN -->
-                    <Border Grid.Column="0"
-                            Background="{StaticResource CardBackgroundBrush}"
-                            CornerRadius="18"
-                            Padding="22,20"
-                            BorderBrush="#F1F5F9"
-                            BorderThickness="1"
-                            Effect="{StaticResource CardShadow}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,16">
-                                <TextBlock Text="TOTAL LAHAN"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           VerticalAlignment="Center" />
-                                <Border HorizontalAlignment="Right"
-                                        Width="36" Height="36"
-                                        CornerRadius="18"
-                                        Background="{StaticResource MintBgBrush}">
-                                    <Path Data="{StaticResource PinPath}"
-                                          Fill="{StaticResource MintTextBrush}"
-                                          Width="16" Height="16"
-                                          Stretch="Uniform"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="0" Margin="20,12">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Border Style="{StaticResource SummaryDot}">
+                                    <Path Data="{StaticResource PinPath}" Fill="{StaticResource AccentEmeraldBrush}" Width="12" Height="12" Stretch="Uniform" />
                                 </Border>
-                            </Grid>
-
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <TextBlock Text="{Binding TotalLands}"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
-                                           FontSize="28"
-                                           FontWeight="Bold"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,8,0" />
-                                <TextBlock Text="Lahan Aktif"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="13.5"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,0,4" />
+                                <TextBlock Text="Lahan" Style="{StaticResource SummaryLabel}" />
                             </StackPanel>
+                            <TextBlock Text="{Binding TotalLands}" Style="{StaticResource SummaryValue}" />
                         </StackPanel>
-                    </Border>
 
-                    <!-- Card 2: LUAS AREA -->
-                    <Border Grid.Column="2"
-                            Background="{StaticResource CardBackgroundBrush}"
-                            CornerRadius="18"
-                            Padding="22,20"
-                            BorderBrush="#F1F5F9"
-                            BorderThickness="1"
-                            Effect="{StaticResource CardShadow}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,16">
-                                <TextBlock Text="LUAS AREA"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           VerticalAlignment="Center" />
-                                <Border HorizontalAlignment="Right"
-                                        Width="36" Height="36"
-                                        CornerRadius="18"
-                                        Background="{StaticResource MintBgBrush}">
-                                    <Path Data="{StaticResource GridPath}"
-                                          Fill="{StaticResource MintTextBrush}"
-                                          Width="16" Height="16"
-                                          Stretch="Uniform"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
+                        <Border Grid.Column="1" BorderBrush="#F1F5F9" BorderThickness="1,0,0,0">
+                            <StackPanel Margin="20,12">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border Style="{StaticResource SummaryDot}">
+                                        <Path Data="{StaticResource GridPath}" Fill="{StaticResource AccentEmeraldBrush}" Width="11" Height="11" Stretch="Uniform" />
+                                    </Border>
+                                    <TextBlock Text="Luas total" Style="{StaticResource SummaryLabel}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding TotalArea}" Style="{StaticResource SummaryValue}" />
+                                    <TextBlock Text="{Binding TotalAreaUnit}" Style="{StaticResource SummaryUnit}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" BorderBrush="#F1F5F9" BorderThickness="1,0,0,0">
+                            <StackPanel Margin="20,12">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border Style="{StaticResource SummaryDot}">
+                                        <Path Data="{StaticResource LeafPath}" Fill="{StaticResource AccentEmeraldBrush}" Width="12" Height="12" Stretch="Uniform" />
+                                    </Border>
+                                    <TextBlock Text="Varietas" Style="{StaticResource SummaryLabel}" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding TotalVarieties}" Style="{StaticResource SummaryValue}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" BorderBrush="#F1F5F9" BorderThickness="1,0,0,0">
+                            <StackPanel Margin="20,12">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border Style="{StaticResource SummaryDot}">
+                                        <Path Data="{StaticResource WaterDropPath}" Fill="{StaticResource AccentEmeraldBrush}" Width="12" Height="12" Stretch="Uniform" />
+                                    </Border>
+                                    <TextBlock Text="Hemat 7 hari" Style="{StaticResource SummaryLabel}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding SavedText}" Style="{StaticResource SummaryValue}" />
+                                    <TextBlock Text="L" Style="{StaticResource SummaryUnit}" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding SavedNote}" Foreground="{StaticResource TextMutedBrush}" FontSize="11.5" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Today's watering plan: compact card per land, same height thanks to UniformGrid -->
+                <StackPanel Margin="0,0,0,32"
+                            Visibility="{Binding HasLands, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="Rencana Penyiraman Hari Ini"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TodayText}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="12.5"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <TextBlock Text="Memuat rencana penyiraman..."
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="13"
+                               Margin="0,4,0,4"
+                               Visibility="{Binding IsLoadingPlans, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <ItemsControl ItemsSource="{Binding TodayPlans}"
+                                  Margin="0,0,-12,0"
+                                  Visibility="{Binding IsLoadingPlans, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource CardBackgroundBrush}"
+                                        BorderBrush="#E2E8F0"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="14,13"
+                                        Margin="0,0,12,12">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <!-- icon + land name -->
+                                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="34" Height="34" CornerRadius="9" Margin="0,0,10,0">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="#ECFDF5" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="tunda">
+                                                                <Setter Property="Background" Value="#EFF6FF" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="ekstra">
+                                                                <Setter Property="Background" Value="#FFFBEB" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <ContentControl Content="{Binding Kind}" Style="{StaticResource DecisionIconStyle}" Width="20" Height="20" />
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Land.Name}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontSize="13.5"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding Land.AreaText}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           FontSize="11.5" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- decision + one-line reason (full text lives on Land Detail) -->
+                                        <StackPanel Grid.Row="1">
+                                            <TextBlock Text="{Binding Recommendation.Title}"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#047857" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="tunda">
+                                                                <Setter Property="Foreground" Value="#1D4ED8" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="ekstra">
+                                                                <Setter Property="Foreground" Value="#B45309" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Recommendation.Brief}"
+                                                       ToolTip="{Binding ShortReason}"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="12"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
+
+                                        <!-- volume + action, fixed height so footers line up -->
+                                        <Border Grid.Row="2" BorderBrush="#F1F5F9" BorderThickness="0,1,0,0" Margin="0,10,0,0" Padding="0,8,0,0">
+                                            <Grid Height="30">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding VolumeNumber}"
+                                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                                               FontSize="16"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center" />
+                                                    <TextBlock Text=" L"
+                                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+
+                                                <TextBlock Text="{Binding Caption}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           FontSize="12"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Visibility="{Binding IsPostponed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                                <Button Content="Catat"
+                                                        Command="{Binding DataContext.RecordWateringCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip="Catat penyiraman lahan ini"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        Cursor="Hand"
+                                                        Visibility="{Binding IsPostponed, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="bd" Background="#F0FDF4" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="8" Padding="12,4">
+                                                                <ContentPresenter TextElement.Foreground="#047857" TextElement.FontWeight="SemiBold" TextElement.FontSize="12" />
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="bd" Property="Background" Value="#DCFCE7" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
                                 </Border>
-                            </Grid>
-
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <TextBlock Text="{Binding TotalArea}"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
-                                           FontSize="28"
-                                           FontWeight="Bold"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,8,0" />
-                                <TextBlock Text="Hektar Total"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="13.5"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,0,4" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Card 3: TANAMAN AKTIF -->
-                    <Border Grid.Column="4"
-                            Background="{StaticResource CardBackgroundBrush}"
-                            CornerRadius="18"
-                            Padding="22,20"
-                            BorderBrush="#F1F5F9"
-                            BorderThickness="1"
-                            Effect="{StaticResource CardShadow}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,16">
-                                <TextBlock Text="TANAMAN AKTIF"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           VerticalAlignment="Center" />
-                                <Border HorizontalAlignment="Right"
-                                        Width="36" Height="36"
-                                        CornerRadius="18"
-                                        Background="{StaticResource MintBgBrush}">
-                                    <Path Data="{StaticResource LeafPath}"
-                                          Fill="{StaticResource MintTextBrush}"
-                                          Width="16" Height="16"
-                                          Stretch="Uniform"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
-                                </Border>
-                            </Grid>
-
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <TextBlock Text="{Binding TotalVarieties}"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
-                                           FontSize="28"
-                                           FontWeight="Bold"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,8,0" />
-                                <TextBlock Text="Varietas"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="13.5"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,0,4" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
 
                 <!-- Section Title -->
                 <TextBlock Text="Lahan yang sudah didaftarkan:"

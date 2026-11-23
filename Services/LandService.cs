@@ -10,35 +10,35 @@ using static Supabase.Postgrest.Constants;
 namespace Lahanku.Services
 {
     /// <summary>
-    /// Implementasi layanan lahan dan irigasi terhubung langsung ke cloud database Supabase.
-    /// Mematuhi Single Responsibility Principle (SRP) dan Dependency Inversion (DIP).
+    /// Land and irrigation service connected directly to the Supabase cloud database.
+    /// Follows the Single Responsibility Principle (SRP) and Dependency Inversion (DIP).
     /// </summary>
     public class LandService : ILandService
     {
-        private List<Tanaman>? _tanamanCache;
+        private List<Crop>? _cropCache;
 
-        public async Task<List<Tanaman>> GetTanamanListAsync()
+        public async Task<List<Crop>> GetCropsAsync()
         {
-            if (_tanamanCache != null && _tanamanCache.Count > 0)
+            if (_cropCache != null && _cropCache.Count > 0)
             {
-                return _tanamanCache;
+                return _cropCache;
             }
 
             try
             {
                 var client = await SupabaseConfig.GetClientAsync();
                 var response = await client
-                    .From<Tanaman>()
-                    .Order(t => t.NamaTanaman, Ordering.Ascending)
+                    .From<Crop>()
+                    .Order(t => t.Name, Ordering.Ascending)
                     .Get();
 
-                _tanamanCache = response.Models;
-                return _tanamanCache;
+                _cropCache = response.Models;
+                return _cropCache;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[LandService] Error fetching tanaman: {ex.Message}");
-                return new List<Tanaman>();
+                return new List<Crop>();
             }
         }
 
@@ -49,21 +49,21 @@ namespace Lahanku.Services
                 var client = await SupabaseConfig.GetClientAsync();
                 var query = client.From<Land>();
 
-                // RLS sudah membatasi ke lahan milik sendiri, filter ini cuma jaga-jaga
+                // RLS already limits this to the user's own lands, this filter is just a safety net
                 var response = ownerId.HasValue
                     ? await query.Where(l => l.OwnerId == ownerId.Value).Get()
                     : await query.Get();
 
                 var lands = response.Models;
-                var tanamanList = await GetTanamanListAsync();
-                var tanamanMap = tanamanList.ToDictionary(t => t.IdTanaman);
+                var crops = await GetCropsAsync();
+                var cropMap = crops.ToDictionary(t => t.Id);
 
-                // log penyiraman nggak diambil di sini, Detail Lahan load sendiri
+                // watering logs aren't fetched here, Land Detail loads its own
                 foreach (var land in lands)
                 {
-                    if (land.TanamanId.HasValue && tanamanMap.TryGetValue(land.TanamanId.Value, out var tanaman))
+                    if (land.CropId.HasValue && cropMap.TryGetValue(land.CropId.Value, out var crop))
                     {
-                        land.Tanaman = tanaman;
+                        land.Crop = crop;
                     }
                 }
 
@@ -89,10 +89,10 @@ namespace Lahanku.Services
                 var land = response.Models.FirstOrDefault();
                 if (land != null)
                 {
-                    if (land.TanamanId.HasValue)
+                    if (land.CropId.HasValue)
                     {
-                        var tanamanList = await GetTanamanListAsync();
-                        land.Tanaman = tanamanList.FirstOrDefault(t => t.IdTanaman == land.TanamanId.Value);
+                        var crops = await GetCropsAsync();
+                        land.Crop = crops.FirstOrDefault(t => t.Id == land.CropId.Value);
                     }
 
                     var logs = await GetIrrigationLogsAsync(land.Id);
@@ -116,11 +116,11 @@ namespace Lahanku.Services
                 var response = await client.From<Land>().Insert(land);
                 var created = response.Models.FirstOrDefault() ?? land;
 
-                // Sync Tanaman info
-                if (created.TanamanId.HasValue)
+                // Sync Crop info
+                if (created.CropId.HasValue)
                 {
-                    var tanamanList = await GetTanamanListAsync();
-                    created.Tanaman = tanamanList.FirstOrDefault(t => t.IdTanaman == created.TanamanId.Value);
+                    var crops = await GetCropsAsync();
+                    created.Crop = crops.FirstOrDefault(t => t.Id == created.CropId.Value);
                 }
 
                 return created;
@@ -167,6 +167,7 @@ namespace Lahanku.Services
             try
             {
                 log.LandId = landId;
+                log.Date = LocalTime.Ensure(log.Date);
                 var client = await SupabaseConfig.GetClientAsync();
                 var response = await client.From<IrrigationLog>().Insert(log);
                 return response.Models.FirstOrDefault() ?? log;
@@ -202,6 +203,7 @@ namespace Lahanku.Services
         {
             try
             {
+                log.Date = LocalTime.Ensure(log.Date);
                 var client = await SupabaseConfig.GetClientAsync();
                 await client.From<IrrigationLog>().Update(log);
                 return true;

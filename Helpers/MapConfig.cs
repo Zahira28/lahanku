@@ -1,6 +1,6 @@
 ﻿namespace Lahanku.Helpers
 {
-    // Key CARTO opsional, tanpa key basemap-nya tetap bisa dimuat.
+    // CARTO key is optional, the basemap still loads without it.
     public static class MapConfig
     {
         public const string CartoApiKeyEnvVar = "LAHANKU_CARTO_API_KEY";

@@ -12,7 +12,7 @@ using System.Windows.Input;
 namespace Lahanku.ViewModels
 {
     /// <summary>
-    /// ViewModel Dashboard utama dengan indikator loading, penanganan error, dan banner coba lagi (SRP).
+    /// Main Dashboard ViewModel with loading indicator, error handling, and retry banner (SRP).
     /// </summary>
     public partial class DashboardViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
@@ -54,6 +54,28 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSettingsView;
 
+        // today's watering plan, one card per land
+        [ObservableProperty]
+        private ObservableCollection<LandPlan> _todayPlans = new();
+
+        [ObservableProperty]
+        private bool _isLoadingPlans;
+
+        // summary card: water saved over the last 7 days
+        [ObservableProperty]
+        private string _savedText = "-";
+
+        [ObservableProperty]
+        private string _savedNote = "Belum ada data";
+
+        [ObservableProperty]
+        private string _totalAreaUnit = "ha";
+
+        public string TodayText => DateTime.Today.ToString("dddd, d MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
+
+        private readonly IDailyPlanService _dailyPlan;
+        private readonly IDailyRecommendationService _dailyRecommendations;
+
         public string CurrentUserName => _authService.CurrentUser?.DisplayName ?? "Petani";
 
         public string CurrentUserUsername => _authService.CurrentUser?.Handle ?? "@petani";
@@ -64,6 +86,8 @@ namespace Lahanku.ViewModels
             _landService = landService;
             _authService = authService;
             _errorHandler = errorHandler ?? new ErrorHandler();
+            _dailyRecommendations = new DailyRecommendationService(landService);
+            _dailyPlan = new DailyPlanService(new WeatherService(), new IrrigationAdvisorService(), _dailyRecommendations);
 
             UpdateGreeting();
             _ = LoadLandsAsync();
@@ -113,22 +137,37 @@ namespace Lahanku.ViewModels
                 {
                     TotalLands = Lands.Count.ToString();
 
+                    // small gardens read better in m²
                     double totalHa = Lands.Sum(l => l.AreaHectares);
-                    TotalArea = totalHa.ToString("0.##", CultureInfo.InvariantCulture);
+                    var id = CultureInfo.GetCultureInfo("id-ID");
+                    if (totalHa < 0.1)
+                    {
+                        TotalArea = (totalHa * 10000).ToString("#,0", id);
+                        TotalAreaUnit = "m²";
+                    }
+                    else
+                    {
+                        TotalArea = totalHa.ToString("0.##", id);
+                        TotalAreaUnit = "ha";
+                    }
 
                     var distinctCrops = Lands
-                        .Select(l => l.TanamanId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
+                        .Select(l => l.CropId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
                         .Where(key => !string.IsNullOrEmpty(key))
                         .Distinct()
                         .Count();
 
                     TotalVarieties = distinctCrops.ToString();
+                    _ = LoadPlansAsync();
                 }
                 else
                 {
                     TotalLands = "0";
                     TotalArea = "0";
                     TotalVarieties = "0";
+                    TodayPlans.Clear();
+                    SavedText = "-";
+                    SavedNote = "Belum ada data";
                 }
             }
             catch (Exception ex)
@@ -141,6 +180,74 @@ namespace Lahanku.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        // weather + recommendation per land (in parallel), then the weekly summary line
+        private async Task LoadPlansAsync()
+        {
+            IsLoadingPlans = true;
+            try
+            {
+                var lands = Lands.ToList();
+                var plans = await Task.WhenAll(lands.Select(l => _dailyPlan.CalculateAsync(l, DateTime.Now)));
+                TodayPlans.Clear();
+                foreach (var plan in plans)
+                {
+                    TodayPlans.Add(plan);
+                }
+
+                ApplySummary(await BuildWeeklySummaryAsync(lands));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Dashboard] Failed to load plans: {ex}");
+            }
+            finally
+            {
+                IsLoadingPlans = false;
+            }
+        }
+
+        private void ApplySummary(WaterSummary summary)
+        {
+            var id = CultureInfo.GetCultureInfo("id-ID");
+            if (!summary.HasData)
+            {
+                SavedText = "-";
+                SavedNote = "Belum ada data";
+                return;
+            }
+
+            SavedText = Math.Round(summary.Saved, 0).ToString("#,0", id);
+            SavedNote = summary.Saved >= 0
+                ? $"{summary.SavedPercent.ToString("0", id)}% dari penyiraman rutin"
+                : "Lebih banyak dari penyiraman rutin";
+        }
+
+        private async Task<WaterSummary> BuildWeeklySummaryAsync(System.Collections.Generic.List<Land> lands)
+        {
+            var from = DateTime.Today.AddDays(-6);
+            var perLand = await Task.WhenAll(lands.Select(async l =>
+            {
+                var records = await _dailyRecommendations.GetHistoryAsync(l.Id, from, DateTime.Today);
+                var logs = await _landService.GetIrrigationLogsAsync(l.Id);
+                return (records, logs);
+            }));
+
+            return WaterSummary.Calculate(
+                perLand.SelectMany(p => p.records),
+                perLand.SelectMany(p => p.logs));
+        }
+
+        [RelayCommand]
+        private void RecordWatering(LandPlan? plan)
+        {
+            if (plan == null)
+            {
+                return;
+            }
+
+            _main.OpenModal(new IrrigationModalViewModel(_main, _landService, LoadPlansAsync, plan.Land, plan.Recommendation.RecommendedVolume));
         }
 
         [RelayCommand]
@@ -190,7 +297,7 @@ namespace Lahanku.ViewModels
             _main.NavigateToLogin();
         }
 
-        // Ctrl+N tambah lahan, F5 muat ulang
+        // Ctrl+N add land, F5 reload
         public bool HandleKey(Key key, ModifierKeys modifiers) => key switch
         {
             Key.N when modifiers == ModifierKeys.Control => OpenAddLandModalCommand.TryRun(),

@@ -807,7 +807,7 @@
         </Style.Triggers>
     </Style>
 
-    <!-- tombol ikon polos (mata password, logout, dll) tanpa efek hover biru bawaan Windows -->
+    <!-- plain icon button (password eye, logout, etc.) without the default blue Windows hover -->
     <Style x:Key="IconButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />

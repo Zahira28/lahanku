@@ -7,7 +7,7 @@ using System.Windows.Input;
 namespace Lahanku.ViewModels
 {
     /// <summary>
-    /// ViewModel untuk dialog modal error modern dengan dukungan aksi Retry dan detail teknis.
+    /// ViewModel for the modern error dialog with Retry action and technical details.
     /// </summary>
     public partial class ErrorModalViewModel : ViewModelBase, IKeyboardShortcutHandler
     {

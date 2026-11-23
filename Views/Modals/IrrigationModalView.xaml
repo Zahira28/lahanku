@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:helpers="clr-namespace:Lahanku.Helpers"
+             xmlns:controls="clr-namespace:Lahanku.Controls"
              mc:Ignorable="d" 
              d:DesignWidth="500">
 
@@ -30,27 +31,14 @@
                        FontWeight="Bold"
                        Margin="0,0,0,24" />
 
-            <!-- Field: Tanggal Penyiraman -->
-            <TextBlock Text="Tanggal Penyiraman"
+            <!-- Field: Date & Time (custom calendar, future dates locked) -->
+            <TextBlock Text="Tanggal &amp; Waktu Penyiraman"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        FontSize="13"
                        FontWeight="SemiBold"
                        Margin="0,0,0,8" />
-            <Border Background="{StaticResource InputBackgroundBrush}"
-                    BorderBrush="{StaticResource InputBorderBrush}"
-                    BorderThickness="1.2"
-                    CornerRadius="12"
-                    Height="46"
-                    Padding="16,0"
-                    Margin="0,0,0,18">
-                <Grid VerticalAlignment="Center">
-                    <DatePicker SelectedDate="{Binding Date, Mode=TwoWay}"
-                                BorderThickness="0"
-                                Background="Transparent"
-                                VerticalAlignment="Center"
-                                FontSize="14" />
-                </Grid>
-            </Border>
+            <controls:DateTimePicker Value="{Binding Date, Mode=TwoWay}"
+                                    Margin="0,0,0,18" />
 
             <!-- Field: Volume Air -->
             <TextBlock Text="Volume Air"

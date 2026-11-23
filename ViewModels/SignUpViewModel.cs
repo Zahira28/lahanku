@@ -7,7 +7,7 @@ using System.Windows.Input;
 namespace Lahanku.ViewModels
 {
     /// <summary>
-    /// ViewModel untuk pendaftaran akun pengguna baru (SRP & DIP).
+    /// ViewModel for new user registration (SRP & DIP).
     /// </summary>
     public partial class SignUpViewModel : ViewModelBase, IKeyboardShortcutHandler
     {

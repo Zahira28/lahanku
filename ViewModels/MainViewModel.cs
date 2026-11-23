@@ -43,7 +43,7 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isToastVisible;
 
-        // Visual Brushes untuk dynamic multi-type toast UI
+        // Visual brushes for the dynamic multi-type toast UI
         public Brush ToastBackgroundBrush => ToastLevel switch
         {
             ToastLevel.Error => new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2)), // #FEF2F2 Red-50
@@ -89,7 +89,7 @@ namespace Lahanku.ViewModels
             LandService = landService;
             ErrorHandler = errorHandler ?? new ErrorHandler();
 
-            // Hubungkan delegasi ErrorHandler ke UI MainViewModel
+            // Wire ErrorHandler delegates to the MainViewModel UI
             if (ErrorHandler is ErrorHandler concreteHandler)
             {
                 concreteHandler.ShowErrorToastAction = (msg, title) => ShowErrorToast(msg, title);

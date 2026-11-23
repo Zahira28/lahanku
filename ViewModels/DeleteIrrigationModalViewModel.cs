@@ -11,7 +11,7 @@ namespace Lahanku.ViewModels
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
-        private readonly LandDetailViewModel _detailViewModel;
+        private readonly System.Func<Task> _onDeleted;
 
         public IrrigationLog TargetLog { get; }
         public string FormattedDate => TargetLog.FormattedDate;
@@ -21,11 +21,11 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isDeleting;
 
-        public DeleteIrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, IrrigationLog targetLog)
+        public DeleteIrrigationModalViewModel(MainViewModel main, ILandService landService, System.Func<Task> onDeleted, IrrigationLog targetLog)
         {
             _main = main;
             _landService = landService;
-            _detailViewModel = detailViewModel;
+            _onDeleted = onDeleted;
             TargetLog = targetLog;
         }
 
@@ -38,7 +38,7 @@ namespace Lahanku.ViewModels
                 bool success = await _landService.DeleteIrrigationLogAsync(TargetLog.Id);
                 if (success)
                 {
-                    await _detailViewModel.LoadLogsAsync();
+                    await _onDeleted();
                     _main.CloseModal();
                     _main.ShowToast("Catatan penyiraman berhasil dihapus!");
                 }

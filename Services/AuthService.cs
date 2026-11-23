@@ -9,8 +9,8 @@ using Supabase.Gotrue.Exceptions;
 
 namespace Lahanku.Services
 {
-    // Supabase Auth butuh email, jadi username diubah jadi "username@lahanku.local".
-    // "Confirm email" di dashboard Supabase harus dimatikan.
+    // Supabase Auth needs an email, so the username becomes "username@lahanku.local".
+    // "Confirm email" must be turned off in the Supabase dashboard.
     public partial class AuthService : IAuthService
     {
         public const string SyntheticEmailDomain = "lahanku.local";
@@ -91,7 +91,7 @@ namespace Lahanku.Services
 
                 if (session?.User?.Id == null || string.IsNullOrEmpty(session.AccessToken))
                 {
-                    // nggak dapat sesi berarti confirm email masih nyala
+                    // no session means confirm email is still on
                     return (false, "Akun dibuat tetapi butuh konfirmasi email. Admin perlu mematikan \"Confirm email\" di Supabase.");
                 }
 
@@ -124,7 +124,7 @@ namespace Lahanku.Services
             }
         }
 
-        // profil dibuat trigger waktu sign up; kalau belum kebaca, pakai data seadanya dulu
+        // the profile is created by a trigger on sign up; if it can't be read yet, use what we have
         private static async Task<User> LoadProfileAsync(string userId, string fallbackUsername)
         {
             var id = Guid.Parse(userId);

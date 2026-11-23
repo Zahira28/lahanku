@@ -17,7 +17,7 @@ namespace Lahanku.Models
         public Guid? OwnerId { get; set; }
 
         [Column("id_tanaman")]
-        public long? TanamanId { get; set; }
+        public long? CropId { get; set; }
 
         [Column("nama_lahan")]
         public string Name { get; set; } = string.Empty;
@@ -34,7 +34,7 @@ namespace Lahanku.Models
         [Column("luas_hektar")]
         public double AreaHectares { get; set; }
 
-        // kelembapan udara ideal (%), kosong = pakai default dari katalog tanaman
+        // ideal air humidity (%), empty = use the crop catalog default
         [Column("kelembapan_min")]
         public double? MinMoisture { get; set; }
 
@@ -45,10 +45,10 @@ namespace Lahanku.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [JsonIgnore]
-        public double? IdealMoistureMin => MinMoisture ?? (Tanaman != null ? Tanaman.KelembapanIdealMin : null);
+        public double? IdealMoistureMin => MinMoisture ?? (Crop != null ? Crop.IdealHumidityMin : null);
 
         [JsonIgnore]
-        public double? IdealMoistureMax => MaxMoisture ?? (Tanaman != null ? Tanaman.KelembapanIdealMax : null);
+        public double? IdealMoistureMax => MaxMoisture ?? (Crop != null ? Crop.IdealHumidityMax : null);
 
         [JsonIgnore]
         public bool HasIdealMoisture => IdealMoistureMin.HasValue && IdealMoistureMax.HasValue && IdealMoistureMax > 0;
@@ -58,19 +58,19 @@ namespace Lahanku.Models
             ? $"{IdealMoistureMin!.Value.ToString("0.##", CultureInfo.InvariantCulture)}–{IdealMoistureMax!.Value.ToString("0.##", CultureInfo.InvariantCulture)}%"
             : "-";
 
-        // Objek Tanaman yang ditanam di lahan ini (Relasi OOP)
+        // The Crop planted on this land (OOP relation)
         [JsonIgnore]
-        public Tanaman? Tanaman { get; set; }
+        public Crop? Crop { get; set; }
 
         private string _cropType = string.Empty;
 
         /// <summary>
-        /// Nama jenis tanaman untuk tampilan UI. Jika relasi Tanaman terisi, menggunakan Tanaman.DisplayName.
+        /// Crop type name for the UI. If the Crop relation is set, uses Crop.DisplayName.
         /// </summary>
         [JsonIgnore]
         public string CropType
         {
-            get => Tanaman != null ? Tanaman.DisplayName : _cropType;
+            get => Crop != null ? Crop.DisplayName : _cropType;
             set => _cropType = value;
         }
 
@@ -107,7 +107,7 @@ namespace Lahanku.Models
             {
                 Id = this.Id,
                 OwnerId = this.OwnerId,
-                TanamanId = this.TanamanId,
+                CropId = this.CropId,
                 Name = this.Name,
                 LocationDescription = this.LocationDescription,
                 Latitude = this.Latitude,
@@ -115,7 +115,7 @@ namespace Lahanku.Models
                 AreaHectares = this.AreaHectares,
                 MinMoisture = this.MinMoisture,
                 MaxMoisture = this.MaxMoisture,
-                Tanaman = this.Tanaman,
+                Crop = this.Crop,
                 CropType = this.CropType,
                 CreatedAt = this.CreatedAt
             };

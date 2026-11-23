@@ -4,7 +4,7 @@ using System.Windows.Threading;
 
 namespace Lahanku.Helpers
 {
-    // helpers:FocusHelper.FocusOnLoad="True" → kursor langsung di kolom ini begitu halaman/modal kebuka
+    // helpers:FocusHelper.FocusOnLoad="True" → cursor goes straight to this field when the page/modal opens
     public static class FocusHelper
     {
         public static readonly DependencyProperty FocusOnLoadProperty =

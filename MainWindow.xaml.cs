@@ -28,7 +28,7 @@ namespace Lahanku
             }
         }
 
-        // Shortcut keyboard: modal yang aktif dapat duluan, kalau nggak ada baru halaman.
+        // Keyboard shortcuts: the active modal gets them first, otherwise the page.
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (DataContext is not MainViewModel vm)
@@ -46,7 +46,7 @@ namespace Lahanku
                     return;
                 }
 
-                // pastikan teks yang lagi diketik udah masuk ke ViewModel sebelum disubmit
+                // make sure the text being typed reaches the ViewModel before submitting
                 (focused as TextBox)?.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
             }
 
@@ -67,7 +67,7 @@ namespace Lahanku
         private static bool ControlHandlesEnterItself(DependencyObject? focused) => focused switch
         {
             TextBox { AcceptsReturn: true } => true,      // kolom catatan multi-baris
-            ButtonBase => true,                            // Enter di tombol yang fokus = klik tombol itu
+            ButtonBase => true,                            // Enter on a focused button = click that button
             ComboBox { IsDropDownOpen: true } => true,
             ComboBoxItem => true,
             UIElement element when element.InputBindings.OfType<KeyBinding>().Any(k => k.Key == Key.Enter) => true,

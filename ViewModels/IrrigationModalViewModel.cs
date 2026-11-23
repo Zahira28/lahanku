@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,7 +15,8 @@ namespace Lahanku.ViewModels
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
-        private readonly LandDetailViewModel _detailViewModel;
+        // called after saving, so the calling page (Detail/Dashboard) can reload
+        private readonly Func<Task> _onSaved;
         private readonly double? _suggestedVolume;
 
         public Land TargetLand { get; }
@@ -43,7 +45,7 @@ namespace Lahanku.ViewModels
         public string NotesPlaceholder => "Contoh: Penyiraman rutin pagi hari, kondisi tanah cukup lembap.";
 
         /// <summary>
-        /// Alias properti untuk kompatibilitas
+        /// Property alias for compatibility
         /// </summary>
         public string VolumeLitersText
         {
@@ -80,11 +82,11 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSaving;
 
-        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand, double? suggestedVolume = null)
+        public IrrigationModalViewModel(MainViewModel main, ILandService landService, Func<Task> onSaved, Land targetLand, double? suggestedVolume = null)
         {
             _main = main;
             _landService = landService;
-            _detailViewModel = detailViewModel;
+            _onSaved = onSaved;
             TargetLand = targetLand;
             _suggestedVolume = suggestedVolume;
 
@@ -110,11 +112,11 @@ namespace Lahanku.ViewModels
             }
         }
 
-        public IrrigationModalViewModel(MainViewModel main, ILandService landService, LandDetailViewModel detailViewModel, Land targetLand, IrrigationLog existingLog)
+        public IrrigationModalViewModel(MainViewModel main, ILandService landService, Func<Task> onSaved, Land targetLand, IrrigationLog existingLog)
         {
             _main = main;
             _landService = landService;
-            _detailViewModel = detailViewModel;
+            _onSaved = onSaved;
             TargetLand = targetLand;
             ExistingLog = existingLog;
 
@@ -147,6 +149,13 @@ namespace Lahanku.ViewModels
 
             double volumeInLiters = SelectedVolumeUnit.Contains("mL") ? (rawVolume / 1000.0) : rawVolume;
 
+            // the calendar already blocks it, this is just a safety net
+            if (Date > DateTime.Now.AddMinutes(1))
+            {
+                ErrorMessage = "Tanggal penyiraman tidak boleh melebihi hari ini.";
+                return;
+            }
+
             IsSaving = true;
             try
             {
@@ -159,7 +168,7 @@ namespace Lahanku.ViewModels
                     bool success = await _landService.UpdateIrrigationLogAsync(ExistingLog);
                     if (success)
                     {
-                        await _detailViewModel.LoadLogsAsync();
+                        await _onSaved();
                         _main.CloseModal();
                         _main.ShowToast("Catatan penyiraman berhasil diperbarui!");
                     }
@@ -179,10 +188,18 @@ namespace Lahanku.ViewModels
                     };
 
                     await _landService.AddIrrigationLogAsync(TargetLand.Id, newLog);
-                    await _detailViewModel.LoadLogsAsync();
+                    var message = await BuildEvaluationMessageAsync(Date);
+                    await _onSaved();
 
                     _main.CloseModal();
-                    _main.ShowToast("Penyiraman berhasil dicatat!");
+                    if (message.IsWarning)
+                    {
+                        _main.ShowWarningToast(message.Body, message.Title);
+                    }
+                    else
+                    {
+                        _main.ShowSuccessToast(message.Body, message.Title);
+                    }
                 }
             }
             catch (Exception ex)
@@ -193,6 +210,31 @@ namespace Lahanku.ViewModels
             finally
             {
                 IsSaving = false;
+            }
+        }
+
+        // compare the total watering on that date with that day's recommendation record
+        private async Task<EvaluationMessage> BuildEvaluationMessageAsync(DateTime date)
+        {
+            var baseline = new EvaluationMessage("Berhasil", "Penyiraman berhasil dicatat.", false);
+            try
+            {
+                var records = (await new DailyRecommendationService(_landService)
+                    .GetHistoryAsync(TargetLand.Id, date, date)).FirstOrDefault();
+                if (records == null)
+                {
+                    return baseline;
+                }
+
+                var logs = await _landService.GetIrrigationLogsAsync(TargetLand.Id);
+                double total = logs.Where(l => l.Date.Date == date.Date).Sum(l => l.VolumeLiters);
+                var result = WateringEvaluator.Evaluate(WateringDecisionExtensions.FromDb(records.Decision), records.RecommendedVolume, total);
+                return WateringEvaluator.BuildMessage(result, records.BaselineVolume, total);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[IrrigationModal] Gagal evaluasi: {ex}");
+                return baseline;
             }
         }
 
