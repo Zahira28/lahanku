@@ -16,6 +16,7 @@ namespace Lahanku.ViewModels
         private readonly ILandService _landService;
         private readonly IWeatherService _weatherService;
         private readonly IIrrigationAdvisorService _advisorService;
+        private readonly IRekomendasiHarianService _rekomendasiHarian;
         private readonly DispatcherTimer _weatherAutoRefreshTimer;
 
         [ObservableProperty]
@@ -38,7 +39,7 @@ namespace Lahanku.ViewModels
         private Cuaca? _currentWeather;
 
         [ObservableProperty]
-        private EvaluasiIrigasi? _irrigationAdvice;
+        private Rekomendasi? _rekomendasiHariIni;
 
         [ObservableProperty]
         private bool _isLoadingWeather = true;
@@ -91,6 +92,7 @@ namespace Lahanku.ViewModels
             _land = land;
             _weatherService = weatherService ?? new WeatherService();
             _advisorService = advisorService ?? new IrrigationAdvisorService();
+            _rekomendasiHarian = new RekomendasiHarianService(landService);
 
             _weatherAutoRefreshTimer = new DispatcherTimer
             {
@@ -134,15 +136,18 @@ namespace Lahanku.ViewModels
                     WeatherConditionText = "Data satelit offline (menggunakan estimasi)";
                 }
 
-                // Kalkulasi rekomendasi irigasi cerdas (SDG 13 - Climate Action)
-                IrrigationAdvice = _advisorService.CalculateRecommendation(Land, CurrentWeather);
-                if (IrrigationAdvice != null)
-                {
-                    AdviceStatus = IrrigationAdvice.StatusEfisiensi;
-                    AdviceSaran = IrrigationAdvice.Saran ?? string.Empty;
-                    AdviceVolumeText = $"{IrrigationAdvice.VolumeAnjuran:N0} Liter";
-                    CanApplyAdvice = IrrigationAdvice.VolumeAnjuran > 0;
-                }
+                // rekomendasi hari ini: cuaca sekarang + prakiraan hujan 24 jam
+                var prakiraan = await _weatherService.GetPrakiraanHujanAsync(Land.Latitude, Land.Longitude);
+                RekomendasiHariIni = _advisorService.Hitung(Land, CurrentWeather, prakiraan, DateTime.Now);
+
+                AdviceStatus = RekomendasiHariIni.Judul;
+                AdviceSaran = string.IsNullOrEmpty(RekomendasiHariIni.SaranWaktu)
+                    ? RekomendasiHariIni.Alasan
+                    : $"{RekomendasiHariIni.Alasan} {RekomendasiHariIni.SaranWaktu}";
+                AdviceVolumeText = $"{RekomendasiHariIni.VolumeAnjuran:N0} Liter";
+                CanApplyAdvice = RekomendasiHariIni.VolumeAnjuran > 0;
+
+                await _rekomendasiHarian.SimpanAsync(Land, RekomendasiHariIni, DateTime.Now);
             }
             catch (Exception ex)
             {
@@ -265,9 +270,9 @@ namespace Lahanku.ViewModels
         [RelayCommand]
         private void ApplyRecommendedIrrigation()
         {
-            if (IrrigationAdvice != null && IrrigationAdvice.VolumeAnjuran > 0)
+            if (RekomendasiHariIni != null && RekomendasiHariIni.VolumeAnjuran > 0)
             {
-                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, this, Land, IrrigationAdvice.VolumeAnjuran));
+                _main.OpenModal(new IrrigationModalViewModel(_main, _landService, this, Land, RekomendasiHariIni.VolumeAnjuran));
             }
             else
             {

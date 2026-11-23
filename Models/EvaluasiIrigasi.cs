@@ -19,6 +19,23 @@ namespace Lahanku.Models
         [Column("id_cuaca")]
         public long? IdCuaca { get; set; }
 
+        [Column("tanggal")]
+        public DateTime Tanggal { get; set; }
+
+        // "siram", "tunda", atau "siram_ekstra" (lihat KeputusanSiramExtensions)
+        [Column("keputusan")]
+        public string Keputusan { get; set; } = "siram";
+
+        // patokan penyiraman rutin tanpa melihat cuaca
+        [Column("volume_standar")]
+        public double VolumeStandar { get; set; }
+
+        [Column("hujan_prakiraan_mm")]
+        public double? HujanPrakiraanMm { get; set; }
+
+        [Column("peluang_hujan")]
+        public double? PeluangHujan { get; set; }
+
         [Column("volume_anjuran")]
         public double VolumeAnjuran { get; set; }
 
