@@ -56,7 +56,7 @@ namespace Lahanku.ViewModels
             IsLoading = true;
             try
             {
-                var user = await _authService.LoginAsync(Username, Password);
+                var (user, error) = await _authService.LoginAsync(Username, Password);
                 if (user != null)
                 {
                     _main.ShowSuccessToast($"Selamat datang kembali, {user.FullName ?? user.Username}!", "Login Berhasil");
@@ -64,8 +64,8 @@ namespace Lahanku.ViewModels
                 }
                 else
                 {
-                    ErrorMessage = "Username atau password salah.";
-                    _main.ShowErrorToast("Username atau password salah. Silakan periksa kembali.", "Gagal Masuk");
+                    ErrorMessage = error ?? "Username atau password salah.";
+                    _main.ShowErrorToast(ErrorMessage, "Gagal Masuk");
                 }
             }
             finally

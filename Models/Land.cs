@@ -13,8 +13,8 @@ namespace Lahanku.Models
         [PrimaryKey("id_lahan", false)]
         public long Id { get; set; }
 
-        [Column("id_user")]
-        public long? UserId { get; set; }
+        [Column("owner_id")]
+        public Guid? OwnerId { get; set; }
 
         [Column("id_tanaman")]
         public long? TanamanId { get; set; }
@@ -85,7 +85,7 @@ namespace Lahanku.Models
             var clone = new Land
             {
                 Id = this.Id,
-                UserId = this.UserId,
+                OwnerId = this.OwnerId,
                 TanamanId = this.TanamanId,
                 Name = this.Name,
                 LocationDescription = this.LocationDescription,

@@ -42,15 +42,16 @@ namespace Lahanku.Services
             }
         }
 
-        public async Task<List<Land>> GetLandsAsync(long? userId = null)
+        public async Task<List<Land>> GetLandsAsync(Guid? ownerId = null)
         {
             try
             {
                 var client = await SupabaseConfig.GetClientAsync();
                 var query = client.From<Land>();
 
-                var response = userId.HasValue
-                    ? await query.Where(l => l.UserId == userId.Value).Get()
+                // RLS sudah membatasi ke lahan milik sendiri, filter ini cuma jaga-jaga
+                var response = ownerId.HasValue
+                    ? await query.Where(l => l.OwnerId == ownerId.Value).Get()
                     : await query.Get();
 
                 var lands = response.Models;

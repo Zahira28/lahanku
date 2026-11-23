@@ -186,9 +186,9 @@ namespace Lahanku.ViewModels
         }
 
         [RelayCommand]
-        private void Logout()
+        private async Task LogoutAsync()
         {
-            _authService.Logout();
+            await _authService.LogoutAsync();
             _main.NavigateToLogin();
         }
     }
