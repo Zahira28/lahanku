@@ -7,13 +7,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Models;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
     /// <summary>
     /// ViewModel Dashboard utama dengan indikator loading, penanganan error, dan banner coba lagi (SRP).
     /// </summary>
-    public partial class DashboardViewModel : ViewModelBase
+    public partial class DashboardViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
@@ -188,5 +189,13 @@ namespace Lahanku.ViewModels
             await _authService.LogoutAsync();
             _main.NavigateToLogin();
         }
+
+        // Ctrl+N tambah lahan, F5 muat ulang
+        public bool HandleKey(Key key, ModifierKeys modifiers) => key switch
+        {
+            Key.N when modifiers == ModifierKeys.Control => OpenAddLandModalCommand.TryRun(),
+            Key.F5 => LoadLandsCommand.TryRun(),
+            _ => false
+        };
     }
 }

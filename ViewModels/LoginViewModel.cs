@@ -2,13 +2,14 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
     /// <summary>
     /// ViewModel untuk halaman Login pengguna (SRP & DIP).
     /// </summary>
-    public partial class LoginViewModel : ViewModelBase
+    public partial class LoginViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly IAuthService _authService;
@@ -85,5 +86,11 @@ namespace Lahanku.ViewModels
         {
             IsPasswordVisible = !IsPasswordVisible;
         }
+
+        public bool HandleKey(Key key, ModifierKeys modifiers) => key switch
+        {
+            Key.Enter when modifiers == ModifierKeys.None => LoginCommand.TryRun(),
+            _ => false
+        };
     }
 }

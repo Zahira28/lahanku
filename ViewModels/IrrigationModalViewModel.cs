@@ -6,10 +6,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Models;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
-    public partial class IrrigationModalViewModel : ViewModelBase
+    public partial class IrrigationModalViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
@@ -200,5 +201,8 @@ namespace Lahanku.ViewModels
         {
             _main.CloseModal();
         }
+
+        public bool HandleKey(Key key, ModifierKeys modifiers) =>
+            key == Key.Enter && modifiers == ModifierKeys.None && SaveCommand.TryRun();
     }
 }

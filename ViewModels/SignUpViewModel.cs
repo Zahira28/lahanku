@@ -2,13 +2,14 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
     /// <summary>
     /// ViewModel untuk pendaftaran akun pengguna baru (SRP & DIP).
     /// </summary>
-    public partial class SignUpViewModel : ViewModelBase
+    public partial class SignUpViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly IAuthService _authService;
@@ -95,5 +96,11 @@ namespace Lahanku.ViewModels
         {
             _main.NavigateToLogin();
         }
+
+        public bool HandleKey(Key key, ModifierKeys modifiers) => key switch
+        {
+            Key.Enter when modifiers == ModifierKeys.None => SignUpCommand.TryRun(),
+            _ => false
+        };
     }
 }

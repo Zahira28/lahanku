@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Models;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
@@ -15,7 +16,7 @@ namespace Lahanku.ViewModels
     /// ViewModel untuk dialog tambah dan edit lahan.
     /// Memuat katalog varietas tanaman secara dinamis dari Supabase (SRP & Loose Coupling).
     /// </summary>
-    public partial class LandModalViewModel : ViewModelBase
+    public partial class LandModalViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
@@ -403,6 +404,26 @@ namespace Lahanku.ViewModels
         private void Cancel()
         {
             _main.CloseModal();
+        }
+
+        public bool HandleKey(Key key, ModifierKeys modifiers)
+        {
+            // kalau dropdown tanaman kebuka, Enter pilih hasil teratas dan Esc nutup dropdown-nya aja
+            if (IsCropDropdownOpen)
+            {
+                if (key == Key.Enter)
+                {
+                    return SelectCropCommand.TryRun(FilteredCropOptions.FirstOrDefault());
+                }
+
+                if (key == Key.Escape)
+                {
+                    IsCropDropdownOpen = false;
+                    return true;
+                }
+            }
+
+            return key == Key.Enter && modifiers == ModifierKeys.None && SaveCommand.TryRun();
         }
     }
 }

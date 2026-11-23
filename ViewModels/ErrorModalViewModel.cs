@@ -2,13 +2,14 @@ using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Models.Errors;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
     /// <summary>
     /// ViewModel untuk dialog modal error modern dengan dukungan aksi Retry dan detail teknis.
     /// </summary>
-    public partial class ErrorModalViewModel : ViewModelBase
+    public partial class ErrorModalViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly Action? _onRetry;
@@ -49,5 +50,8 @@ namespace Lahanku.ViewModels
         {
             IsDetailsExpanded = !IsDetailsExpanded;
         }
+
+        public bool HandleKey(Key key, ModifierKeys modifiers) =>
+            key == Key.Enter && modifiers == ModifierKeys.None && CloseCommand.TryRun();
     }
 }
