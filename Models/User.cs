@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -19,5 +20,11 @@ namespace Lahanku.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [JsonIgnore]
+        public string DisplayName => !string.IsNullOrWhiteSpace(FullName) ? FullName : Username;
+
+        [JsonIgnore]
+        public string Handle => $"@{Username}";
     }
 }

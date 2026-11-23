@@ -228,16 +228,25 @@
                         <!-- Eye Toggle Button -->
                         <Button Grid.Column="2"
                                 Command="{Binding TogglePasswordVisibilityCommand}"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Cursor="Hand"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Tampilkan / sembunyikan password"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center">
-                            <Path Data="{StaticResource EyePath}"
-                                  Fill="{StaticResource TextSecondaryBrush}"
+                            <Path Fill="{StaticResource TextSecondaryBrush}"
                                   Width="18"
                                   Height="18"
-                                  Stretch="Uniform" />
+                                  Stretch="Uniform">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Setter Property="Data" Value="{StaticResource EyePath}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Data" Value="{StaticResource EyeOffPath}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
                         </Button>
                     </Grid>
                 </Border>

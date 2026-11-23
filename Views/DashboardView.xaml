@@ -208,10 +208,7 @@
                         <Button Grid.Column="2"
                                 Command="{Binding LogoutCommand}"
                                 ToolTip="Keluar Akun"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Cursor="Hand"
-                                Padding="4">
+                                Style="{StaticResource IconButtonStyle}">
                             <Path Data="{StaticResource ArrowLeftPath}"
                                   Fill="{StaticResource TextSecondaryBrush}"
                                   Width="14" Height="14"
@@ -225,9 +222,9 @@
         <!-- ================= MAIN CONTENT ================= -->
         <ScrollViewer Grid.Column="1"
                       VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      Padding="40,32">
-            <StackPanel>
+                      HorizontalScrollBarVisibility="Disabled">
+            <!-- padding ditaruh di sini, bukan di ScrollViewer, biar shadow card nggak kepotong -->
+            <StackPanel Margin="40,32">
                 <!-- Top Header: Subtitle, Greeting, + Tambah Lahan Button -->
                 <Grid Margin="0,0,0,28">
                     <Grid.ColumnDefinitions>
