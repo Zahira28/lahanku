@@ -69,5 +69,8 @@ namespace Lahanku.Models
     {
         // 1 mm of water over 1 m² = 1 liter
         public double RecommendedPerM2 => AreaM2 > 0 ? RecommendedVolume / AreaM2 : 0;
+
+        // one-liner for compact cards, e.g. "Hujan ±20,4 mm pukul 12.00"
+        public string Brief { get; init; } = string.Empty;
     }
 }

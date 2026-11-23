@@ -61,8 +61,15 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isLoadingPlans;
 
+        // summary card: water saved over the last 7 days
         [ObservableProperty]
-        private string _weeklySummaryText = string.Empty;
+        private string _savedText = "-";
+
+        [ObservableProperty]
+        private string _savedNote = "Belum ada data";
+
+        [ObservableProperty]
+        private string _totalAreaUnit = "ha";
 
         public string TodayText => DateTime.Today.ToString("dddd, d MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
 
@@ -130,8 +137,19 @@ namespace Lahanku.ViewModels
                 {
                     TotalLands = Lands.Count.ToString();
 
+                    // small gardens read better in m²
                     double totalHa = Lands.Sum(l => l.AreaHectares);
-                    TotalArea = totalHa.ToString("0.##", CultureInfo.InvariantCulture);
+                    var id = CultureInfo.GetCultureInfo("id-ID");
+                    if (totalHa < 0.1)
+                    {
+                        TotalArea = (totalHa * 10000).ToString("#,0", id);
+                        TotalAreaUnit = "m²";
+                    }
+                    else
+                    {
+                        TotalArea = totalHa.ToString("0.##", id);
+                        TotalAreaUnit = "ha";
+                    }
 
                     var distinctCrops = Lands
                         .Select(l => l.CropId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
@@ -148,7 +166,8 @@ namespace Lahanku.ViewModels
                     TotalArea = "0";
                     TotalVarieties = "0";
                     TodayPlans.Clear();
-                    WeeklySummaryText = string.Empty;
+                    SavedText = "-";
+                    SavedNote = "Belum ada data";
                 }
             }
             catch (Exception ex)
@@ -177,7 +196,7 @@ namespace Lahanku.ViewModels
                     TodayPlans.Add(plan);
                 }
 
-                WeeklySummaryText = await BuildWeeklySummaryAsync(lands);
+                ApplySummary(await BuildWeeklySummaryAsync(lands));
             }
             catch (Exception ex)
             {
@@ -189,7 +208,23 @@ namespace Lahanku.ViewModels
             }
         }
 
-        private async Task<string> BuildWeeklySummaryAsync(System.Collections.Generic.List<Land> lands)
+        private void ApplySummary(WaterSummary summary)
+        {
+            var id = CultureInfo.GetCultureInfo("id-ID");
+            if (!summary.HasData)
+            {
+                SavedText = "-";
+                SavedNote = "Belum ada data";
+                return;
+            }
+
+            SavedText = Math.Round(summary.Saved, 0).ToString("#,0", id);
+            SavedNote = summary.Saved >= 0
+                ? $"{summary.SavedPercent.ToString("0", id)}% dari penyiraman rutin"
+                : "Lebih banyak dari penyiraman rutin";
+        }
+
+        private async Task<WaterSummary> BuildWeeklySummaryAsync(System.Collections.Generic.List<Land> lands)
         {
             var from = DateTime.Today.AddDays(-6);
             var perLand = await Task.WhenAll(lands.Select(async l =>
@@ -199,10 +234,9 @@ namespace Lahanku.ViewModels
                 return (records, logs);
             }));
 
-            var summary = WaterSummary.Calculate(
+            return WaterSummary.Calculate(
                 perLand.SelectMany(p => p.records),
                 perLand.SelectMany(p => p.logs));
-            return summary.ToWeeklySentence();
         }
 
         [RelayCommand]

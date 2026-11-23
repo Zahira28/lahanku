@@ -14,8 +14,8 @@ namespace Lahanku.Tests
         private static Land MakeLand(double? min = null, double? max = null) =>
             new() { Name = "Tes", AreaHectares = 0.01, MinMoisture = min, MaxMoisture = max };
 
-        private static Weather MakeWeather(double tempText = 27, double rh = 60, double rain = 0) =>
-            new() { Temperature = tempText, Humidity = rh, Rainfall = rain, Condition = "Cerah" };
+        private static Weather MakeWeather(double temp = 27, double rh = 60, double rain = 0) =>
+            new() { Temperature = temp, Humidity = rh, Rainfall = rain, Condition = "Cerah" };
 
         [Fact]
         public void Offline_uses_baseline_volume()
@@ -61,7 +61,7 @@ namespace Lahanku.Tests
         public void Hot_and_dry_means_extra_watering()
         {
             // 4,5 × 1,3 × 1,2 = 7,02 mm → 702 L
-            var r = _advisor.Calculate(MakeLand(), MakeWeather(tempText: 34, rh: 40), null, Morning);
+            var r = _advisor.Calculate(MakeLand(), MakeWeather(temp: 34, rh: 40), null, Morning);
             Assert.Equal(WateringDecision.WaterExtra, r.Decision);
             Assert.Equal(702, r.RecommendedVolume);
             Assert.Equal("Tambah volume penyiraman", r.Title);
@@ -71,7 +71,7 @@ namespace Lahanku.Tests
         public void Dry_limit_follows_land_ideal_range()
         {
             // RH 55 is still above the default 45, but below the ideal minimum of 60
-            var r = _advisor.Calculate(MakeLand(60, 80), MakeWeather(tempText: 33, rh: 55), null, Morning);
+            var r = _advisor.Calculate(MakeLand(60, 80), MakeWeather(temp: 33, rh: 55), null, Morning);
             Assert.Equal(WateringDecision.WaterExtra, r.Decision);
         }
 
@@ -96,6 +96,21 @@ namespace Lahanku.Tests
         {
             var r = _advisor.Calculate(MakeLand(), MakeWeather(), null, Morning);
             Assert.Equal(4.5, r.RecommendedPerM2, 3);
+        }
+
+        [Fact]
+        public void Brief_is_a_short_one_liner_per_decision()
+        {
+            Assert.Equal("Hujan ±8 mm pukul 15.00",
+                _advisor.Calculate(MakeLand(), MakeWeather(), new RainForecast(8, 75, 15), Morning).Brief);
+            Assert.Equal("Sedang hujan ±5 mm",
+                _advisor.Calculate(MakeLand(), MakeWeather(rain: 5), null, Morning).Brief);
+            Assert.Equal("34°C, kelembapan 40%. Sebelum pukul 09.00",
+                _advisor.Calculate(MakeLand(), MakeWeather(temp: 34, rh: 40), null, Morning).Brief);
+            Assert.Equal("Cerah, 27°C. Setelah pukul 16.00",
+                _advisor.Calculate(MakeLand(), MakeWeather(), null, Afternoon).Brief);
+            Assert.Equal("Data cuaca tidak tersedia",
+                _advisor.Calculate(MakeLand(), null, null, Morning).Brief);
         }
 
         [Theory]

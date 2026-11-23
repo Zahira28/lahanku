@@ -27,14 +27,14 @@ namespace Lahanku.Services
                 return new Recommendation(WateringDecision.Water, baseline, baseline, areaM2,
                     "Siram dengan takaran standar",
                     "Data cuaca tidak tersedia, gunakan takaran standar.",
-                    TimingAdvice(now), forecastRain, probability);
+                    TimingAdvice(now), forecastRain, probability) { Brief = "Data cuaca tidak tersedia" };
             }
 
             if (weather.Rainfall >= RainThresholdMm)
             {
                 return Postpone(baseline, areaM2,
                     $"Sedang turun hujan sekitar {weather.Rainfall.ToString("0.#", Culture)} mm. Kelembapan tanah mencukupi sehingga penyiraman tidak diperlukan.",
-                    forecastRain, probability);
+                    forecastRain, probability) with { Brief = $"Sedang hujan ±{Mm(weather.Rainfall)} mm" };
             }
 
             if (forecast != null && forecast.TotalMm >= RainThresholdMm && forecast.MaxProbability >= ProbabilityThreshold)
@@ -42,7 +42,12 @@ namespace Lahanku.Services
                 string hour = forecast.StartHour.HasValue ? $" sekitar pukul {forecast.StartHour.Value:00}.00" : string.Empty;
                 return Postpone(baseline, areaM2,
                     $"Hujan sekitar {forecast.TotalMm.ToString("0.#", Culture)} mm diperkirakan turun{hour} (peluang {forecast.MaxProbability:0}%). Kelembapan tanah diperkirakan mencukupi sehingga penyiraman tidak diperlukan.",
-                    forecastRain, probability);
+                    forecastRain, probability) with
+                {
+                    Brief = forecast.StartHour.HasValue
+                        ? $"Hujan ±{Mm(forecast.TotalMm)} mm pukul {forecast.StartHour.Value:00}.00"
+                        : $"Hujan ±{Mm(forecast.TotalMm)} mm hari ini"
+                };
             }
 
             double tempFactor = weather.Temperature switch
@@ -70,13 +75,15 @@ namespace Lahanku.Services
                 return new Recommendation(WateringDecision.WaterExtra, volume, baseline, areaM2,
                     "Tambah volume penyiraman",
                     $"Suhu {tempText}°C dan kelembapan {weather.Humidity:0}% berada di bawah batas ideal, sehingga air lebih cepat menguap.",
-                    TimingAdvice(now), forecastRain, probability);
+                    TimingAdvice(now), forecastRain, probability)
+                { Brief = $"{tempText}°C, kelembapan {weather.Humidity:0}%. {ShortTiming(now)}" };
             }
 
             return new Recommendation(WateringDecision.Water, volume, baseline, areaM2,
                 "Siram sesuai kebutuhan normal",
                 $"Kondisi cuaca {weather.Condition.ToLowerInvariant()} dengan suhu {tempText}°C dan kelembapan {weather.Humidity:0}%.",
-                TimingAdvice(now), forecastRain, probability);
+                TimingAdvice(now), forecastRain, probability)
+            { Brief = $"{weather.Condition}, {tempText}°C. {ShortTiming(now)}" };
         }
 
         public DailyRecommendation CalculateRecommendation(Land land, Weather? weather)
@@ -95,6 +102,14 @@ namespace Lahanku.Services
 
         private static Recommendation Postpone(double baseline, double areaM2, string reason, double? forecastRain, double? probability) =>
             new(WateringDecision.Postpone, 0, baseline, areaM2, "Penyiraman ditunda", reason, string.Empty, forecastRain, probability);
+
+        private static string ShortTiming(DateTime now) =>
+            now.Hour < 9 ? "Sebelum pukul 09.00" : "Setelah pukul 16.00";
+
+        // brief uses Indonesian decimals (20,4) since it's shown as-is on the cards
+        private static string Mm(double value) => value.ToString("0.#", BriefCulture);
+
+        private static readonly CultureInfo BriefCulture = CultureInfo.GetCultureInfo("id-ID");
 
         private static string TimingAdvice(DateTime now) =>
             now.Hour < 9 ? "Lakukan sebelum pukul 09.00." : "Waktu terbaik setelah pukul 16.00.";
