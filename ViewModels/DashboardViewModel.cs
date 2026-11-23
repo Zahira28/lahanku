@@ -53,13 +53,9 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private bool _isSettingsView;
 
-        public string CurrentUserName => !string.IsNullOrWhiteSpace(_authService.CurrentUser?.FullName)
-            ? _authService.CurrentUser.FullName
-            : (!string.IsNullOrWhiteSpace(_authService.CurrentUser?.Username) ? _authService.CurrentUser.Username : "Petani");
+        public string CurrentUserName => _authService.CurrentUser?.DisplayName ?? "Petani";
 
-        public string CurrentUserUsername => !string.IsNullOrWhiteSpace(_authService.CurrentUser?.Username)
-            ? $"@{_authService.CurrentUser.Username}"
-            : "@petani";
+        public string CurrentUserUsername => _authService.CurrentUser?.Handle ?? "@petani";
 
         public DashboardViewModel(MainViewModel main, ILandService landService, IAuthService authService, IErrorHandler? errorHandler = null)
         {
@@ -120,7 +116,8 @@ namespace Lahanku.ViewModels
                     TotalArea = totalHa.ToString("0.##", CultureInfo.InvariantCulture);
 
                     var distinctCrops = Lands
-                        .SelectMany(l => (l.CropType ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                        .Select(l => l.TanamanId?.ToString() ?? l.CropType?.Trim().ToLowerInvariant())
+                        .Where(key => !string.IsNullOrEmpty(key))
                         .Distinct()
                         .Count();
 

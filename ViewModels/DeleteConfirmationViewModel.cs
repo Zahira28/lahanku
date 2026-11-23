@@ -32,7 +32,13 @@ namespace Lahanku.ViewModels
             IsDeleting = true;
             try
             {
-                await _landService.DeleteLandAsync(TargetLand.Id);
+                bool success = await _landService.DeleteLandAsync(TargetLand.Id);
+                if (!success)
+                {
+                    _main.ShowErrorToast("Lahan gagal dihapus. Periksa koneksi internet lalu coba lagi.", "Gagal Menghapus");
+                    return;
+                }
+
                 await _dashboard.LoadLandsAsync();
 
                 _main.CloseModal();

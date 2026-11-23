@@ -355,7 +355,13 @@ namespace Lahanku.ViewModels
                     _originalLand.Tanaman = matchedTanaman ?? _originalLand.Tanaman;
                     _originalLand.CropType = SelectedCropType;
 
-                    await _landService.UpdateLandAsync(_originalLand);
+                    bool success = await _landService.UpdateLandAsync(_originalLand);
+                    if (!success)
+                    {
+                        ErrorMessage = "Gagal menyimpan perubahan. Periksa koneksi internet lalu coba lagi.";
+                        return;
+                    }
+
                     await _dashboard.LoadLandsAsync();
 
                     _main.CloseModal();

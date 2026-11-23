@@ -29,6 +29,10 @@ namespace Lahanku.Models
         [Column("waktu_cek")]
         public DateTime WaktuCek { get; set; } = DateTime.UtcNow;
 
+        // kode WMO dari Open-Meteo, cuma buat nentuin ikon (nggak disimpan ke DB)
+        [JsonIgnore]
+        public int WeatherCode { get; set; }
+
         [JsonIgnore]
         public string RingkasanCuaca => $"{KondisiCuaca}, {Suhu:0.0}°C (Kelembapan {Kelembapan:0}%)";
     }

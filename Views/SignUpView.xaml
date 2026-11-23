@@ -178,15 +178,71 @@
                             </TextBlock.Style>
                         </TextBlock>
 
-                        <PasswordBox Grid.Column="1"
-                                     helpers:PasswordBoxHelper.BindPassword="True"
-                                     helpers:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <Grid Grid.Column="1" Margin="8,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <PasswordBox helpers:PasswordBoxHelper.BindPassword="True"
+                                         helpers:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         FontSize="13.5"
+                                         Foreground="{StaticResource TextPrimaryBrush}"
+                                         VerticalAlignment="Center">
+                                <PasswordBox.Style>
+                                    <Style TargetType="PasswordBox">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </PasswordBox.Style>
+                            </PasswordBox>
+
+                            <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
                                      FontSize="13.5"
                                      Foreground="{StaticResource TextPrimaryBrush}"
-                                     Margin="8,0,0,0"
-                                     VerticalAlignment="Center" />
+                                     VerticalAlignment="Center">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding TogglePasswordVisibilityCommand}"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Margin="4,0,-6,0"
+                                    VerticalAlignment="Center"
+                                    ToolTip="Tampilkan / sembunyikan password">
+                                <Path Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Fill="{StaticResource TextSecondaryBrush}">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Setter Property="Data" Value="{StaticResource EyePath}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                    <Setter Property="Data" Value="{StaticResource EyeOffPath}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Border>
 
@@ -239,15 +295,71 @@
                             </TextBlock.Style>
                         </TextBlock>
 
-                        <PasswordBox Grid.Column="1"
-                                     helpers:PasswordBoxHelper.BindPassword="True"
-                                     helpers:PasswordBoxHelper.BoundPassword="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <Grid Grid.Column="1" Margin="8,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <PasswordBox helpers:PasswordBoxHelper.BindPassword="True"
+                                         helpers:PasswordBoxHelper.BoundPassword="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         FontSize="13.5"
+                                         Foreground="{StaticResource TextPrimaryBrush}"
+                                         VerticalAlignment="Center">
+                                <PasswordBox.Style>
+                                    <Style TargetType="PasswordBox">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </PasswordBox.Style>
+                            </PasswordBox>
+
+                            <TextBox Text="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
                                      FontSize="13.5"
                                      Foreground="{StaticResource TextPrimaryBrush}"
-                                     Margin="8,0,0,0"
-                                     VerticalAlignment="Center" />
+                                     VerticalAlignment="Center">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding TogglePasswordVisibilityCommand}"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Margin="4,0,-6,0"
+                                    VerticalAlignment="Center"
+                                    ToolTip="Tampilkan / sembunyikan password">
+                                <Path Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Fill="{StaticResource TextSecondaryBrush}">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Setter Property="Data" Value="{StaticResource EyePath}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPasswordVisible}" Value="True">
+                                                    <Setter Property="Data" Value="{StaticResource EyeOffPath}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Border>
 
