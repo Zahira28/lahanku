@@ -6,10 +6,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Models;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
-    public partial class LandDetailViewModel : ViewModelBase, IDisposable
+    public partial class LandDetailViewModel : ViewModelBase, IDisposable, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly ILandService _landService;
@@ -43,7 +44,7 @@ namespace Lahanku.ViewModels
         private bool _isLoadingWeather = true;
 
         [ObservableProperty]
-        private string _weatherIcon = "⛅";
+        private string _weatherIcon = "partly";
 
         [ObservableProperty]
         private string _weatherTempText = "-- °C";
@@ -119,7 +120,7 @@ namespace Lahanku.ViewModels
                 }
                 else
                 {
-                    WeatherIcon = "🌐";
+                    WeatherIcon = "offline";
                     WeatherConditionText = "Data satelit offline (menggunakan estimasi)";
                 }
 
@@ -137,7 +138,7 @@ namespace Lahanku.ViewModels
             {
                 // cukup tampil di panel cuaca, nggak usah toast tiap auto-refresh 5 menit
                 System.Diagnostics.Debug.WriteLine($"[LandDetail] Error loading weather: {ex.Message}");
-                WeatherIcon = "🌐";
+                WeatherIcon = "offline";
                 WeatherConditionText = "Gagal memuat cuaca.";
             }
             finally
@@ -265,6 +266,25 @@ namespace Lahanku.ViewModels
         {
             _weatherAutoRefreshTimer.Stop();
             _weatherAutoRefreshTimer.Tick -= OnWeatherAutoRefreshTick;
+        }
+
+        // Ctrl+N siram lahan, F5 segarkan, Esc / Alt+Kiri balik ke dashboard
+        public bool HandleKey(Key key, ModifierKeys modifiers)
+        {
+            switch (key)
+            {
+                case Key.N when modifiers == ModifierKeys.Control:
+                    return OpenAddIrrigationModalCommand.TryRun();
+                case Key.F5:
+                    RefreshWeatherCommand.TryRun();
+                    LoadLogsCommand.TryRun();
+                    return true;
+                case Key.Escape:
+                case Key.Left when modifiers == ModifierKeys.Alt:
+                    return BackToDashboardCommand.TryRun();
+                default:
+                    return false;
+            }
         }
     }
 }

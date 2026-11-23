@@ -124,6 +124,7 @@
                         <TextBox x:Name="UsernameBox"
                                  Grid.Column="1"
                                  Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                 helpers:FocusHelper.FocusOnLoad="True"
                                  BorderThickness="0"
                                  Background="Transparent"
                                  FontSize="13.5"

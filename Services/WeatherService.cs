@@ -113,22 +113,22 @@ namespace Lahanku.Services
             }
         }
 
-        public (string Condition, string IconEmoji) GetWmoDescription(int weatherCode) => weatherCode switch
+        public (string Condition, string IconKey) GetWmoDescription(int weatherCode) => weatherCode switch
         {
-            0 => ("Cerah", "☀️"),
-            1 => ("Sebagian Cerah", "🌤️"),
-            2 => ("Sebagian Berawan", "⛅"),
-            3 => ("Mendung / Berawan", "☁️"),
-            45 or 48 => ("Berkabut", "🌫️"),
-            51 or 53 or 55 => ("Gerimis", "🌦️"),
-            56 or 57 => ("Gerimis Dingin", "🌦️"),
-            61 => ("Hujan Ringan", "🌧️"),
-            63 => ("Hujan Sedang", "🌧️"),
-            65 => ("Hujan Lebat", "🌧️"),
-            80 or 81 => ("Hujan Lokal", "🌦️"),
-            82 => ("Hujan Sangat Lebat", "⛈️"),
-            95 or 96 or 99 => ("Badai Petir", "⚡"),
-            _ => ("Cerah Berawan", "⛅")
+            0 => ("Cerah", "sun"),
+            1 => ("Sebagian Cerah", "partly"),
+            2 => ("Sebagian Berawan", "partly"),
+            3 => ("Mendung / Berawan", "cloudy"),
+            45 or 48 => ("Berkabut", "fog"),
+            51 or 53 or 55 => ("Gerimis", "drizzle"),
+            56 or 57 => ("Gerimis Dingin", "drizzle"),
+            61 => ("Hujan Ringan", "rain"),
+            63 => ("Hujan Sedang", "rain"),
+            65 => ("Hujan Lebat", "rain"),
+            80 or 81 => ("Hujan Lokal", "rain"),
+            82 => ("Hujan Sangat Lebat", "storm"),
+            95 or 96 or 99 => ("Badai Petir", "storm"),
+            _ => ("Cerah Berawan", "partly")
         };
     }
 }

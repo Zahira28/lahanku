@@ -204,8 +204,8 @@ namespace Lahanku.Views.Modals
         streetLayer.addTo(map);
 
         var baseLayers = {{
-            ""🗺️ Peta Jalan"": streetLayer,
-            ""🛰️ Foto Satelit"": satelliteLayer
+            ""Peta Jalan"": streetLayer,
+            ""Foto Satelit"": satelliteLayer
         }};
 
         L.control.layers(baseLayers, null, {{ position: 'topright' }}).addTo(map);

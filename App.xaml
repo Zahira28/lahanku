@@ -8,6 +8,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Styles/Colors.xaml" />
                 <ResourceDictionary Source="/Styles/Icons.xaml" />
+                <ResourceDictionary Source="/Styles/WeatherIcons.xaml" />
                 <ResourceDictionary Source="/Styles/ControlStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
@@ -16,7 +17,6 @@
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter" />
-            <converters:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter" />
-        </ResourceDictionary>
+            <converters:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter" />        </ResourceDictionary>
     </Application.Resources>
 </Application>

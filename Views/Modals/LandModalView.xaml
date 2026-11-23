@@ -37,6 +37,7 @@
                        FontWeight="SemiBold"
                        Margin="0,0,0,8" />
             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                     helpers:FocusHelper.FocusOnLoad="True"
                      Style="{StaticResource RoundedTextBoxStyle}"
                      helpers:PlaceholderHelper.Placeholder="Contoh: Sawah Sentosa Selatan"
                      Margin="0,0,0,18" />

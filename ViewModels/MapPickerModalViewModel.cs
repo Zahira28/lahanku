@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Lahanku.Services;
+using System.Windows.Input;
 
 namespace Lahanku.ViewModels
 {
-    public partial class MapPickerModalViewModel : ViewModelBase
+    public partial class MapPickerModalViewModel : ViewModelBase, IKeyboardShortcutHandler
     {
         private readonly MainViewModel _main;
         private readonly IGeocodingService _geocodingService;
@@ -187,5 +188,8 @@ namespace Lahanku.ViewModels
         {
             _main.CloseModal();
         }
+
+        public bool HandleKey(Key key, ModifierKeys modifiers) =>
+            key == Key.Enter && modifiers == ModifierKeys.None && ConfirmLocationCommand.TryRun();
     }
 }

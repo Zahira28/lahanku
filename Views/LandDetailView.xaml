@@ -156,12 +156,16 @@
         </Border>
 
         <!-- ================= MAIN CONTENT ================= -->
-        <ScrollViewer Grid.Column="1"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="40,32">
+        <!-- halaman nggak di-scroll; card riwayat ngisi sisa tinggi, daftarnya yang di-scroll di dalam card -->
+        <Grid Grid.Column="1" Margin="40,32">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 <!-- Back Button + Header Info -->
-                <Grid Margin="0,0,0,24">
+                <Grid Grid.Row="0" Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -170,7 +174,7 @@
                     <!-- Back Button -->
                     <Button Grid.Column="0"
                             Command="{Binding BackToDashboardCommand}"
-                            ToolTip="Kembali ke Ringkasan"
+                            ToolTip="Kembali ke Ringkasan (Esc)"
                             Background="#FFFFFF"
                             BorderBrush="#E2E8F0"
                             BorderThickness="1"
@@ -222,7 +226,7 @@
                 </Grid>
 
                 <!-- ================= CLIMATE-SMART WEATHER & IRRIGATION ADVISOR (OPEN-METEO & SDG 13) ================= -->
-                <Grid Margin="0,0,0,24">
+                <Grid Grid.Row="1" Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.2*" />
                         <ColumnDefinition Width="1.8*" />
@@ -280,7 +284,14 @@
                                 <!-- Header: Title + Refresh Button -->
                                 <Grid Grid.Row="0" Margin="0,0,0,12">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🛰️ SATELLITE WEATHER"
+                                        <Path Data="{StaticResource WeatherCloudGeometry}"
+                                              Fill="{StaticResource AccentEmeraldBrush}"
+                                              Width="14"
+                                              Height="14"
+                                              Stretch="Uniform"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,6,0" />
+                                        <TextBlock Text="SATELLITE WEATHER"
                                                    Foreground="{StaticResource AccentEmeraldBrush}"
                                                    FontSize="10.5"
                                                    FontWeight="Bold"
@@ -289,21 +300,23 @@
 
                                     <Button Command="{Binding RefreshWeatherCommand}"
                                             HorizontalAlignment="Right"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Cursor="Hand"
-                                            ToolTip="Segarkan Cuaca Satelit"
-                                            Padding="4">
-                                        <TextBlock Text="🔄" FontSize="13" />
+                                            Style="{StaticResource IconButtonStyle}"
+                                            ToolTip="Segarkan cuaca (F5)">
+                                        <TextBlock Text="&#xE72C;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
                                     </Button>
                                 </Grid>
 
                                 <!-- Weather Hero: Big Emoji + Temperature & Condition -->
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
-                                    <TextBlock Text="{Binding WeatherIcon}"
-                                               FontSize="38"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,14,0" />
+                                    <ContentControl Content="{Binding WeatherIcon}"
+                                                    Style="{StaticResource WeatherIconStyle}"
+                                                    Width="52"
+                                                    Height="52"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,14,0" />
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{Binding WeatherTempText}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -409,10 +422,20 @@
                                                 CornerRadius="6"
                                                 Padding="8,4"
                                                 Margin="0,0,10,0">
-                                            <TextBlock Text="🌱 SDG 13 • CLIMATE-SMART"
-                                                       Foreground="#065F46"
-                                                       FontSize="10"
-                                                       FontWeight="Bold" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="{StaticResource LeafPath}"
+                                                      Fill="#065F46"
+                                                      Width="10"
+                                                      Height="10"
+                                                      Stretch="Uniform"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,5,0" />
+                                                <TextBlock Text="SDG 13 • CLIMATE-SMART"
+                                                           Foreground="#065F46"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
                                         </Border>
                                         <TextBlock Text="{Binding AdviceStatus}"
                                                    Foreground="#047857"
@@ -461,7 +484,13 @@
                                                     CornerRadius="17"
                                                     Padding="{TemplateBinding Padding}">
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="💧" Margin="0,0,6,0" FontSize="11" />
+                                                    <Path Data="{StaticResource WaterDropPath}"
+                                                          Fill="#FFFFFF"
+                                                          Width="12"
+                                                          Height="12"
+                                                          Stretch="Uniform"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,6,0" />
                                                     <TextBlock Text="Siram Sesuai Anjuran"
                                                                FontWeight="SemiBold"
                                                                FontSize="12"
@@ -485,7 +514,7 @@
                 </Grid>
 
                 <!-- Sub-header Row: Tabs & "+ Siram Lahan" Button -->
-                <Grid Margin="0,0,0,20">
+                <Grid Grid.Row="2" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -511,6 +540,7 @@
                     <!-- + Siram Lahan Button -->
                     <Button Grid.Column="1"
                             Command="{Binding OpenAddIrrigationModalCommand}"
+                            ToolTip="Catat penyiraman (Ctrl+N)"
                             Style="{StaticResource EmeraldButtonStyle}"
                             Height="44"
                             Padding="22,0"
@@ -533,15 +563,47 @@
                 </Grid>
 
                 <!-- Table Card -->
-                <Border Background="{StaticResource CardBackgroundBrush}"
+                <Border Grid.Row="3" Background="{StaticResource CardBackgroundBrush}"
                         CornerRadius="16"
                         BorderBrush="#F1F5F9"
                         BorderThickness="1"
                         Padding="24,18"
                         Effect="{StaticResource CardShadow}">
-                    <StackPanel>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="VerticalAlignment" Value="Top" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasLogs}" Value="False" />
+                                        <Condition Binding="{Binding IsLoadingLogs}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="VerticalAlignment" Value="Stretch" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
                         <!-- Table Column Headers -->
                         <Grid Margin="12,8,12,14">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding HasLogs}" Value="False" />
+                                                <Condition Binding="{Binding IsLoadingLogs}" Value="False" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200" />
                                 <ColumnDefinition Width="150" />
@@ -578,7 +640,7 @@
 
                         <!-- ================= SKELETON STATE: LOGS ================= -->
                         <!-- Visible when IsLoadingLogs is True -->
-                        <StackPanel Visibility="{Binding IsLoadingLogs, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel Grid.Row="1" Visibility="{Binding IsLoadingLogs, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Border BorderBrush="#F8FAFC" BorderThickness="0,0,0,1" Padding="12,16">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -610,27 +672,89 @@
                         </StackPanel>
 
                         <!-- Rows (Empty State if no logs) -->
-                        <TextBlock Text="Belum ada riwayat penyiraman untuk lahan ini. Klik '+ Siram Lahan' untuk mencatat."
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   FontSize="13.5"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,24">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                        <!-- Empty state: isi sisa tinggi card kalau belum ada riwayat -->
+                        <Grid Grid.Row="2">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasLogs}" Value="False">
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding HasLogs}" Value="False" />
+                                                <Condition Binding="{Binding IsLoadingLogs}" Value="False" />
+                                            </MultiDataTrigger.Conditions>
                                             <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsLoadingLogs}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                            </Grid.Style>
+
+                            <!-- DownOnly: ngecil sendiri kalau jendelanya pendek, nggak pernah ngebesar -->
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,12">
+                                <Grid Width="112" Height="112" HorizontalAlignment="Center" Margin="0,0,0,22">
+                                    <Ellipse Fill="#F0FDF4" />
+                                    <Border Width="80" Height="80"
+                                            CornerRadius="40"
+                                            Background="{StaticResource MintBgBrush}">
+                                        <Path Data="{StaticResource WaterDropPath}"
+                                              Fill="{StaticResource AccentEmeraldBrush}"
+                                              Width="34" Height="34"
+                                              Stretch="Uniform"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                                    </Border>
+                                </Grid>
+
+                                <TextBlock Text="Belum ada riwayat penyiraman"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           FontSize="19"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,8" />
+
+                                <TextBlock Text="Catat penyiraman pertama untuk mulai memantau pemakaian air di lahan ini."
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           FontSize="13.5"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           MaxWidth="360"
+                                           Margin="0,0,0,24" />
+
+                                <Button Command="{Binding OpenAddIrrigationModalCommand}"
+                                        ToolTip="Catat penyiraman (Ctrl+N)"
+                                        Style="{StaticResource OutlineGreenButtonStyle}"
+                                        HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource PlusPath}"
+                                              Fill="{StaticResource AccentEmeraldBrush}"
+                                              Width="13" Height="13"
+                                              Stretch="Uniform"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,8,0" />
+                                        <TextBlock Text="Catat Penyiraman Pertama"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="13.5"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+
+                                <TextBlock Text="atau tekan Ctrl+N"
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           FontSize="11.5"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,10,0,0" />
+                            </StackPanel>
+                            </Viewbox>
+                        </Grid>
 
                         <!-- Items List -->
+                        <!-- disembunyiin kalau kosong, kalau nggak dia nutupin tombol di empty state -->
+                        <ScrollViewer Grid.Row="2"
+                                      Visibility="{Binding HasLogs, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Style="{StaticResource SlimScrollViewerStyle}">
                         <ItemsControl ItemsSource="{Binding IrrigationLogs}">
                             <ItemsControl.Style>
                                 <Style TargetType="ItemsControl">
@@ -761,9 +885,9 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </Border>
-            </StackPanel>
-        </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>
