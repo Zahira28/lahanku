@@ -390,6 +390,12 @@ namespace Lahanku.ViewModels
 
             double areaInHectares = SelectedAreaUnit.Contains("m²") ? (rawArea / 10000.0) : rawArea;
 
+            if (areaInHectares > 1)
+            {
+                ErrorMessage = "LahanKu ditujukan untuk kebun dengan luas maksimal 1 ha (10.000 m²).";
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(SelectedCropType))
             {
                 ErrorMessage = "Silakan pilih jenis tanaman yang ditanam.";
