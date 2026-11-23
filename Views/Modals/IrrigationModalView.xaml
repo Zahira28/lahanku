@@ -58,10 +58,23 @@
                        FontSize="13"
                        FontWeight="SemiBold"
                        Margin="0,0,0,8" />
-            <TextBox Text="{Binding VolumeLitersText, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource RoundedTextBoxStyle}"
-                     helpers:PlaceholderHelper.SuffixText="LITER"
-                     Margin="0,0,0,18" />
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="145" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding VolumeValueText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource RoundedTextBoxStyle}"
+                         helpers:PlaceholderHelper.Placeholder="{Binding VolumePlaceholder}" />
+
+                <ComboBox Grid.Column="2"
+                          ItemsSource="{Binding VolumeUnitOptions}"
+                          SelectedItem="{Binding SelectedVolumeUnit}"
+                          Style="{StaticResource RoundedComboBoxStyle}" />
+            </Grid>
 
             <!-- Field: Catatan -->
             <TextBlock Text="Catatan"
@@ -71,7 +84,7 @@
                        Margin="0,0,0,8" />
             <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource RoundedMultilineTextBoxStyle}"
-                     helpers:PlaceholderHelper.Placeholder="Contoh: Kondisi tanah agak kering di lereng barat."
+                     helpers:PlaceholderHelper.Placeholder="{Binding NotesPlaceholder}"
                      Margin="0,0,0,20" />
 
             <!-- Error Message -->
@@ -91,8 +104,8 @@
                         Style="{StaticResource OutlineNeutralButtonStyle}"
                         Margin="0,0,12,0" />
 
-                <Button Content="Simpan"
-                        Command="{Binding SaveAsyncCommand}"
+                <Button Content="{Binding SubmitButtonText}"
+                        Command="{Binding SaveCommand}"
                         Style="{StaticResource EmeraldButtonStyle}" />
             </StackPanel>
         </StackPanel>

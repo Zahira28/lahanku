@@ -20,6 +20,8 @@ namespace Lahanku.Views
                 btn.ContextMenu.PlacementTarget = btn;
                 btn.ContextMenu.DataContext = btn.DataContext;
                 btn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                btn.ContextMenu.HorizontalOffset = -115;
+                btn.ContextMenu.VerticalOffset = 6;
                 btn.ContextMenu.IsOpen = true;
                 e.Handled = true;
             }

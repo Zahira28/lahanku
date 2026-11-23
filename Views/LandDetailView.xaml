@@ -167,6 +167,269 @@
                     </StackPanel>
                 </Grid>
 
+                <!-- ================= CLIMATE-SMART WEATHER & IRRIGATION ADVISOR (OPEN-METEO & SDG 13) ================= -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="1.8*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- CARD 1: OPEN-METEO SATELLITE WEATHER (REAL-TIME) -->
+                    <Border Grid.Column="0"
+                            Background="{StaticResource CardBackgroundBrush}"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            CornerRadius="16"
+                            Padding="20"
+                            Margin="0,0,16,0"
+                            Effect="{StaticResource CardShadow}">
+                        <Grid>
+                            <!-- Skeleton State (Visible when IsLoadingWeather is True) -->
+                            <Grid Visibility="{Binding IsLoadingWeather, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Row="0" Margin="0,0,0,16">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="130" Height="13" CornerRadius="4" HorizontalAlignment="Left" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="24" Height="24" CornerRadius="12" HorizontalAlignment="Right" />
+                                </Grid>
+
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,18">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="40" Height="40" CornerRadius="20" Margin="0,0,14,0" />
+                                    <StackPanel VerticalAlignment="Center">
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="75" Height="22" CornerRadius="4" Margin="0,0,0,6" />
+                                        <Border Style="{StaticResource SkeletonBoxStyle}" Width="110" Height="12" CornerRadius="4" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource SkeletonBoxStyle}" Height="46" CornerRadius="10" Margin="0,0,6,0" />
+                                    <Border Grid.Column="1" Style="{StaticResource SkeletonBoxStyle}" Height="46" CornerRadius="10" Margin="6,0,0,0" />
+                                </Grid>
+                            </Grid>
+
+                            <!-- Real Content (Visible when IsLoadingWeather is False) -->
+                            <Grid Visibility="{Binding IsLoadingWeather, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Header: Title + Refresh Button -->
+                                <Grid Grid.Row="0" Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🛰️ SATELLITE WEATHER"
+                                                   Foreground="{StaticResource AccentEmeraldBrush}"
+                                                   FontSize="10.5"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <Button Command="{Binding RefreshWeatherCommand}"
+                                            HorizontalAlignment="Right"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            ToolTip="Segarkan Cuaca Satelit"
+                                            Padding="4">
+                                        <TextBlock Text="🔄" FontSize="13" />
+                                    </Button>
+                                </Grid>
+
+                                <!-- Weather Hero: Big Emoji + Temperature & Condition -->
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBlock Text="{Binding WeatherIcon}"
+                                               FontSize="38"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,14,0" />
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding WeatherTempText}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   FontSize="24"
+                                                   FontWeight="Bold" />
+                                        <TextBlock Text="{Binding WeatherConditionText}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="12.5"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Weather Detail Pills -->
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Humidity -->
+                                    <Border Grid.Column="0"
+                                            Background="#F8FAFC"
+                                            CornerRadius="10"
+                                            Padding="10,8"
+                                            Margin="0,0,6,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Kelembapan"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="10"
+                                                       FontWeight="Medium" />
+                                            <TextBlock Text="{Binding WeatherHumidityText}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       FontSize="13"
+                                                       FontWeight="Bold" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Curah Hujan -->
+                                    <Border Grid.Column="1"
+                                            Background="#F8FAFC"
+                                            CornerRadius="10"
+                                            Padding="10,8"
+                                            Margin="6,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Curah Hujan"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="10"
+                                                       FontWeight="Medium" />
+                                            <TextBlock Text="{Binding WeatherPrecipText}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       FontSize="13"
+                                                       FontWeight="Bold" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- CARD 2: CLIMATE-SMART IRRIGATION ADVISOR (SDG 13) -->
+                    <Border Grid.Column="1"
+                            Background="#F0FDF4"
+                            BorderBrush="#A7F3D0"
+                            BorderThickness="1.2"
+                            CornerRadius="16"
+                            Padding="20"
+                            Effect="{StaticResource CardShadow}">
+                        <Grid>
+                            <!-- Skeleton State (Visible when IsLoadingWeather is True) -->
+                            <Grid Visibility="{Binding IsLoadingWeather, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Row="0" Margin="0,0,0,14">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="150" Height="18" CornerRadius="6" HorizontalAlignment="Left" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="90" Height="18" CornerRadius="6" HorizontalAlignment="Right" />
+                                </Grid>
+
+                                <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Height="13" CornerRadius="4" Margin="0,0,0,6" />
+                                    <Border Style="{StaticResource SkeletonBoxStyle}" Width="280" Height="13" CornerRadius="4" HorizontalAlignment="Left" />
+                                </StackPanel>
+
+                                <Border Grid.Row="2" Style="{StaticResource SkeletonBoxStyle}" Width="160" Height="34" CornerRadius="17" HorizontalAlignment="Left" />
+                            </Grid>
+
+                            <!-- Real Content (Visible when IsLoadingWeather is False) -->
+                            <Grid Visibility="{Binding IsLoadingWeather, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Header: SDG 13 Badge & Volume -->
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Background="#D1FAE5"
+                                                CornerRadius="6"
+                                                Padding="8,4"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="🌱 SDG 13 • CLIMATE-SMART"
+                                                       Foreground="#065F46"
+                                                       FontSize="10"
+                                                       FontWeight="Bold" />
+                                        </Border>
+                                        <TextBlock Text="{Binding AdviceStatus}"
+                                                   Foreground="#047857"
+                                                   FontSize="11.5"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="Anjuran: "
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="11.5"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding AdviceVolumeText}"
+                                                   Foreground="{StaticResource PrimaryGreenBrush}"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Body: Advice Text -->
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding AdviceSaran}"
+                                           Foreground="#1F2937"
+                                           FontSize="12.5"
+                                           TextWrapping="Wrap"
+                                           LineHeight="18"
+                                           Margin="0,0,0,14" />
+
+                                <!-- Action: Apply Recommendation Button -->
+                                <Button Grid.Row="2"
+                                        Command="{Binding ApplyRecommendedIrrigationCommand}"
+                                        IsEnabled="{Binding CanApplyAdvice}"
+                                        HorizontalAlignment="Left"
+                                        Height="34"
+                                        Padding="14,0"
+                                        Background="{StaticResource AccentEmeraldBrush}"
+                                        Foreground="#FFFFFF"
+                                        BorderThickness="0"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="btnBdr"
+                                                    Background="{TemplateBinding Background}"
+                                                    CornerRadius="17"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="💧" Margin="0,0,6,0" FontSize="11" />
+                                                    <TextBlock Text="Siram Sesuai Anjuran"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="12"
+                                                               Foreground="#FFFFFF" />
+                                                </StackPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="btnBdr" Property="Background" Value="#047857" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="btnBdr" Property="Background" Value="#94A3B8" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
                 <!-- Sub-header Row: Tabs & "+ Siram Lahan" Button -->
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
@@ -226,9 +489,10 @@
                         <!-- Table Column Headers -->
                         <Grid Margin="12,8,12,14">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="220" />
-                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="150" />
                                 <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="90" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
@@ -248,14 +512,52 @@
                                        Foreground="{StaticResource TextSecondaryBrush}"
                                        FontSize="11"
                                        FontWeight="SemiBold" />
+
+                            <TextBlock Grid.Column="3"
+                                       Text="AKSI"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,0,8,0" />
                         </Grid>
 
-                        <!-- Divider Line -->
-                        <Border Height="1" Background="#F1F5F9" Margin="0,0,0,6" />
+                        <!-- ================= SKELETON STATE: LOGS ================= -->
+                        <!-- Visible when IsLoadingLogs is True -->
+                        <StackPanel Visibility="{Binding IsLoadingLogs, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Border BorderBrush="#F8FAFC" BorderThickness="0,0,0,1" Padding="12,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource SkeletonBoxStyle}" Width="150" Height="14" CornerRadius="4" HorizontalAlignment="Left" />
+                                    <Border Grid.Column="1" Style="{StaticResource SkeletonBoxStyle}" Width="85" Height="22" CornerRadius="8" HorizontalAlignment="Left" />
+                                    <Border Grid.Column="2" Style="{StaticResource SkeletonBoxStyle}" Width="200" Height="14" CornerRadius="4" HorizontalAlignment="Left" />
+                                    <Border Grid.Column="3" Style="{StaticResource SkeletonBoxStyle}" Width="65" Height="24" CornerRadius="6" HorizontalAlignment="Right" />
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="#F8FAFC" BorderThickness="0,0,0,1" Padding="12,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource SkeletonBoxStyle}" Width="130" Height="14" CornerRadius="4" HorizontalAlignment="Left" />
+                                    <Border Grid.Column="1" Style="{StaticResource SkeletonBoxStyle}" Width="90" Height="22" CornerRadius="8" HorizontalAlignment="Left" />
+                                    <Border Grid.Column="2" Style="{StaticResource SkeletonBoxStyle}" Width="160" Height="14" CornerRadius="4" HorizontalAlignment="Left" />
+                                    <Border Grid.Column="3" Style="{StaticResource SkeletonBoxStyle}" Width="65" Height="24" CornerRadius="6" HorizontalAlignment="Right" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
 
                         <!-- Rows (Empty State if no logs) -->
                         <TextBlock Text="Belum ada riwayat penyiraman untuk lahan ini. Klik '+ Siram Lahan' untuk mencatat."
-                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
                                    FontSize="13.5"
                                    HorizontalAlignment="Center"
                                    Margin="0,24">
@@ -266,6 +568,9 @@
                                         <DataTrigger Binding="{Binding HasLogs}" Value="False">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsLoadingLogs}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
@@ -273,24 +578,38 @@
 
                         <!-- Items List -->
                         <ItemsControl ItemsSource="{Binding IrrigationLogs}">
+                            <ItemsControl.Style>
+                                <Style TargetType="ItemsControl">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoadingLogs}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasLogs}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ItemsControl.Style>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderBrush="#F8FAFC"
                                             BorderThickness="0,0,0,1"
-                                            Padding="12,16">
+                                            Padding="12,14">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="220" />
-                                                <ColumnDefinition Width="160" />
+                                                <ColumnDefinition Width="200" />
+                                                <ColumnDefinition Width="150" />
                                                 <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="90" />
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Tanggal & Waktu -->
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding FormattedDate}"
                                                        Foreground="{StaticResource TextPrimaryBrush}"
-                                                       FontSize="14"
-                                                       FontWeight="Bold"
+                                                       FontSize="13.5"
+                                                       FontWeight="SemiBold"
                                                        VerticalAlignment="Center" />
 
                                             <!-- Volume Air Badge -->
@@ -302,7 +621,7 @@
                                                     VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding FormattedVolume}"
                                                            Foreground="{StaticResource MintTextBrush}"
-                                                           FontSize="12.5"
+                                                           FontSize="12"
                                                            FontWeight="SemiBold" />
                                             </Border>
 
@@ -310,9 +629,79 @@
                                             <TextBlock Grid.Column="2"
                                                        Text="{Binding Notes}"
                                                        Foreground="{StaticResource TextSecondaryBrush}"
-                                                       FontSize="13.5"
+                                                       FontSize="13"
                                                        TextTrimming="CharacterEllipsis"
-                                                       VerticalAlignment="Center" />
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,12,0" />
+
+                                            <!-- Aksi: Edit & Delete Buttons -->
+                                            <StackPanel Grid.Column="3"
+                                                        Orientation="Horizontal"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
+                                                <!-- Edit Button -->
+                                                <Button Command="{Binding DataContext.OpenEditIrrigationModalCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip="Edit catatan penyiraman"
+                                                        Width="30"
+                                                        Height="30"
+                                                        Margin="0,0,6,0"
+                                                        Background="#F1F5F9"
+                                                        BorderThickness="0"
+                                                        Cursor="Hand">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="btnBdr"
+                                                                    Background="{TemplateBinding Background}"
+                                                                    CornerRadius="8">
+                                                                <Path Data="{StaticResource PencilPath}"
+                                                                      Fill="#475569"
+                                                                      Width="13"
+                                                                      Height="13"
+                                                                      Stretch="Uniform"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="btnBdr" Property="Background" Value="#E2E8F0" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+
+                                                <!-- Delete Button -->
+                                                <Button Command="{Binding DataContext.OpenDeleteIrrigationModalCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip="Hapus catatan penyiraman"
+                                                        Width="30"
+                                                        Height="30"
+                                                        Background="#FEF2F2"
+                                                        BorderThickness="0"
+                                                        Cursor="Hand">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="btnBdr"
+                                                                    Background="{TemplateBinding Background}"
+                                                                    CornerRadius="8">
+                                                                <Path Data="{StaticResource TrashPath}"
+                                                                      Fill="{StaticResource DangerRedBrush}"
+                                                                      Width="13"
+                                                                      Height="13"
+                                                                      Stretch="Uniform"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="btnBdr" Property="Background" Value="#FEE2E2" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

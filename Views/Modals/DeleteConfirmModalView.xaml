@@ -71,7 +71,7 @@
                         Margin="0,0,12,0" />
 
                 <Button Content="Hapus Lahan"
-                        Command="{Binding ConfirmDeleteAsyncCommand}"
+                        Command="{Binding ConfirmDeleteCommand}"
                         Style="{StaticResource DangerButtonStyle}" />
             </StackPanel>
         </StackPanel>

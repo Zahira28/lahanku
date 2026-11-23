@@ -251,18 +251,33 @@
                     </Grid>
                 </Border>
 
-                <!-- Error Message -->
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{StaticResource DangerRedBrush}"
-                           FontSize="12.5"
-                           HorizontalAlignment="Center"
-                           TextWrapping="Wrap"
-                           Margin="0,0,0,16"
-                           Visibility="{Binding ErrorMessage, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Inverse}" />
+                <!-- Error Message Alert Badge -->
+                <Border Visibility="{Binding ErrorMessage, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Inverse}"
+                        Background="#FEE2E2"
+                        BorderBrush="#FECACA"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="14,9"
+                        Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Path Data="{StaticResource AlertCirclePath}"
+                              Fill="#DC2626"
+                              Width="14" Height="14"
+                              Stretch="Uniform"
+                              VerticalAlignment="Center"
+                              Margin="0,0,8,0" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Foreground="#991B1B"
+                                   FontSize="12.5"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
 
                 <!-- Submit Button -->
                 <Button Content="Daftar"
-                        Command="{Binding SignUpAsyncCommand}"
+                        Command="{Binding SignUpCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="0,0,0,18" />
 

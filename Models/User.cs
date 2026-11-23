@@ -1,13 +1,25 @@
 using System;
+using Supabase.Postgrest.Attributes;
+using Supabase.Postgrest.Models;
 
 namespace Lahanku.Models
 {
-    public class User
+    [Table("users")]
+    public class User : BaseModel
     {
-        public int Id { get; set; }
+        [PrimaryKey("id_user", false)]
+        public long Id { get; set; }
+
+        [Column("username")]
         public string Username { get; set; } = string.Empty;
+
+        [Column("password")]
         public string Password { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
+
+        [Column("full_name")]
+        public string? FullName { get; set; }
+
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

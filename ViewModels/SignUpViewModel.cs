@@ -5,6 +5,9 @@ using Lahanku.Services;
 
 namespace Lahanku.ViewModels
 {
+    /// <summary>
+    /// ViewModel untuk pendaftaran akun pengguna baru (SRP & DIP).
+    /// </summary>
     public partial class SignUpViewModel : ViewModelBase
     {
         private readonly MainViewModel _main;
@@ -39,18 +42,21 @@ namespace Lahanku.ViewModels
             if (string.IsNullOrWhiteSpace(Username))
             {
                 ErrorMessage = "Silakan isi username.";
+                _main.ShowWarningToast("Username tidak boleh kosong.", "Validasi");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "Silakan isi password.";
+                _main.ShowWarningToast("Password tidak boleh kosong.", "Validasi");
                 return;
             }
 
             if (Password != ConfirmPassword)
             {
                 ErrorMessage = "Konfirmasi password tidak cocok.";
+                _main.ShowWarningToast("Konfirmasi password tidak cocok.", "Validasi");
                 return;
             }
 
@@ -60,12 +66,13 @@ namespace Lahanku.ViewModels
                 var (success, message) = await _authService.RegisterAsync(Username, Password);
                 if (success)
                 {
-                    _main.ShowToast("Akun berhasil didaftarkan!");
+                    _main.ShowSuccessToast("Akun berhasil didaftarkan!", "Registrasi Berhasil");
                     _main.NavigateToDashboard();
                 }
                 else
                 {
                     ErrorMessage = message;
+                    _main.ShowErrorToast(message, "Gagal Mendaftar");
                 }
             }
             finally
