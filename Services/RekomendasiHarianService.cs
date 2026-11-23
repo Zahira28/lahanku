@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lahanku.Helpers;
@@ -54,6 +55,27 @@ namespace Lahanku.Services
                 // gagal simpan nggak boleh ganggu tampilan rekomendasi
                 System.Diagnostics.Debug.WriteLine($"[RekomendasiHarian] Gagal simpan: {ex}");
                 return null;
+            }
+        }
+
+        public async Task<List<EvaluasiIrigasi>> GetRiwayatAsync(long landId, DateTime dari, DateTime sampai)
+        {
+            try
+            {
+                var client = await SupabaseConfig.GetClientAsync();
+                var response = await client
+                    .From<EvaluasiIrigasi>()
+                    .Filter("id_lahan", Operator.Equals, landId.ToString())
+                    .Filter("tanggal", Operator.GreaterThanOrEqual, dari.Date.ToString("yyyy-MM-dd"))
+                    .Filter("tanggal", Operator.LessThanOrEqual, sampai.Date.ToString("yyyy-MM-dd"))
+                    .Order("tanggal", Ordering.Descending)
+                    .Get();
+                return response.Models;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[RekomendasiHarian] Gagal ambil riwayat: {ex}");
+                return new List<EvaluasiIrigasi>();
             }
         }
 

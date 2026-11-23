@@ -17,6 +17,7 @@ namespace Lahanku.ViewModels
         private readonly IWeatherService _weatherService;
         private readonly IIrrigationAdvisorService _advisorService;
         private readonly IRekomendasiHarianService _rekomendasiHarian;
+        private readonly IRencanaHarianService _rencanaHarian;
         private readonly DispatcherTimer _weatherAutoRefreshTimer;
 
         [ObservableProperty]
@@ -93,6 +94,7 @@ namespace Lahanku.ViewModels
             _weatherService = weatherService ?? new WeatherService();
             _advisorService = advisorService ?? new IrrigationAdvisorService();
             _rekomendasiHarian = new RekomendasiHarianService(landService);
+            _rencanaHarian = new RencanaHarianService(_weatherService, _advisorService, _rekomendasiHarian);
 
             _weatherAutoRefreshTimer = new DispatcherTimer
             {
@@ -116,8 +118,9 @@ namespace Lahanku.ViewModels
             IsLoadingWeather = true;
             try
             {
-                // Ambil data cuaca satelit real-time berdasarkan koordinat lahan
-                CurrentWeather = await _weatherService.GetCurrentWeatherAsync(Land.Latitude, Land.Longitude, Land.Id);
+                // cuaca + prakiraan + rekomendasi + simpan catatan harian, sekaligus
+                var rencana = await _rencanaHarian.HitungAsync(Land, DateTime.Now);
+                CurrentWeather = rencana.Cuaca;
 
                 if (CurrentWeather != null)
                 {
@@ -136,9 +139,7 @@ namespace Lahanku.ViewModels
                     WeatherConditionText = "Data satelit offline (menggunakan estimasi)";
                 }
 
-                // rekomendasi hari ini: cuaca sekarang + prakiraan hujan 24 jam
-                var prakiraan = await _weatherService.GetPrakiraanHujanAsync(Land.Latitude, Land.Longitude);
-                RekomendasiHariIni = _advisorService.Hitung(Land, CurrentWeather, prakiraan, DateTime.Now);
+                RekomendasiHariIni = rencana.Rekomendasi;
 
                 AdviceStatus = RekomendasiHariIni.Judul;
                 AdviceSaran = string.IsNullOrEmpty(RekomendasiHariIni.SaranWaktu)
@@ -146,8 +147,6 @@ namespace Lahanku.ViewModels
                     : $"{RekomendasiHariIni.Alasan} {RekomendasiHariIni.SaranWaktu}";
                 AdviceVolumeText = $"{RekomendasiHariIni.VolumeAnjuran:N0} Liter";
                 CanApplyAdvice = RekomendasiHariIni.VolumeAnjuran > 0;
-
-                await _rekomendasiHarian.SimpanAsync(Land, RekomendasiHariIni, DateTime.Now);
             }
             catch (Exception ex)
             {
