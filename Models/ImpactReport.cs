@@ -55,8 +55,10 @@ namespace Lahanku.Models
                 })
                 .ToList();
 
-            var postponed = rows.Where(x => x.Decision == WateringDecision.Postpone).ToList();
-            var others = rows.Where(x => x.Decision != WateringDecision.Postpone).ToList();
+            // only postponements that were actually followed count as "saved by rain";
+            // watering anyway on a postponed day lands in the adjustment bucket
+            var postponed = rows.Where(x => x.Decision == WateringDecision.Postpone && x.Used <= 0).ToList();
+            var others = rows.Except(postponed).ToList();
 
             var daily = rows
                 .GroupBy(x => x.Record.Date.Date)

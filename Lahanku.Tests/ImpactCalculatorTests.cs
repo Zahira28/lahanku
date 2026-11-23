@@ -48,6 +48,20 @@ namespace Lahanku.Tests
         }
 
         [Fact]
+        public void Watering_on_a_postponed_day_is_not_counted_as_postponed_savings()
+        {
+            // brokoli followed the postponement, teknik watered anyway
+            var r = ImpactCalculator.Calculate(
+                new[] { Land1, Land2 },
+                new[] { Record(1, Day1, "tunda", 0, 96), Record(2, Day1, "tunda", 0, 40) },
+                new[] { Log(2, Day1, 250) });
+            Assert.Equal(1, r.PostponedDays);
+            Assert.Equal(96, r.PostponedSaved);
+            Assert.Equal(-210, r.AdjustmentSaved);
+            Assert.Equal(-114, r.Saved);
+        }
+
+        [Fact]
         public void On_target_counts_postponed_and_matching_days()
         {
             var r = Sample();

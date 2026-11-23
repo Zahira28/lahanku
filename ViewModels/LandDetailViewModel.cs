@@ -240,34 +240,11 @@ namespace Lahanku.ViewModels
         private static string Liters(double value) =>
             value.ToString("#,0", System.Globalization.CultureInfo.GetCultureInfo("id-ID")) + " L";
 
-        public string CurrentUserName => _main.AuthService.CurrentUser?.DisplayName ?? "Petani";
-
-        public string CurrentUserUsername => _main.AuthService.CurrentUser?.Handle ?? "@petani";
-
         [RelayCommand]
         private void BackToDashboard()
         {
             Dispose();
             _main.NavigateToDashboard();
-        }
-
-        [RelayCommand]
-        private void OpenSettings()
-        {
-            Dispose();
-            _main.NavigateToDashboard();
-            if (_main.CurrentView is DashboardViewModel dashboard)
-            {
-                dashboard.SelectNavCommand.Execute("Pengaturan");
-            }
-        }
-
-        [RelayCommand]
-        private async Task LogoutAsync()
-        {
-            Dispose();
-            await _main.AuthService.LogoutAsync();
-            _main.NavigateToLogin();
         }
 
         [RelayCommand]

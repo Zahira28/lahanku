@@ -124,16 +124,70 @@ namespace Lahanku.ViewModels
 
         public void NavigateToDashboard()
         {
-            if (CurrentView is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
+            LeaveCurrentView();
             CurrentView = new DashboardViewModel(this, LandService, AuthService, ErrorHandler);
         }
 
         public void NavigateToLandDetail(Land land)
         {
             CurrentView = new LandDetailViewModel(this, LandService, land);
+        }
+
+        public void NavigateToImpact()
+        {
+            LeaveCurrentView();
+            CurrentView = new ImpactViewModel(this, LandService, AuthService);
+        }
+
+        private void LeaveCurrentView()
+        {
+            if (CurrentView is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+
+        // shared sidebar (Controls/Sidebar) binds to these
+        public string CurrentUserName => AuthService.CurrentUser?.DisplayName ?? "Petani";
+
+        public string CurrentUserUsername => AuthService.CurrentUser?.Handle ?? "@petani";
+
+        [RelayCommand]
+        private void GoToDashboard()
+        {
+            if (CurrentView is DashboardViewModel dashboard)
+            {
+                dashboard.SelectNavCommand.Execute("Ringkasan");
+                return;
+            }
+            NavigateToDashboard();
+        }
+
+        [RelayCommand]
+        private void GoToImpact()
+        {
+            if (CurrentView is not ImpactViewModel)
+            {
+                NavigateToImpact();
+            }
+        }
+
+        [RelayCommand]
+        private void GoToSettings()
+        {
+            if (CurrentView is not DashboardViewModel)
+            {
+                NavigateToDashboard();
+            }
+            (CurrentView as DashboardViewModel)?.SelectNavCommand.Execute("Pengaturan");
+        }
+
+        [RelayCommand]
+        private async Task LogoutAsync()
+        {
+            LeaveCurrentView();
+            await AuthService.LogoutAsync();
+            NavigateToLogin();
         }
 
         private readonly Stack<ViewModelBase> _modalStack = new();
