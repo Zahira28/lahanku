@@ -52,7 +52,7 @@ namespace Lahanku.Services
             catch (Exception ex)
             {
                 // gagal simpan nggak boleh ganggu tampilan rekomendasi
-                System.Diagnostics.Debug.WriteLine($"[RekomendasiHarian] Gagal simpan: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[RekomendasiHarian] Gagal simpan: {ex}");
                 return null;
             }
         }
