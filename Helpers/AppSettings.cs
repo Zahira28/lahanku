@@ -67,7 +67,30 @@ namespace Lahanku.Helpers
                 }
             }
 
-            return null;
+            return LoadEmbedded();
         }
+
+        // no file next to the .exe: use the copy baked in at build time (single-file exe)
+        private static JsonDocument? LoadEmbedded()
+        {
+            try
+            {
+                using var stream = typeof(AppSettings).Assembly.GetManifestResourceStream(EmbeddedName);
+                if (stream == null)
+                {
+                    return null;
+                }
+                var document = JsonDocument.Parse(stream);
+                LoadedFilePath = "(embedded)";
+                return document;
+            }
+            catch (JsonException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AppSettings] embedded config is not valid JSON: {ex.Message}");
+                return null;
+            }
+        }
+
+        private const string EmbeddedName = "Lahanku.appsettings.json";
     }
 }

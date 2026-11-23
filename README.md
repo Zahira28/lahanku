@@ -133,12 +133,9 @@ dotnet run
 dotnet publish -c Release -r win-x64 -o publish
 ```
 
-Hasilnya berada di folder `publish/`:
+Hasilnya adalah satu file `publish/Lahanku.exe` yang sudah membawa .NET dan konfigurasi dari `appsettings.json`, sehingga dapat langsung dijalankan di komputer lain tanpa file tambahan.
 
-- `Lahanku.exe`: satu file yang sudah membawa .NET, jadi dapat dijalankan di komputer tanpa .NET terpasang;
-- `appsettings.json`: konfigurasi Supabase yang disalin dari root proyek.
-
-Bagikan keduanya dalam satu folder. `Lahanku.exe` membaca `appsettings.json` yang berada di sebelahnya, sehingga kredensial dapat diganti tanpa build ulang.
+Untuk memakai kredensial lain tanpa build ulang, letakkan `appsettings.json` baru di sebelah `Lahanku.exe`; file tersebut akan diprioritaskan di atas konfigurasi bawaan. Karena kredensial ikut tersimpan di dalam `.exe`, bagikan file ini hanya kepada pihak yang dipercaya.
 
 ## Setup Database
 

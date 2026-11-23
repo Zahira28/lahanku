@@ -29,10 +29,11 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <!-- stays next to the .exe so the keys can be changed without rebuilding -->
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <!-- the published .exe carries its own copy (below), so nothing else to ship -->
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+    <!-- baked into the .exe; a real appsettings.json next to the .exe still wins -->
+    <EmbeddedResource Include="appsettings.json" Condition="Exists('appsettings.json')" LogicalName="Lahanku.appsettings.json" />
   </ItemGroup>
 
   <!-- folder tes punya project sendiri -->
