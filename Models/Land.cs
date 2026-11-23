@@ -34,8 +34,29 @@ namespace Lahanku.Models
         [Column("luas_hektar")]
         public double AreaHectares { get; set; }
 
+        // kelembapan udara ideal (%), kosong = pakai default dari katalog tanaman
+        [Column("kelembapan_min")]
+        public double? MinMoisture { get; set; }
+
+        [Column("kelembapan_max")]
+        public double? MaxMoisture { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [JsonIgnore]
+        public double? IdealMoistureMin => MinMoisture ?? (Tanaman != null ? Tanaman.KelembapanIdealMin : null);
+
+        [JsonIgnore]
+        public double? IdealMoistureMax => MaxMoisture ?? (Tanaman != null ? Tanaman.KelembapanIdealMax : null);
+
+        [JsonIgnore]
+        public bool HasIdealMoisture => IdealMoistureMin.HasValue && IdealMoistureMax.HasValue && IdealMoistureMax > 0;
+
+        [JsonIgnore]
+        public string MoistureRangeText => HasIdealMoisture
+            ? $"{IdealMoistureMin!.Value.ToString("0.##", CultureInfo.InvariantCulture)}–{IdealMoistureMax!.Value.ToString("0.##", CultureInfo.InvariantCulture)}%"
+            : "-";
 
         // Objek Tanaman yang ditanam di lahan ini (Relasi OOP)
         [JsonIgnore]
@@ -92,6 +113,8 @@ namespace Lahanku.Models
                 Latitude = this.Latitude,
                 Longitude = this.Longitude,
                 AreaHectares = this.AreaHectares,
+                MinMoisture = this.MinMoisture,
+                MaxMoisture = this.MaxMoisture,
                 Tanaman = this.Tanaman,
                 CropType = this.CropType,
                 CreatedAt = this.CreatedAt

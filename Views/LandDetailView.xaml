@@ -352,6 +352,38 @@
                                                        Foreground="{StaticResource TextPrimaryBrush}"
                                                        FontSize="13"
                                                        FontWeight="Bold" />
+
+                                            <!-- dibandingin sama kelembapan ideal lahan -->
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,3,0,0"
+                                                        Visibility="{Binding HumidityStatusText, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Inverse}">
+                                                <TextBlock Text="{Binding HumidityIdealText}"
+                                                           Foreground="{StaticResource TextMutedBrush}"
+                                                           FontSize="10"
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Text=" · "
+                                                           Foreground="{StaticResource TextMutedBrush}"
+                                                           FontSize="10"
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding HumidityStatusText}"
+                                                           FontSize="10"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#059669" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HumidityStatus}" Value="low">
+                                                                    <Setter Property="Foreground" Value="#D97706" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding HumidityStatus}" Value="high">
+                                                                    <Setter Property="Foreground" Value="#2563EB" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
 

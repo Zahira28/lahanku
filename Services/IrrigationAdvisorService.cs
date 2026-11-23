@@ -47,13 +47,12 @@ namespace Lahanku.Services
                     _ => 1.0
                 };
 
-                // Penyesuaian faktor kelembapan udara (%)
-                double humFactor = cuaca.Kelembapan switch
-                {
-                    <= 45.0 => 1.20,
-                    >= 80.0 => 0.85,
-                    _ => 1.0
-                };
+                // Penyesuaian faktor kelembapan udara (%), pakai rentang ideal lahan kalau ada
+                double dryLimit = land.HasIdealMoisture ? land.IdealMoistureMin!.Value : 45.0;
+                double wetLimit = land.HasIdealMoisture ? land.IdealMoistureMax!.Value : 80.0;
+                double humFactor = cuaca.Kelembapan <= dryLimit ? 1.20
+                    : cuaca.Kelembapan >= wetLimit ? 0.85
+                    : 1.0;
 
                 // Pengurangan dari curah hujan ringan jika ada
                 double rainDeduction = cuaca.CurahHujan * 0.8;

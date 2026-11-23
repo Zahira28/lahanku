@@ -116,6 +116,13 @@ namespace Lahanku.ViewModels
         [ObservableProperty]
         private string _selectedCropType = string.Empty;
 
+        // kelembapan udara ideal (%), otomatis keisi dari katalog waktu tanaman dipilih
+        [ObservableProperty]
+        private string _minMoistureText = string.Empty;
+
+        [ObservableProperty]
+        private string _maxMoistureText = string.Empty;
+
         [ObservableProperty]
         private string _cropSearchQuery = string.Empty;
 
@@ -154,6 +161,8 @@ namespace Lahanku.ViewModels
                 LatitudeText = landToEdit.Latitude.ToString("0.0000", CultureInfo.InvariantCulture);
                 LongitudeText = landToEdit.Longitude.ToString("0.0000", CultureInfo.InvariantCulture);
                 SelectedCropType = landToEdit.CropType;
+                MinMoistureText = FormatMoisture(landToEdit.IdealMoistureMin);
+                MaxMoistureText = FormatMoisture(landToEdit.IdealMoistureMax);
 
                 if (landToEdit.AreaHectares < 0.1 && landToEdit.AreaHectares > 0)
                 {
@@ -294,8 +303,60 @@ namespace Lahanku.ViewModels
             if (!string.IsNullOrWhiteSpace(crop))
             {
                 SelectedCropType = crop;
+
+                var tanaman = _availableTanaman.FirstOrDefault(t => t.DisplayName == crop);
+                if (tanaman != null && tanaman.KelembapanIdealMax > 0)
+                {
+                    MinMoistureText = FormatMoisture(tanaman.KelembapanIdealMin);
+                    MaxMoistureText = FormatMoisture(tanaman.KelembapanIdealMax);
+                }
             }
             IsCropDropdownOpen = false;
+        }
+
+        private static string FormatMoisture(double? value) =>
+            value.HasValue ? value.Value.ToString("0.##", CultureInfo.InvariantCulture) : string.Empty;
+
+        // kosong dua-duanya = ikut katalog tanaman
+        private bool TryParseMoisture(out double? min, out double? max)
+        {
+            min = null;
+            max = null;
+
+            bool minEmpty = string.IsNullOrWhiteSpace(MinMoistureText);
+            bool maxEmpty = string.IsNullOrWhiteSpace(MaxMoistureText);
+            if (minEmpty && maxEmpty)
+            {
+                return true;
+            }
+
+            if (minEmpty || maxEmpty)
+            {
+                ErrorMessage = "Isi kelembapan ideal minimal dan maksimal, atau kosongkan keduanya.";
+                return false;
+            }
+
+            if (!double.TryParse(MinMoistureText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedMin) || parsedMin < 0 || parsedMin > 100)
+            {
+                ErrorMessage = "Kelembapan ideal minimal harus berupa angka antara 0% dan 100%.";
+                return false;
+            }
+
+            if (!double.TryParse(MaxMoistureText.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedMax) || parsedMax < 0 || parsedMax > 100)
+            {
+                ErrorMessage = "Kelembapan ideal maksimal harus berupa angka antara 0% dan 100%.";
+                return false;
+            }
+
+            if (parsedMin > parsedMax)
+            {
+                ErrorMessage = "Kelembapan ideal minimal tidak boleh lebih besar dari kelembapan maksimal.";
+                return false;
+            }
+
+            min = parsedMin;
+            max = parsedMax;
+            return true;
         }
 
         [RelayCommand]
@@ -335,6 +396,11 @@ namespace Lahanku.ViewModels
                 return;
             }
 
+            if (!TryParseMoisture(out double? minMoisture, out double? maxMoisture))
+            {
+                return;
+            }
+
             // Cari ID Tanaman yang cocok dari pilihan katalog
             var matchedTanaman = _availableTanaman.FirstOrDefault(t => 
                 string.Equals(t.DisplayName, SelectedCropType, StringComparison.OrdinalIgnoreCase) ||
@@ -352,6 +418,8 @@ namespace Lahanku.ViewModels
                     _originalLand.Latitude = lat;
                     _originalLand.Longitude = lon;
                     _originalLand.AreaHectares = areaInHectares;
+                    _originalLand.MinMoisture = minMoisture;
+                    _originalLand.MaxMoisture = maxMoisture;
                     _originalLand.TanamanId = matchedTanaman?.IdTanaman ?? _originalLand.TanamanId;
                     _originalLand.Tanaman = matchedTanaman ?? _originalLand.Tanaman;
                     _originalLand.CropType = SelectedCropType;
@@ -380,6 +448,8 @@ namespace Lahanku.ViewModels
                         Latitude = lat,
                         Longitude = lon,
                         AreaHectares = areaInHectares,
+                        MinMoisture = minMoisture,
+                        MaxMoisture = maxMoisture,
                         CropType = SelectedCropType
                     };
 
